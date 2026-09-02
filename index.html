@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>ATS — рабочее пространство вакансии</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --line: #dde3ea;
+      --line-strong: #cbd3dd;
+      --text: #17212b;
+      --muted: #667382;
+      --subtle: #8a96a3;
+      --accent: #3768e5;
+      --accent-soft: #eaf0ff;
+      --accent-strong: #244db8;
+      --good: #23845c;
+      --good-soft: #e8f6f0;
+      --warn: #a76300;
+      --warn-soft: #fff2d7;
+      --danger: #c14444;
+      --danger-soft: #fff0f0;
+      --sidebar: #17253d;
+      --sidebar-muted: #9eacc1;
+      --shadow: 0 8px 30px rgba(23, 33, 43, .08);
+      --radius: 10px;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 980px; height: 100%; }
+    body { overflow: hidden; background: var(--bg); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 3px solid rgba(55, 104, 229, .25);
+      outline-offset: 1px;
+    }
+    [hidden] { display: none !important; }
+
+    .app { display: grid; grid-template-columns: 218px 1fr; height: 100vh; }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      color: white;
+      background: var(--sidebar);
+      border-right: 1px solid rgba(255,255,255,.06);
+    }
+    .brand { height: 62px; display: flex; align-items: center; gap: 10px; padding: 0 18px; font-weight: 700; }
+    .brand-mark {
+      display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px;
+      color: var(--sidebar); background: #b9f1dc; font-size: 14px; letter-spacing: -.5px;
+    }
+    .brand small { display: block; margin-top: 2px; color: var(--sidebar-muted); font-size: 10px; font-weight: 500; }
+    .nav { padding: 8px 10px; overflow: auto; }
+    .nav-label { margin: 16px 10px 7px; color: #74839a; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .nav-item {
+      width: 100%; min-height: 38px; display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border: 0; border-radius: 8px; color: #d7dfea; background: transparent; text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,.06); }
+    .nav-item.active { color: white; background: rgba(126, 164, 255, .18); }
+    .nav-icon { width: 20px; text-align: center; color: var(--sidebar-muted); }
+    .nav-item.active .nav-icon { color: #b8cbff; }
+    .nav-badge { margin-left: auto; min-width: 21px; padding: 2px 6px; border-radius: 9px; font-size: 11px; text-align: center; background: rgba(255,255,255,.1); }
+    .sidebar-bottom { margin-top: auto; padding: 12px 10px; border-top: 1px solid rgba(255,255,255,.08); }
+    .user-mini { display: flex; align-items: center; gap: 9px; padding: 7px 8px; }
+    .avatar { flex: none; display: grid; place-items: center; border-radius: 50%; font-weight: 700; }
+    .avatar.sm { width: 30px; height: 30px; color: #30506f; background: #d8eaf8; font-size: 11px; }
+    .avatar.lg { width: 48px; height: 48px; color: #2e5565; background: #d8eef0; font-size: 15px; }
+    .user-mini span { display: block; font-size: 12px; }
+    .user-mini small { color: var(--sidebar-muted); font-size: 10px; }
+
+    .main-shell { min-width: 0; display: grid; grid-template-rows: 62px 1fr; }
+    .topbar {
+      display: flex; align-items: center; gap: 14px; min-width: 0; padding: 0 18px;
+      background: var(--surface); border-bottom: 1px solid var(--line);
+    }
+    .search { position: relative; flex: 1; max-width: 480px; }
+    .search input { width: 100%; height: 36px; padding: 0 72px 0 35px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+    .search::before { content: "⌕"; position: absolute; left: 12px; top: 6px; color: var(--muted); font-size: 20px; }
+    .shortcut { position: absolute; right: 9px; top: 8px; color: var(--subtle); font-size: 11px; }
+    .prototype-controls { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .control-label { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; }
+    .control-label select { height: 32px; max-width: 155px; padding: 0 26px 0 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: white; }
+    .icon-button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: white; }
+    .assistant-button { min-width: 34px; padding: 0 10px; color: var(--accent-strong); border-color: #cbd7fa; background: var(--accent-soft); font-weight: 650; }
+
+    .workspace { position: relative; min-height: 0; display: grid; grid-template-rows: auto auto auto 1fr; overflow: hidden; }
+    .vacancy-head { display: flex; align-items: flex-start; gap: 18px; padding: 18px 22px 14px; background: white; }
+    .back { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--muted); }
+    .vacancy-title { min-width: 260px; flex: 1; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; color: var(--muted); font-size: 11px; }
+    .vacancy-title h1 { margin: 0; font-size: 21px; line-height: 1.25; letter-spacing: -.02em; }
+    .meta { display: flex; flex-wrap: wrap; gap: 7px 13px; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .meta span { display: inline-flex; align-items: center; gap: 5px; }
+    .status-pill, .pill {
+      display: inline-flex; align-items: center; gap: 5px; width: fit-content;
+      padding: 4px 8px; border-radius: 999px; font-size: 11px; font-weight: 650;
+    }
+    .status-pill { color: var(--good); background: var(--good-soft); }
+    .status-pill.paused { color: var(--warn); background: var(--warn-soft); }
+    .head-metrics { display: grid; grid-template-columns: repeat(3, minmax(110px, auto)); gap: 8px; }
+    .metric { min-height: 54px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); }
+    .metric strong { display: block; margin-bottom: 3px; font-size: 14px; }
+    .metric span { color: var(--muted); font-size: 10px; }
+    .metric.warn strong { color: var(--warn); }
+    .head-actions { display: flex; gap: 8px; }
+    .button { min-height: 34px; padding: 7px 12px; border: 1px solid var(--line-strong); border-radius: 8px; color: var(--text); background: white; font-weight: 600; font-size: 12px; }
+    .button:hover { border-color: #aeb8c4; background: #f9fafb; }
+    .button.primary { color: white; border-color: var(--accent); background: var(--accent); }
+    .button.primary:hover { background: var(--accent-strong); }
+    .button.ghost { border-color: transparent; background: transparent; color: var(--muted); }
+    .button.danger { color: var(--danger); border-color: #efc9c9; }
+    .button[disabled] { cursor: not-allowed; opacity: .48; }
+
+    .pause-banner { display: flex; align-items: center; gap: 10px; padding: 9px 22px; color: #7b4b06; background: var(--warn-soft); border-top: 1px solid #f0d9aa; border-bottom: 1px solid #f0d9aa; font-size: 12px; }
+    .pause-banner strong { color: #5f3900; }
+    .pause-banner .button { margin-left: auto; min-height: 28px; padding: 4px 9px; border-color: #d9b46d; background: #fff8e8; }
+
+    .pipeline-wrap { padding: 0 22px; background: white; border-bottom: 1px solid var(--line); }
+    .pipeline { display: flex; align-items: stretch; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: thin; }
+    .stage {
+      flex: 0 0 auto; min-width: 86px; height: 58px; display: grid; align-content: center; gap: 3px;
+      padding: 7px 10px; border: 0; border-bottom: 3px solid transparent; color: var(--muted); background: white; text-align: left;
+    }
+    .stage:hover { color: var(--text); background: var(--surface-soft); }
+    .stage.active { color: var(--accent-strong); border-color: var(--accent); background: #f8faff; }
+    .stage b { font-size: 12px; font-weight: 650; white-space: nowrap; }
+    .stage small { color: var(--subtle); font-size: 10px; }
+    .stage.legacy { margin-left: 8px; color: #7b5b2a; border-left: 1px dashed #cfa866; background: #fffaf0; }
+
+    .work-area { min-height: 0; display: grid; grid-template-columns: 350px minmax(560px, 1fr); }
+    .candidate-column { min-height: 0; display: grid; grid-template-rows: auto 1fr; background: var(--surface-soft); border-right: 1px solid var(--line); }
+    .list-toolbar { padding: 12px 13px 9px; background: white; border-bottom: 1px solid var(--line); }
+    .list-toolbar-top { display: flex; align-items: center; gap: 8px; }
+    .list-toolbar h2 { margin: 0; font-size: 14px; }
+    .count { color: var(--muted); font-size: 11px; }
+    .list-toolbar .icon-button { width: 30px; height: 30px; margin-left: auto; }
+    .list-filter { display: flex; gap: 7px; margin-top: 9px; }
+    .list-filter input { min-width: 0; flex: 1; height: 31px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-soft); font-size: 11px; }
+    .candidate-list { overflow-y: auto; padding: 7px; }
+    .candidate-row {
+      width: 100%; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 9px;
+      min-height: 88px; padding: 11px 10px; border: 1px solid transparent; border-radius: 9px;
+      color: var(--text); background: transparent; text-align: left;
+    }
+    .candidate-row:hover { background: white; border-color: var(--line); }
+    .candidate-row.selected { background: white; border-color: #b7c8f6; box-shadow: 0 3px 14px rgba(55,104,229,.08); }
+    .candidate-row .avatar { width: 38px; height: 38px; color: #30506f; background: #d8eaf8; font-size: 12px; }
+    .candidate-main { min-width: 0; }
+    .candidate-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 680; }
+    .candidate-role { display: block; overflow: hidden; margin-top: 3px; color: var(--muted); text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+    .row-meta { display: flex; align-items: center; gap: 5px; margin-top: 8px; color: var(--subtle); font-size: 10px; }
+    .row-meta .late { color: var(--danger); font-weight: 650; }
+    .score { min-width: 31px; padding: 4px 5px; border-radius: 6px; color: var(--good); background: var(--good-soft); font-size: 11px; font-weight: 750; text-align: center; }
+    .score.mid { color: var(--warn); background: var(--warn-soft); }
+    .score.error { color: var(--danger); background: var(--danger-soft); }
+    .attention-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
+
+    .candidate-card { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto auto 1fr; background: white; }
+    .candidate-header { display: flex; align-items: flex-start; gap: 12px; padding: 15px 18px 12px; border-bottom: 1px solid var(--line); }
+    .candidate-title { min-width: 0; flex: 1; }
+    .candidate-title h2 { margin: 1px 0 4px; font-size: 18px; letter-spacing: -.015em; }
+    .candidate-title p { margin: 0; color: var(--muted); font-size: 11px; }
+    .candidate-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+    .pill { padding: 3px 7px; color: #445263; background: #eef2f5; font-weight: 600; }
+    .pill.blue { color: var(--accent-strong); background: var(--accent-soft); }
+    .pill.orange { color: var(--warn); background: var(--warn-soft); }
+    .pill.red { color: var(--danger); background: var(--danger-soft); }
+    .candidate-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; max-width: 340px; }
+    .manager-hint { max-width: 250px; padding: 7px 9px; color: var(--muted); background: var(--surface-soft); border-radius: 7px; font-size: 10px; }
+    .tabs { display: flex; gap: 2px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+    .tab { height: 42px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; color: var(--muted); background: white; font-size: 12px; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--accent-strong); border-color: var(--accent); font-weight: 650; }
+    .tab .tab-count { margin-left: 4px; color: var(--subtle); }
+    .card-scroll { overflow-y: auto; padding: 16px 18px 34px; background: #fbfcfd; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(245px, .8fr); gap: 12px; align-items: start; }
+    .stack { display: grid; gap: 12px; }
+    .card-section { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
+    .section-title { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+    .section-title h3 { margin: 0; font-size: 13px; }
+    .section-title small { margin-left: auto; color: var(--muted); font-size: 10px; }
+    .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+    .field label { display: block; margin-bottom: 3px; color: var(--subtle); font-size: 10px; }
+    .field strong, .field span { display: block; font-size: 12px; line-height: 1.35; }
+    .salary-value { color: #214e3b; font-size: 15px !important; }
+    .locked-field { display: flex; align-items: center; gap: 7px; min-height: 34px; padding: 7px 9px; border: 1px dashed var(--line-strong); border-radius: 7px; color: var(--muted); background: var(--surface-soft); font-size: 11px; }
+    .summary-text { margin: 0; color: #394655; font-size: 12px; line-height: 1.55; }
+    .comment-box textarea { width: 100%; min-height: 72px; resize: vertical; padding: 9px; border: 1px solid var(--line); border-radius: 8px; }
+    .comment-footer { display: flex; align-items: center; margin-top: 8px; }
+    .comment-footer small { color: var(--subtle); font-size: 10px; }
+    .comment-footer .button { margin-left: auto; }
+    .item-list { display: grid; gap: 8px; }
+    .info-item { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: start; padding: 9px; border-radius: 8px; background: var(--surface-soft); }
+    .info-icon { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 7px; color: var(--accent-strong); background: var(--accent-soft); font-size: 13px; }
+    .info-item strong { display: block; margin-top: 1px; font-size: 11px; }
+    .info-item small { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .info-item time { color: var(--muted); font-size: 10px; white-space: nowrap; }
+
+    .resume-head { display: flex; gap: 12px; align-items: flex-start; }
+    .resume-head h3 { margin: 0 0 5px; font-size: 14px; }
+    .resume-head p { margin: 0; color: var(--muted); font-size: 11px; }
+    .resume-head .button { margin-left: auto; }
+    .version-strip { display: flex; flex-wrap: wrap; gap: 7px; margin: 13px 0; }
+    .version-chip { padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); background: white; font-size: 10px; }
+    .version-chip.current { color: var(--accent-strong); border-color: #b9caf8; background: var(--accent-soft); }
+    .resume-body { padding-top: 12px; border-top: 1px solid var(--line); }
+    .resume-body h4 { margin: 13px 0 6px; font-size: 12px; }
+    .resume-body p, .resume-body li { color: #3f4c5a; font-size: 11px; line-height: 1.55; }
+    .resume-body ul { margin: 5px 0; padding-left: 18px; }
+    mark { padding: 1px 2px; color: inherit; background: #fff0af; }
+
+    .ai-hero { display: grid; grid-template-columns: 112px 1fr; gap: 15px; }
+    .score-ring { width: 104px; height: 104px; display: grid; place-items: center; border-radius: 50%; background: conic-gradient(var(--good) 0 87%, #e7ebef 87% 100%); }
+    .score-ring > div { width: 80px; height: 80px; display: grid; place-items: center; border-radius: 50%; background: white; text-align: center; }
+    .score-ring strong { display: block; font-size: 25px; line-height: 1; }
+    .score-ring small { color: var(--muted); font-size: 9px; }
+    .ai-summary h3 { margin: 0 0 6px; font-size: 14px; }
+    .ai-summary p { margin: 0; color: #3f4c5a; font-size: 11px; line-height: 1.5; }
+    .ai-note { margin-top: 9px; padding: 8px 10px; border-radius: 7px; color: #506077; background: var(--accent-soft); font-size: 10px; }
+    .criteria { margin-top: 13px; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+    .criterion { display: grid; grid-template-columns: 22px minmax(150px, .8fr) 80px minmax(200px, 1.2fr); gap: 8px; align-items: center; padding: 10px 11px; border-bottom: 1px solid var(--line); font-size: 11px; }
+    .criterion:last-child { border-bottom: 0; }
+    .criterion .ok { color: var(--good); font-weight: 800; }
+    .criterion .no { color: var(--danger); font-weight: 800; }
+    .criterion .maybe { color: var(--warn); font-weight: 800; }
+    .criterion small { color: var(--muted); line-height: 1.35; }
+
+    .timeline { position: relative; display: grid; gap: 0; }
+    .timeline::before { content: ""; position: absolute; left: 14px; top: 10px; bottom: 15px; width: 1px; background: var(--line); }
+    .event { position: relative; display: grid; grid-template-columns: 29px 1fr auto; gap: 10px; padding: 7px 0 15px; }
+    .event-dot { z-index: 1; width: 29px; height: 29px; display: grid; place-items: center; border: 4px solid white; border-radius: 50%; color: var(--accent-strong); background: var(--accent-soft); font-size: 10px; }
+    .event strong { display: block; margin-top: 3px; font-size: 11px; }
+    .event p { margin: 4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .event time { margin-top: 4px; color: var(--subtle); font-size: 9px; }
+
+    .feedback-grid { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap: 10px; }
+    .feedback-card { padding: 13px; border: 1px solid var(--line); border-radius: 9px; background: white; }
+    .feedback-card h3 { margin: 0; font-size: 12px; }
+    .feedback-card p { min-height: 31px; margin: 6px 0 10px; color: var(--muted); font-size: 10px; line-height: 1.45; }
+    .rating { color: #d68b00; letter-spacing: 1px; }
+
+    .state-view { min-height: 0; display: grid; place-items: center; padding: 30px; background: #fbfcfd; }
+    .state-card { max-width: 470px; padding: 28px; border: 1px solid var(--line); border-radius: 14px; background: white; box-shadow: var(--shadow); text-align: center; }
+    .state-icon { width: 54px; height: 54px; display: grid; place-items: center; margin: 0 auto 13px; border-radius: 14px; color: var(--accent-strong); background: var(--accent-soft); font-size: 23px; }
+    .state-card h2 { margin: 0 0 7px; font-size: 18px; }
+    .state-card p { margin: 0 0 16px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .state-actions { display: flex; justify-content: center; gap: 8px; }
+    .no-access-view { grid-column: 1 / -1; }
+    .skeleton-view { display: grid; grid-template-columns: 350px 1fr; min-height: 0; }
+    .skeleton-col { padding: 16px; border-right: 1px solid var(--line); background: white; }
+    .skeleton-col:last-child { border-right: 0; }
+    .sk { height: 12px; margin-bottom: 10px; border-radius: 6px; background: linear-gradient(90deg,#edf0f3 25%,#f7f8f9 50%,#edf0f3 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    .sk.short { width: 38%; } .sk.mid { width: 68%; } .sk.tall { height: 74px; }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    .modal-backdrop { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 24px; background: rgba(19, 29, 43, .42); }
+    .modal { width: min(480px, 92vw); border-radius: 13px; background: white; box-shadow: 0 20px 60px rgba(14,25,40,.25); }
+    .modal-head { display: flex; align-items: center; padding: 15px 17px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin: 0; font-size: 15px; }
+    .modal-head .icon-button { margin-left: auto; }
+    .modal-body { padding: 16px 17px; }
+    .modal-body > p { margin: 0 0 13px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .stage-choice { width: 100%; display: flex; align-items: center; gap: 10px; padding: 11px; border: 1px solid var(--line); border-radius: 8px; background: white; text-align: left; }
+    .stage-choice + .stage-choice { margin-top: 7px; }
+    .stage-choice:hover { border-color: #b7c8f6; background: #f8faff; }
+    .stage-choice.disabled { cursor: not-allowed; opacity: .58; background: #f7f7f7; }
+    .stage-choice span { margin-left: auto; color: var(--muted); font-size: 10px; }
+    .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 17px; border-top: 1px solid var(--line); }
+    .pause-warning { margin-bottom: 12px; padding: 9px 10px; border-radius: 8px; color: #734707; background: var(--warn-soft); font-size: 10px; }
+    .toast { position: fixed; right: 20px; bottom: 20px; z-index: 30; max-width: 360px; padding: 11px 14px; border-radius: 9px; color: white; background: #263448; box-shadow: var(--shadow); font-size: 11px; }
+    .prototype-note { position: fixed; left: 230px; bottom: 10px; z-index: 6; padding: 5px 8px; border: 1px solid #d7deea; border-radius: 7px; color: #6c7786; background: rgba(255,255,255,.92); font-size: 9px; box-shadow: 0 3px 10px rgba(23,33,43,.06); }
+
+    @media (max-width: 1120px) {
+      .app { grid-template-columns: 72px 1fr; }
+      .brand { justify-content: center; padding: 0; }
+      .brand > div:last-child, .nav-label, .nav-item > span:not(.nav-icon):not(.nav-badge), .user-mini > div { display: none; }
+      .nav-item { justify-content: center; }
+      .nav-badge { position: absolute; margin: -22px 0 0 24px; }
+      .head-metrics .metric:nth-child(2) { display: none; }
+      .prototype-note { left: 82px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Основная навигация">
+      <div class="brand"><div class="brand-mark">ATS</div><div>Recruit OS<small>демо-компания</small></div></div>
+      <nav class="nav">
+        <div class="nav-label">Работа</div>
+        <button class="nav-item"><span class="nav-icon">⌂</span><span>Обзор</span></button>
+        <button class="nav-item"><span class="nav-icon">✓</span><span>Мои задачи</span><span class="nav-badge">7</span></button>
+        <button class="nav-item active"><span class="nav-icon">▣</span><span>Вакансии</span><span class="nav-badge">18</span></button>
+        <button class="nav-item"><span class="nav-icon">◎</span><span>Кандидаты</span></button>
+        <button class="nav-item"><span class="nav-icon">◇</span><span>Заявки</span><span class="nav-badge">3</span></button>
+        <div class="nav-label">Инструменты</div>
+        <button class="nav-item"><span class="nav-icon">⌕</span><span>Поиск</span></button>
+        <button class="nav-item"><span class="nav-icon">□</span><span>Календарь</span></button>
+        <button class="nav-item"><span class="nav-icon">↗</span><span>Аналитика</span></button>
+        <button class="nav-item"><span class="nav-icon">⚙</span><span>Настройки</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="user-mini"><div class="avatar sm">ЕК</div><div><span>Елена Крылова</span><small id="sidebar-role">Рекрутер</small></div></div>
+      </div>
+    </aside>
+
+    <div class="main-shell">
+      <header class="topbar">
+        <div class="search"><input aria-label="Глобальный поиск" placeholder="Найти кандидата, вакансию или задачу"><span class="shortcut">⌘ K</span></div>
+        <div class="prototype-controls" aria-label="Переключатели прототипа">
+          <label class="control-label">Роль
+            <select id="role-select">
+              <option value="recruiter">Рекрутер</option>
+              <option value="manager">Нанимающий менеджер</option>
+            </select>
+          </label>
+          <label class="control-label">Вакансия
+            <select id="vacancy-select">
+              <option value="working">В работе</option>
+              <option value="paused">На паузе</option>
+            </select>
+          </label>
+          <label class="control-label">Сценарий
+            <select id="view-select">
+              <option value="normal">Обычный</option>
+              <option value="empty">Нет кандидатов</option>
+              <option value="loading">Загрузка</option>
+              <option value="error">Ошибка</option>
+              <option value="noaccess">Нет доступа</option>
+            </select>
+          </label>
+          <button class="icon-button" title="Уведомления">♢</button>
+          <button class="icon-button assistant-button" id="assistant-button" title="ИИ-ассистент настроек">✦ ИИ</button>
+        </div>
+      </header>
+
+      <main class="workspace" id="workspace">
+        <section class="vacancy-head" id="vacancy-head">
+          <button class="back" aria-label="Вернуться к списку вакансий">←</button>
+          <div class="vacancy-title">
+            <div class="eyebrow"><span class="status-pill" id="status-pill">● В работе</span><span>Конфиденциальность: обычная</span></div>
+            <h1>Senior Android-разработчик</h1>
+            <div class="meta"><span>Разработка мобильных продуктов</span><span>Senior</span><span>Приоритет 1</span><span>Москва / удалённо</span><span>Воронка v4</span><span>Участники: Елена Крылова +2</span></div>
+          </div>
+          <div class="head-metrics">
+            <div class="metric"><strong>1 из 2</strong><span>позиций закрыто</span></div>
+            <div class="metric"><strong>78%</strong><span>близость к закрытию</span></div>
+            <div class="metric warn"><strong>8 дней</strong><span>до плановой даты</span></div>
+          </div>
+          <div class="head-actions"><button class="button">Сведения</button><button class="button primary recruiter-only">+ Кандидат</button><button class="button">•••</button></div>
+        </section>
+
+        <div class="pause-banner" id="pause-banner" hidden><strong>Вакансия на паузе.</strong><span>SLA и новые ИИ-действия остановлены. Ручная работа и назначение встреч доступны с предупреждением.</span><button class="button recruiter-only">Возобновить</button></div>
+
+        <section class="pipeline-wrap" id="pipeline-wrap" aria-label="Этапы вакансии">
+          <div class="pipeline" id="pipeline"></div>
+        </section>
+
+        <section class="work-area" id="normal-view">
+          <aside class="candidate-column">
+            <div class="list-toolbar">
+              <div class="list-toolbar-top"><h2 id="list-title">Все кандидаты</h2><span class="count" id="list-count">5 показано</span><button class="icon-button" title="Фильтры">☷</button></div>
+              <div class="list-filter"><input id="candidate-filter" placeholder="Фильтр по текущему списку"><button class="button">Сначала важные</button></div>
+            </div>
+            <div class="candidate-list" id="candidate-list" aria-label="Кандидаты"></div>
+          </aside>
+
+          <article class="candidate-card" id="candidate-card">
+            <header class="candidate-header">
+              <div class="avatar lg" id="candidate-avatar">АВ</div>
+              <div class="candidate-title">
+                <h2 id="candidate-name">Алина Воронцова</h2>
+                <p id="candidate-subtitle">Android-разработчик · Fintech Lab</p>
+                <div class="candidate-badges" id="candidate-badges"></div>
+              </div>
+              <div class="candidate-actions">
+                <button class="button">Написать</button>
+                <button class="button">Назначить встречу</button>
+                <button class="button primary recruiter-only" id="move-button">Переместить</button>
+                <div class="manager-hint manager-only" hidden>Этап меняет рекрутер. Вы можете оставить фидбек или назначить встречу.</div>
+              </div>
+            </header>
+            <nav class="tabs" id="tabs" aria-label="Разделы карточки">
+              <button class="tab active" data-tab="overview">Обзор</button>
+              <button class="tab" data-tab="resume">Резюме <span class="tab-count">3</span></button>
+              <button class="tab" data-tab="ai">ИИ-оценка</button>
+              <button class="tab" data-tab="history">История <span class="tab-count">12</span></button>
+              <button class="tab" data-tab="feedback">Фидбек <span class="tab-count">3</span></button>
+            </nav>
+            <div class="card-scroll" id="tab-content"></div>
+          </article>
+        </section>
+
+        <section class="state-view" id="empty-view" hidden>
+          <div class="state-card"><div class="state-icon">◎</div><h2>На вакансии пока нет кандидатов</h2><p>Добавьте человека вручную, разберите новые отклики или запустите поиск по базе. Кандидат будет добавлен на вакансию и появится на начальном этапе.</p><div class="state-actions"><button class="button recruiter-only">Найти в базе</button><button class="button primary recruiter-only">Добавить кандидата</button><span class="manager-only" hidden>Добавлять кандидатов может рекрутер.</span></div></div>
+        </section>
+
+        <section class="skeleton-view" id="loading-view" hidden aria-label="Загрузка">
+          <div class="skeleton-col"><div class="sk short"></div><div class="sk mid"></div><div class="sk tall"></div><div class="sk tall"></div><div class="sk tall"></div></div>
+          <div class="skeleton-col"><div class="sk mid"></div><div class="sk short"></div><div class="sk tall"></div><div class="sk"></div><div class="sk"></div><div class="sk tall"></div></div>
+        </section>
+
+        <section class="state-view" id="error-view" hidden>
+          <div class="state-card"><div class="state-icon" style="color:var(--danger);background:var(--danger-soft)">!</div><h2>Не удалось обновить данные</h2><p>Последняя успешная загрузка — сегодня в 10:42. Мы не заменяем ошибку пустым списком, чтобы вы не решили, что кандидатов нет.</p><div class="state-actions"><button class="button primary" id="retry-button">Повторить</button></div></div>
+        </section>
+
+        <section class="state-view no-access-view" id="noaccess-view" hidden>
+          <div class="state-card"><div class="state-icon">⛨</div><h2>Нет доступа к вакансии</h2><p>Вакансия скрыта или вы не добавлены в её область доступа. Название, участники, кандидаты и счётчики не показываются.</p><div class="state-actions"><button class="button">Вернуться к моим вакансиям</button></div></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="move-modal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="move-title">
+      <div class="modal-head"><h2 id="move-title">Переместить кандидата</h2><button class="icon-button" id="modal-close" aria-label="Закрыть">×</button></div>
+      <div class="modal-body">
+        <div class="pause-warning" id="modal-pause-warning" hidden>Вакансия на паузе. Ручной переход разрешён, но автоматические сообщения и ИИ-действия не запустятся.</div>
+        <p>Текущий этап: <strong id="modal-current-stage">HR-интервью</strong>. Показываются только доступные цели действующей версии воронки.</p>
+        <button class="stage-choice" data-target="Техническое интервью"><b>Техническое интервью</b><span>следующий обязательный этап →</span></button>
+        <button class="stage-choice" data-target="Финальное интервью"><b>Финальное интервью</b><span>пропуск этапа требует права</span></button>
+        <button class="stage-choice" data-target="Отказ"><b style="color:var(--danger)">Отказ</b><span>нужно выбрать причину</span></button>
+        <button class="stage-choice disabled" disabled><b>Интервью с командой</b><span>архивный этап · вход закрыт</span></button>
+      </div>
+      <div class="modal-foot"><button class="button" id="modal-cancel">Отмена</button></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+  <div class="prototype-note">Проверочный прототип · переключайте роль, состояние вакансии и сценарий в верхней панели</div>
+
+  <script>
+    const candidates = [
+      { id: 1, initials: 'АВ', name: 'Алина Воронцова', role: 'Android-разработчик', company: 'Fintech Lab', stage: 'HR-интервью', score: '8,7', scoreClass: '', source: 'hh.ru', age: '2 дня', attention: '', badges: ['HR-интервью', 'ИИ 8,7', 'Встреча завтра'], salary: 'от 320 000 ₽ на руки', email: 'alina.vorontsova@example.ru', phone: '+7 900 123-45-67' },
+      { id: 2, initials: 'МП', name: 'Михаил Петров-Соколов', role: 'Senior Android Engineer', company: 'Market Cloud', stage: 'Техническое интервью', score: '9,2', scoreClass: '', source: 'Авито Работа', age: '5 дней', attention: 'SLA этапа +1 день', badges: ['Техническое интервью', 'ИИ 9,2', 'Просрочена задача'], salary: '350 000–390 000 ₽ до вычета', email: 'm.petrov@example.ru', phone: '+7 921 555-18-09' },
+      { id: 3, initials: 'ВЧ', name: 'Виктория Чен', role: 'Android Developer', company: 'MobiGo', stage: 'Ревью', score: '6,4', scoreClass: 'mid', source: 'из базы', age: 'сегодня', attention: 'нужна ручная оценка', badges: ['Ревью', 'ИИ 6,4', 'Ручное решение'], salary: 'ожидания не указаны', email: 'v.chen@example.ru', phone: '+7 916 300-20-10' },
+      { id: 4, initials: 'ДК', name: 'Дмитрий Ким', role: 'Kotlin-разработчик', company: 'DataNorth', stage: 'ИИ-скрининг', score: '!', scoreClass: 'error', source: 'hh.ru', age: '18 минут', attention: 'файл не прочитан', badges: ['ИИ-скрининг', 'Нужно ревью вручную'], salary: 'от 300 000 ₽', email: 'd.kim@example.ru', phone: '+7 903 204-77-12' },
+      { id: 5, initials: 'ЕМ', name: 'Екатерина Мельникова-Сафронова', role: 'Ведущий Android-разработчик', company: 'Ритейл Платформа', stage: 'Интервью с командой', score: '8,1', scoreClass: '', source: 'Getmatch', age: '11 дней', attention: 'архивный этап', badges: ['Архивный этап', 'ИИ 8,1', 'Можно только вывести'], salary: '330 000 ₽ на руки', email: 'e.melnikova@example.ru', phone: '+7 999 140-08-52' }
+    ];
+
+    const stages = [
+      { id: 'all', label: 'Все', count: 24 },
+      { id: 'Отклик', label: 'Отклик', count: 6 },
+      { id: 'Новый кандидат', label: 'Новые', count: 4 },
+      { id: 'ИИ-скрининг', label: 'ИИ-скрининг', count: 3 },
+      { id: 'Ревью', label: 'Ревью', count: 2 },
+      { id: 'Контакт', label: 'Контакт', count: 2 },
+      { id: 'HR-интервью', label: 'HR-интервью', count: 3 },
+      { id: 'Техническое интервью', label: 'Тех. интервью', count: 2 },
+      { id: 'Оффер', label: 'Оффер', count: 1 },
+      { id: 'Интервью с командой', label: 'Архивный этап', count: 1, legacy: true }
+    ];
+
+    let currentCandidate = candidates[0];
+    let currentStage = 'all';
+    let currentTab = 'overview';
+
+    const el = id => document.getElementById(id);
+    const roleSelect = el('role-select');
+    const vacancySelect = el('vacancy-select');
+    const viewSelect = el('view-select');
+
+    function renderPipeline() {
+      el('pipeline').innerHTML = stages.map(stage => `
+        <button class="stage ${currentStage === stage.id ? 'active' : ''} ${stage.legacy ? 'legacy' : ''}" data-stage="${stage.id}">
+          <b>${stage.label}</b><small>${stage.count} ${stage.legacy ? '· вход закрыт' : 'кандид.'}</small>
+        </button>`).join('');
+      el('pipeline').querySelectorAll('.stage').forEach(button => button.addEventListener('click', () => {
+        currentStage = button.dataset.stage;
+        renderPipeline();
+        renderCandidateList();
+      }));
+    }
+
+    function filteredCandidates() {
+      const search = el('candidate-filter').value.trim().toLowerCase();
+      return candidates.filter(candidate =>
+        (currentStage === 'all' || candidate.stage === currentStage) &&
+        (!search || `${candidate.name} ${candidate.role} ${candidate.company}`.toLowerCase().includes(search))
+      );
+    }
+
+    function renderCandidateList() {
+      const list = filteredCandidates();
+      const stage = stages.find(item => item.id === currentStage);
+      el('list-title').textContent = currentStage === 'all' ? 'Все кандидаты' : stage.label;
+      el('list-count').textContent = `${list.length} показано`;
+      if (!list.length) {
+        el('candidate-list').innerHTML = `<div class="state-card" style="margin:18px 8px;padding:20px;box-shadow:none"><div class="state-icon" style="width:42px;height:42px;font-size:17px">◎</div><h2 style="font-size:14px">На этом этапе никого нет</h2><p style="font-size:10px">Выберите другой этап или измените фильтр.</p></div>`;
+        el('candidate-card').style.visibility = 'hidden';
+        return;
+      }
+      el('candidate-card').style.visibility = 'visible';
+      if (!list.some(item => item.id === currentCandidate.id)) currentCandidate = list[0];
+      el('candidate-list').innerHTML = list.map(candidate => `
+        <button class="candidate-row ${candidate.id === currentCandidate.id ? 'selected' : ''}" data-candidate="${candidate.id}">
+          <span class="avatar">${candidate.initials}</span>
+          <span class="candidate-main"><span class="candidate-name">${candidate.name}</span><span class="candidate-role">${candidate.role} · ${candidate.company}</span><span class="row-meta">${candidate.source}<span>·</span><span class="${candidate.attention ? 'late' : ''}">${candidate.attention || candidate.age + ' на этапе'}</span></span></span>
+          <span class="score ${candidate.scoreClass}">${candidate.score}</span>
+        </button>`).join('');
+      el('candidate-list').querySelectorAll('.candidate-row').forEach(button => button.addEventListener('click', () => {
+        currentCandidate = candidates.find(candidate => candidate.id === Number(button.dataset.candidate));
+        renderCandidateList();
+        renderCandidate();
+      }));
+      renderCandidate();
+    }
+
+    function renderCandidate() {
+      const c = currentCandidate;
+      el('candidate-avatar').textContent = c.initials;
+      el('candidate-name').textContent = c.name;
+      el('candidate-subtitle').textContent = `${c.role} · ${c.company}`;
+      el('candidate-badges').innerHTML = c.badges.map((badge, index) => `<span class="pill ${index === 0 ? 'blue' : badge.includes('Просроч') || badge.includes('архив') ? 'orange' : ''}">${badge}</span>`).join('');
+      el('modal-current-stage').textContent = c.stage;
+      renderTab();
+    }
+
+    function salaryBlock() {
+      if (roleSelect.value === 'manager') return `<div class="field"><label>Зарплатные ожидания</label><div class="locked-field">▧ Скрыто правами на этой вакансии</div></div>`;
+      return `<div class="field"><label>Зарплатные ожидания</label><strong class="salary-value">${currentCandidate.salary}</strong></div>`;
+    }
+
+    function overviewTemplate() {
+      const c = currentCandidate;
+      return `<div class="content-grid">
+        <div class="stack">
+          <section class="card-section">
+            <div class="section-title"><h3>Кандидат и текущий процесс</h3><small>обновлено сегодня, 10:36</small></div>
+            <div class="fields">
+              <div class="field"><label>Телефон</label><strong>${c.phone}</strong></div>
+              <div class="field"><label>E-mail</label><strong>${c.email}</strong></div>
+              <div class="field"><label>Текущий этап</label><strong>${c.stage}</strong></div>
+              <div class="field"><label>Источник добавления</label><strong>${c.source}</strong></div>
+              ${salaryBlock()}
+              <div class="field"><label>Резюме процесса</label><strong>hh.ru · версия от 29.08.2026</strong></div>
+            </div>
+          </section>
+          <section class="card-section">
+            <div class="section-title"><h3>Короткое саммари</h3><span class="pill blue">✦ ИИ</span></div>
+            <p class="summary-text">7 лет в Android-разработке, последние 3 года — ведущий разработчик продуктовой команды. Сильный Kotlin и Coroutines, есть опыт модульной архитектуры и релизов приложений с аудиторией более 2 млн пользователей. Не подтверждён опыт с Compose Multiplatform.</p>
+          </section>
+          <section class="card-section comment-box">
+            <div class="section-title"><h3>Добавить внутренний комментарий</h3><small>видят участники с правом</small></div>
+            <textarea id="comment-text" placeholder="Итог разговора, наблюдение или договорённость…"></textarea>
+            <div class="comment-footer"><small>Комментарий не двигает кандидата по этапам.</small><button class="button primary" id="comment-button">Опубликовать</button></div>
+          </section>
+        </div>
+        <div class="stack">
+          <section class="card-section">
+            <div class="section-title"><h3>Следующие действия</h3><small>2 активных</small></div>
+            <div class="item-list">
+              <div class="info-item"><span class="info-icon">□</span><div><strong>HR-интервью</strong><small>Яндекс Телемост · Елена Крылова</small></div><time>завтра<br>11:30</time></div>
+              <div class="info-item"><span class="info-icon">✓</span><div><strong>Собрать фидбек интервьюеров</strong><small>Ответственный: Елена Крылова</small></div><time>до 4 сен.</time></div>
+            </div>
+            <button class="button ghost" style="margin-top:8px">+ Создать задачу</button>
+          </section>
+          <section class="card-section">
+            <div class="section-title"><h3>Последняя активность</h3></div>
+            <div class="item-list">
+              <div class="info-item"><span class="info-icon">→</span><div><strong>Переведена на HR-интервью</strong><small>Елена Крылова · из этапа «Контакт»</small></div><time>сегодня<br>10:36</time></div>
+              <div class="info-item"><span class="info-icon">✦</span><div><strong>ИИ-оценка завершена: 8,7</strong><small>Рекомендация подтверждена вручную</small></div><time>29 авг.</time></div>
+            </div>
+          </section>
+        </div>
+      </div>`;
+    }
+
+    function resumeTemplate() {
+      return `<section class="card-section">
+        <div class="resume-head"><div><h3>Основное резюме · hh.ru</h3><p>Выбрано для этой вакансии · актуальность проверена 29 августа 2026</p></div><button class="button">Скачать PDF</button><button class="button recruiter-only">Выбрать другую версию</button></div>
+        <div class="version-strip"><button class="version-chip current">29.08.2026 · текущая</button><button class="version-chip">11.05.2026</button><button class="version-chip">18.02.2026</button><button class="version-chip">Getmatch · 04.07.2026</button></div>
+        <div class="resume-body"><h3>${currentCandidate.name}</h3><p>${currentCandidate.role} · Москва · готова к удалённой работе</p><h4>Опыт работы</h4><p><b>Fintech Lab — ведущий Android-разработчик</b><br>Май 2023 — настоящее время</p><ul><li>Развивает мобильное приложение с аудиторией 2,4 млн MAU.</li><li>Перевела ключевые экраны на Jetpack Compose, сократила время сборки на 18%.</li><li>Ведёт команду из четырёх разработчиков и участвует в найме.</li></ul><h4>Ключевые навыки</h4><p><mark>Kotlin</mark>, Coroutines, Flow, Jetpack Compose, Clean Architecture, MVI, CI/CD.</p><h4>Образование</h4><p>МГТУ им. Н. Э. Баумана, программная инженерия, 2019.</p></div>
+      </section>`;
+    }
+
+    function aiTemplate() {
+      const paused = vacancySelect.value === 'paused';
+      return `<div class="stack">
+        <section class="card-section">
+          <div class="section-title"><h3>Актуальная ИИ-оценка</h3><small>резюме 29.08 · карта критериев v7</small></div>
+          <div class="ai-hero"><div class="score-ring"><div><span><strong>${currentCandidate.score === '!' ? '—' : currentCandidate.score}</strong><small>из 10</small></span></div></div><div class="ai-summary"><h3>${currentCandidate.score === '!' ? 'Нужно ручное ревью' : 'Кандидат соответствует вакансии'}</h3><p>${currentCandidate.score === '!' ? 'Файл резюме не удалось прочитать. Автоматического решения и перехода не было.' : 'Совпадают обязательные технические требования и уровень ответственности. Стоит проверить глубину практического опыта с Compose и ожидания от роли.'}</p><div class="ai-note">Рекомендация: ${currentCandidate.score === '!' ? 'оставить на текущем этапе для ручной оценки' : 'перевести на HR-интервью'} · Фактическое действие: ${currentCandidate.score === '!' ? 'не выполнено' : 'подтверждено рекрутером'}</div></div></div>
+          <div style="display:flex;gap:7px;margin-top:12px"><button class="button recruiter-only" ${paused ? 'disabled title="Недоступно на паузе"' : ''}>Оценить заново</button><button class="button recruiter-only">Изменить решение</button><button class="button">Версии оценки</button></div>
+        </section>
+        <section class="criteria">
+          <div class="criterion"><span class="ok">✓</span><b>Kotlin от 4 лет</b><span class="pill">обязательное</span><small>Подтверждено опытом с 2019 года и тремя последними местами работы.</small></div>
+          <div class="criterion"><span class="ok">✓</span><b>Jetpack Compose</b><span class="pill">обязательное</span><small>Указан переход ключевых экранов и практический вклад в архитектуру.</small></div>
+          <div class="criterion"><span class="maybe">?</span><b>Compose Multiplatform</b><span class="pill">желательное</span><small>Прямого подтверждения в выбранной версии резюме нет.</small></div>
+          <div class="criterion"><span class="ok">✓</span><b>Техническое лидерство</b><span class="pill">желательное</span><small>Команда из четырёх разработчиков, участие в найме и наставничество.</small></div>
+        </section>
+      </div>`;
+    }
+
+    function historyTemplate() {
+      return `<section class="card-section"><div class="section-title"><h3>История процесса на вакансии</h3><button class="button" style="margin-left:auto">Фильтры</button></div><div class="timeline">
+        <div class="event"><span class="event-dot">→</span><div><strong>Переход: Контакт → HR-интервью</strong><p>Елена Крылова · ручное действие. Автоматическое письмо поставлено на 15 минут и ещё не отправлено.</p></div><time>сегодня, 10:36</time></div>
+        <div class="event"><span class="event-dot">□</span><div><strong>Назначена встреча</strong><p>HR-интервью · Яндекс Телемост · 3 сентября, 11:30 (МСК).</p></div><time>сегодня, 10:34</time></div>
+        <div class="event"><span class="event-dot">✦</span><div><strong>ИИ-скрининг завершён: 8,7</strong><p>Рекомендован этап «Ревью». Елена Крылова подтвердила рекомендацию.</p></div><time>29 авг., 14:12</time></div>
+        <div class="event"><span class="event-dot">＋</span><div><strong>Кандидат добавлен на вакансию</strong><p>Источник: отклик hh.ru. Создана новая версия резюме и выбран текущий снимок.</p></div><time>29 авг., 14:10</time></div>
+      </div></section>`;
+    }
+
+    function feedbackTemplate() {
+      return `<div class="stack"><section class="card-section"><div class="section-title"><h3>Формы на текущем этапе</h3><small>не блокируют переход</small></div><div class="feedback-grid">
+        <div class="feedback-card"><h3>HR-интервью</h3><p>Обязательность: нет · заполняет любой участник с правом.</p><button class="button primary">Заполнить форму</button></div>
+        <div class="feedback-card"><h3>Мотивация и ожидания</h3><p>Назначено вам · срок не задан.</p><button class="button">Продолжить черновик</button></div>
+      </div></section><section class="card-section"><div class="section-title"><h3>Отправленный фидбек</h3><small>2 ответа</small></div><div class="feedback-grid"><div class="feedback-card"><h3>Техническое интервью · Илья Сергеев</h3><p>Сильная база по Kotlin и архитектуре. Стоит отдельно проверить проектирование офлайн-сценариев.</p><span class="rating">★★★★☆</span></div><div class="feedback-card"><h3>Скрининг · Елена Крылова</h3><p>Мотивация на продуктовую роль, спокойно относится к гибридному графику. Готова выйти через месяц.</p><span class="pill blue">Рекомендую дальше</span></div></div></section></div>`;
+    }
+
+    function renderTab() {
+      const templates = { overview: overviewTemplate, resume: resumeTemplate, ai: aiTemplate, history: historyTemplate, feedback: feedbackTemplate };
+      el('tab-content').innerHTML = templates[currentTab]();
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.tab === currentTab));
+      applyRoleVisibility();
+      const commentButton = el('comment-button');
+      if (commentButton) commentButton.addEventListener('click', () => {
+        const value = el('comment-text').value.trim();
+        showToast(value ? 'Комментарий сохранён в контексте текущего этапа' : 'Сначала напишите комментарий');
+        if (value) el('comment-text').value = '';
+      });
+    }
+
+    function applyRoleVisibility() {
+      const manager = roleSelect.value === 'manager';
+      document.querySelectorAll('.recruiter-only').forEach(item => item.hidden = manager);
+      document.querySelectorAll('.manager-only').forEach(item => item.hidden = !manager);
+      el('sidebar-role').textContent = manager ? 'Нанимающий менеджер' : 'Рекрутер';
+    }
+
+    function applyVacancyState() {
+      const paused = vacancySelect.value === 'paused';
+      el('pause-banner').hidden = !paused;
+      el('status-pill').textContent = paused ? 'Ⅱ На паузе' : '● В работе';
+      el('status-pill').classList.toggle('paused', paused);
+      el('modal-pause-warning').hidden = !paused;
+      if (currentTab === 'ai') renderTab();
+    }
+
+    function applyViewState() {
+      const view = viewSelect.value;
+      const ids = ['normal', 'empty', 'loading', 'error', 'noaccess'];
+      ids.forEach(id => el(`${id}-view`).hidden = id !== view);
+      const noAccess = view === 'noaccess';
+      el('vacancy-head').hidden = noAccess;
+      el('pipeline-wrap').hidden = noAccess;
+      el('pause-banner').hidden = noAccess || vacancySelect.value !== 'paused';
+    }
+
+    function showToast(message) {
+      el('toast').textContent = message;
+      el('toast').hidden = false;
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => el('toast').hidden = true, 2800);
+    }
+
+    function openMoveModal() {
+      if (roleSelect.value === 'manager') return;
+      el('move-modal').hidden = false;
+      el('modal-close').focus();
+    }
+
+    function closeMoveModal() { el('move-modal').hidden = true; el('move-button').focus(); }
+
+    roleSelect.addEventListener('change', () => { applyRoleVisibility(); renderTab(); });
+    vacancySelect.addEventListener('change', () => { applyVacancyState(); applyViewState(); });
+    viewSelect.addEventListener('change', applyViewState);
+    el('candidate-filter').addEventListener('input', renderCandidateList);
+    el('tabs').addEventListener('click', event => {
+      const tab = event.target.closest('.tab');
+      if (!tab) return;
+      currentTab = tab.dataset.tab;
+      renderTab();
+    });
+    el('move-button').addEventListener('click', openMoveModal);
+    el('modal-close').addEventListener('click', closeMoveModal);
+    el('modal-cancel').addEventListener('click', closeMoveModal);
+    el('move-modal').addEventListener('click', event => { if (event.target === el('move-modal')) closeMoveModal(); });
+    document.querySelectorAll('.stage-choice:not(.disabled)').forEach(button => button.addEventListener('click', () => {
+      const previous = currentCandidate.stage;
+      currentCandidate.stage = button.dataset.target;
+      currentCandidate.badges[0] = button.dataset.target;
+      closeMoveModal();
+      renderCandidateList();
+      showToast(`Кандидат перемещён: ${previous} → ${button.dataset.target}. В прототипе это действие можно обновить перезагрузкой страницы.`);
+    }));
+    el('retry-button').addEventListener('click', () => { viewSelect.value = 'loading'; applyViewState(); window.setTimeout(() => { viewSelect.value = 'normal'; applyViewState(); showToast('Данные обновлены'); }, 850); });
+    el('assistant-button').addEventListener('click', () => showToast('Здесь откроется ИИ-ассистент настроек с предпросмотром изменений. Его отдельный экран спроектируем позже.'));
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !el('move-modal').hidden) closeMoveModal();
+      if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+      const visible = filteredCandidates();
+      const index = visible.findIndex(candidate => candidate.id === currentCandidate.id);
+      if (event.key.toLowerCase() === 'j' && visible.length) { currentCandidate = visible[Math.min(index + 1, visible.length - 1)]; renderCandidateList(); event.preventDefault(); }
+      if (event.key.toLowerCase() === 'k' && visible.length) { currentCandidate = visible[Math.max(index - 1, 0)]; renderCandidateList(); event.preventDefault(); }
+      if (/^[1-5]$/.test(event.key)) { currentTab = ['overview','resume','ai','history','feedback'][Number(event.key) - 1]; renderTab(); event.preventDefault(); }
+    });
+
+    renderPipeline();
+    renderCandidateList();
+    applyRoleVisibility();
+    applyVacancyState();
+    applyViewState();
+  </script>
+</body>
+</html>
