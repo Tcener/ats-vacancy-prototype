@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
-  <title>ATS — рабочее пространство вакансии</title>
+  <title>ATS — интерактивный прототип ключевых экранов</title>
   <style>
     :root {
       --bg: #f4f6f8;
@@ -280,6 +280,101 @@
     .toast { position: fixed; right: 20px; bottom: 20px; z-index: 30; max-width: 360px; padding: 11px 14px; border-radius: 9px; color: white; background: #263448; box-shadow: var(--shadow); font-size: 11px; }
     .prototype-note { position: fixed; left: 230px; bottom: 10px; z-index: 6; padding: 5px 8px; border: 1px solid #d7deea; border-radius: 7px; color: #6c7786; background: rgba(255,255,255,.92); font-size: 9px; box-shadow: 0 3px 10px rgba(23,33,43,.06); }
 
+    .vacancy-heading-row { display: flex; align-items: center; gap: 10px; }
+    .vacancy-switch { max-width: 250px; height: 29px; padding: 0 27px 0 9px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); background: var(--surface-soft); font-size: 10px; }
+    .app-page { min-height: 0; overflow-y: auto; padding: 22px 24px 48px; background: var(--bg); }
+    .page-head { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
+    .page-head > div:first-child { min-width: 0; flex: 1; }
+    .page-head h1 { margin: 0 0 5px; font-size: 23px; letter-spacing: -.02em; }
+    .page-head p { margin: 0; color: var(--muted); font-size: 12px; }
+    .page-actions { display: flex; gap: 8px; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 12px; margin-bottom: 14px; }
+    .kpi-card { min-height: 104px; padding: 15px; border: 1px solid var(--line); border-radius: 11px; background: white; }
+    .kpi-card .kpi-label { color: var(--muted); font-size: 11px; }
+    .kpi-card strong { display: block; margin: 7px 0 4px; font-size: 26px; letter-spacing: -.03em; }
+    .kpi-card small { color: var(--subtle); font-size: 10px; }
+    .kpi-card .up { color: var(--good); }
+    .kpi-card .down { color: var(--danger); }
+    .dashboard-grid { display: grid; grid-template-columns: minmax(520px, 1.45fr) minmax(300px, .75fr); gap: 12px; align-items: start; }
+    .dashboard-grid.equal { grid-template-columns: repeat(2, minmax(360px, 1fr)); }
+    .panel { border: 1px solid var(--line); border-radius: 11px; background: white; overflow: hidden; }
+    .panel-head { min-height: 48px; display: flex; align-items: center; gap: 8px; padding: 0 14px; border-bottom: 1px solid var(--line); }
+    .panel-head h2 { margin: 0; font-size: 14px; }
+    .panel-head small { color: var(--muted); font-size: 10px; }
+    .panel-head .button, .panel-head select { margin-left: auto; }
+    .panel-body { padding: 14px; }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { padding: 8px 10px; color: var(--subtle); background: var(--surface-soft); border-bottom: 1px solid var(--line); font-size: 9px; font-weight: 700; text-align: left; text-transform: uppercase; letter-spacing: .04em; }
+    .data-table td { padding: 10px; border-bottom: 1px solid #edf0f3; font-size: 11px; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: 0; }
+    .data-table tbody tr.clickable:hover { background: #f8faff; }
+    .data-table tbody tr.clickable { cursor: pointer; }
+    .table-title { display: block; font-weight: 680; }
+    .table-sub { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .progress-track { width: 100%; height: 6px; overflow: hidden; border-radius: 4px; background: #e8edf2; }
+    .progress-track span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+    .bar-chart { height: 176px; display: flex; align-items: flex-end; gap: 12px; padding: 15px 5px 0; border-bottom: 1px solid var(--line); }
+    .bar { flex: 1; min-width: 22px; position: relative; border-radius: 5px 5px 0 0; background: #91aaed; }
+    .bar:hover { background: var(--accent); }
+    .bar span { position: absolute; left: 50%; top: -18px; transform: translateX(-50%); color: var(--muted); font-size: 9px; }
+    .chart-labels { display: flex; gap: 12px; padding: 7px 5px 0; }
+    .chart-labels span { flex: 1; color: var(--subtle); font-size: 9px; text-align: center; }
+    .task-list { display: grid; }
+    .task-row { display: grid; grid-template-columns: 27px minmax(0, 1fr) auto; gap: 9px; align-items: start; padding: 11px 13px; border-bottom: 1px solid #edf0f3; }
+    .task-row:last-child { border-bottom: 0; }
+    .task-check { width: 20px; height: 20px; margin-top: 1px; border: 1px solid var(--line-strong); border-radius: 6px; color: transparent; background: white; }
+    .task-row.completed { opacity: .55; }
+    .task-row.completed .task-check { color: white; border-color: var(--good); background: var(--good); }
+    .task-row.completed .task-title { text-decoration: line-through; }
+    .task-title { display: block; font-size: 11px; font-weight: 650; }
+    .task-context { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .task-date { color: var(--muted); font-size: 9px; white-space: nowrap; }
+    .task-date.late { color: var(--danger); font-weight: 700; }
+    .filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .filter-row input, .filter-row select { height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 8px; background: white; font-size: 11px; }
+    .filter-row input { min-width: 230px; }
+    .segmented { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 9px; background: white; }
+    .segmented button { min-height: 28px; padding: 5px 9px; border: 0; border-radius: 6px; color: var(--muted); background: transparent; font-size: 10px; }
+    .segmented button.active { color: var(--accent-strong); background: var(--accent-soft); font-weight: 650; }
+    .split-view { min-height: 560px; display: grid; grid-template-columns: minmax(430px, .95fr) minmax(390px, 1.05fr); border: 1px solid var(--line); border-radius: 11px; background: white; overflow: hidden; }
+    .split-list { min-width: 0; border-right: 1px solid var(--line); }
+    .split-detail { min-width: 0; padding: 16px; background: #fbfcfd; }
+    .global-candidate-row { width: 100%; display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 9px; padding: 11px 13px; border: 0; border-bottom: 1px solid #edf0f3; background: white; text-align: left; }
+    .global-candidate-row:hover, .global-candidate-row.selected { background: #f8faff; }
+    .global-candidate-row .avatar { width: 36px; height: 36px; color: #30506f; background: #d8eaf8; font-size: 11px; }
+    .global-candidate-row b { display: block; font-size: 11px; }
+    .global-candidate-row small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .signal { align-self: center; color: var(--warn); font-size: 10px; }
+    .requisition-layout { display: grid; grid-template-columns: minmax(560px, 1.3fr) minmax(320px, .7fr); gap: 12px; }
+    .approval-step { display: grid; grid-template-columns: 25px 1fr auto; gap: 8px; padding: 10px 0; border-bottom: 1px solid #edf0f3; }
+    .approval-step:last-child { border-bottom: 0; }
+    .step-mark { width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: white; background: var(--good); font-size: 9px; }
+    .step-mark.current { color: var(--accent-strong); background: var(--accent-soft); border: 1px solid #b9caf8; }
+    .step-mark.wait { color: var(--muted); background: #eef1f4; }
+    .approval-step b { display: block; font-size: 10px; }
+    .approval-step small { color: var(--muted); font-size: 9px; }
+    .query-builder { display: grid; gap: 8px; }
+    .query-row { display: grid; grid-template-columns: 74px minmax(145px, .65fr) 120px minmax(180px, 1fr) 30px; gap: 7px; align-items: center; }
+    .query-row select, .query-row input { width: 100%; height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: white; font-size: 10px; }
+    .source-picks { display: flex; flex-wrap: wrap; gap: 8px; margin: 13px 0; }
+    .source-pick { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: white; font-size: 10px; }
+    .search-result { display: grid; grid-template-columns: 40px minmax(190px, 1fr) minmax(180px, 1fr) 70px auto; gap: 10px; align-items: center; padding: 11px 13px; border-bottom: 1px solid #edf0f3; }
+    .search-result:last-child { border-bottom: 0; }
+    .search-result .avatar { width: 36px; height: 36px; color: #30506f; background: #d8eaf8; font-size: 10px; }
+    .match { color: var(--good); font-weight: 750; font-size: 12px; }
+    .funnel { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px; }
+    .funnel-step { height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 5px; color: #203455; background: #dce6ff; font-size: 9px; }
+    .analytics-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 12px; }
+    .analytics-grid .wide { grid-column: span 8; }
+    .analytics-grid .narrow { grid-column: span 4; }
+    .metric-button { cursor: pointer; text-align: left; }
+    .metric-button:hover { border-color: #aec0f4; box-shadow: 0 4px 18px rgba(55,104,229,.08); }
+    .drawer { position: fixed; top: 62px; right: 0; bottom: 0; z-index: 12; width: min(510px, 46vw); padding: 18px; overflow-y: auto; border-left: 1px solid var(--line); background: white; box-shadow: -14px 0 35px rgba(23,33,43,.12); }
+    .drawer-head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+    .drawer-head h2 { margin: 0; font-size: 17px; }
+    .drawer-head p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .drawer-head .icon-button { margin-left: auto; }
+
     @media (max-width: 1120px) {
       .app { grid-template-columns: 72px 1fr; }
       .brand { justify-content: center; padding: 0; }
@@ -288,6 +383,9 @@
       .nav-badge { position: absolute; margin: -22px 0 0 24px; }
       .head-metrics .metric:nth-child(2) { display: none; }
       .prototype-note { left: 82px; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
+      .dashboard-grid, .dashboard-grid.equal, .requisition-layout { grid-template-columns: 1fr; }
+      .split-view { grid-template-columns: 390px minmax(420px, 1fr); }
     }
   </style>
 </head>
@@ -297,16 +395,16 @@
       <div class="brand"><div class="brand-mark">ATS</div><div>Recruit OS<small>демо-компания</small></div></div>
       <nav class="nav">
         <div class="nav-label">Работа</div>
-        <button class="nav-item"><span class="nav-icon">⌂</span><span>Обзор</span></button>
-        <button class="nav-item"><span class="nav-icon">✓</span><span>Мои задачи</span><span class="nav-badge">7</span></button>
-        <button class="nav-item active"><span class="nav-icon">▣</span><span>Вакансии</span><span class="nav-badge">18</span></button>
-        <button class="nav-item"><span class="nav-icon">◎</span><span>Кандидаты</span></button>
-        <button class="nav-item"><span class="nav-icon">◇</span><span>Заявки</span><span class="nav-badge">3</span></button>
+        <button class="nav-item" data-page="overview"><span class="nav-icon">⌂</span><span>Обзор</span></button>
+        <button class="nav-item" data-page="tasks"><span class="nav-icon">✓</span><span>Мои задачи</span><span class="nav-badge">7</span></button>
+        <button class="nav-item active" data-page="vacancy"><span class="nav-icon">▣</span><span>Вакансии</span><span class="nav-badge">18</span></button>
+        <button class="nav-item" data-page="candidates"><span class="nav-icon">◎</span><span>Кандидаты</span></button>
+        <button class="nav-item" data-page="requisitions"><span class="nav-icon">◇</span><span>Заявки</span><span class="nav-badge">3</span></button>
         <div class="nav-label">Инструменты</div>
-        <button class="nav-item"><span class="nav-icon">⌕</span><span>Поиск</span></button>
-        <button class="nav-item"><span class="nav-icon">□</span><span>Календарь</span></button>
-        <button class="nav-item"><span class="nav-icon">↗</span><span>Аналитика</span></button>
-        <button class="nav-item"><span class="nav-icon">⚙</span><span>Настройки</span></button>
+        <button class="nav-item" data-page="search"><span class="nav-icon">⌕</span><span>Поиск</span></button>
+        <button class="nav-item" data-placeholder="Календарь"><span class="nav-icon">□</span><span>Календарь</span></button>
+        <button class="nav-item" data-page="analytics"><span class="nav-icon">↗</span><span>Аналитика</span></button>
+        <button class="nav-item" data-placeholder="Настройки"><span class="nav-icon">⚙</span><span>Настройки</span></button>
       </nav>
       <div class="sidebar-bottom">
         <div class="user-mini"><div class="avatar sm">ЕК</div><div><span>Елена Крылова</span><small id="sidebar-role">Рекрутер</small></div></div>
@@ -315,7 +413,7 @@
 
     <div class="main-shell">
       <header class="topbar">
-        <div class="search"><input aria-label="Глобальный поиск" placeholder="Найти кандидата, вакансию или задачу"><span class="shortcut">⌘ K</span></div>
+        <div class="search"><input id="global-search" aria-label="Глобальный поиск" placeholder="Найти кандидата, вакансию или задачу"><span class="shortcut">⌘ K</span></div>
         <div class="prototype-controls" aria-label="Переключатели прототипа">
           <label class="control-label">Роль
             <select id="role-select">
@@ -323,13 +421,13 @@
               <option value="manager">Нанимающий менеджер</option>
             </select>
           </label>
-          <label class="control-label">Вакансия
+          <label class="control-label vacancy-only-control">Состояние
             <select id="vacancy-select">
               <option value="working">В работе</option>
               <option value="paused">На паузе</option>
             </select>
           </label>
-          <label class="control-label">Сценарий
+          <label class="control-label vacancy-only-control">Сценарий
             <select id="view-select">
               <option value="normal">Обычный</option>
               <option value="empty">Нет кандидатов</option>
@@ -348,13 +446,13 @@
           <button class="back" aria-label="Вернуться к списку вакансий">←</button>
           <div class="vacancy-title">
             <div class="eyebrow"><span class="status-pill" id="status-pill">● В работе</span><span>Конфиденциальность: обычная</span></div>
-            <h1>Senior Android-разработчик</h1>
-            <div class="meta"><span>Разработка мобильных продуктов</span><span>Senior</span><span>Приоритет 1</span><span>Москва / удалённо</span><span>Воронка v4</span><span>Участники: Елена Крылова +2</span></div>
+            <div class="vacancy-heading-row"><h1 id="vacancy-name">Senior Android-разработчик</h1><select class="vacancy-switch" id="vacancy-switch" aria-label="Выбрать вакансию"><option value="android">Senior Android-разработчик</option><option value="designer">Senior Product Designer</option></select></div>
+            <div class="meta" id="vacancy-meta"></div>
           </div>
           <div class="head-metrics">
-            <div class="metric"><strong>1 из 2</strong><span>позиций закрыто</span></div>
-            <div class="metric"><strong>78%</strong><span>близость к закрытию</span></div>
-            <div class="metric warn"><strong>8 дней</strong><span>до плановой даты</span></div>
+            <div class="metric"><strong id="vacancy-hired">1 из 2</strong><span>позиций закрыто</span></div>
+            <div class="metric"><strong id="vacancy-progress">78%</strong><span>близость к закрытию</span></div>
+            <div class="metric warn"><strong id="vacancy-deadline">8 дней</strong><span>до плановой даты</span></div>
           </div>
           <div class="head-actions"><button class="button">Сведения</button><button class="button primary recruiter-only">+ Кандидат</button><button class="button">•••</button></div>
         </section>
@@ -417,6 +515,65 @@
           <div class="state-card"><div class="state-icon">⛨</div><h2>Нет доступа к вакансии</h2><p>Вакансия скрыта или вы не добавлены в её область доступа. Название, участники, кандидаты и счётчики не показываются.</p><div class="state-actions"><button class="button">Вернуться к моим вакансиям</button></div></div>
         </section>
       </main>
+
+      <main class="app-page" id="page-overview" hidden>
+        <header class="page-head"><div><h1>Обзор</h1><p>Добрый день, Елена. Вот что требует внимания сегодня.</p></div><div class="page-actions"><button class="button">Настроить дашборд</button><button class="button primary" data-page-jump="tasks">Открыть мои задачи</button></div></header>
+        <section class="kpi-grid">
+          <button class="kpi-card metric-button" data-page-jump="vacancy"><span class="kpi-label">Вакансии в работе</span><strong>18</strong><small class="up">2 близки к закрытию</small></button>
+          <button class="kpi-card metric-button" data-page-jump="tasks"><span class="kpi-label">Задачи на сегодня</span><strong>7</strong><small class="down">3 просрочены</small></button>
+          <button class="kpi-card metric-button" data-page-jump="requisitions"><span class="kpi-label">Ждут моего решения</span><strong>3</strong><small>заявки и согласования</small></button>
+          <button class="kpi-card metric-button" data-placeholder="Календарь"><span class="kpi-label">Встречи сегодня</span><strong>5</strong><small>ближайшая в 11:30</small></button>
+        </section>
+        <section class="dashboard-grid">
+          <div class="panel"><div class="panel-head"><h2>Вакансии, требующие внимания</h2><small>по SLA и состоянию воронки</small><button class="button" data-page-jump="vacancy">Все вакансии</button></div><table class="data-table"><thead><tr><th>Вакансия</th><th>Рекрутер</th><th>Прогресс</th><th>SLA</th><th>Кандидаты</th></tr></thead><tbody>
+            <tr class="clickable" data-open-vacancy="android"><td><span class="table-title">Senior Android-разработчик</span><span class="table-sub">Mobile · Senior · приоритет 1</span></td><td>Елена Крылова</td><td><div class="progress-track"><span style="width:78%"></span></div><span class="table-sub">78%</span></td><td><span class="pill orange">8 дней</span></td><td>90</td></tr>
+            <tr class="clickable" data-open-vacancy="designer"><td><span class="table-title">Senior Product Designer</span><span class="table-sub">Core Product · Senior · приоритет 2</span></td><td>Антон Беляев</td><td><div class="progress-track"><span style="width:62%"></span></div><span class="table-sub">62%</span></td><td><span class="pill blue">19 дней</span></td><td>100</td></tr>
+            <tr class="clickable"><td><span class="table-title">Data Analyst</span><span class="table-sub">BI · Middle · приоритет 2</span></td><td>Мария Фролова</td><td><div class="progress-track"><span style="width:34%"></span></div><span class="table-sub">34%</span></td><td><span class="pill red">−2 дня</span></td><td>37</td></tr>
+            <tr class="clickable"><td><span class="table-title">Руководитель клиентского сервиса</span><span class="table-sub">Operations · Lead · приоритет 1</span></td><td>Елена Крылова</td><td><div class="progress-track"><span style="width:49%"></span></div><span class="table-sub">49%</span></td><td><span class="pill orange">5 дней</span></td><td>28</td></tr>
+          </tbody></table></div>
+          <div class="panel"><div class="panel-head"><h2>План дня</h2><small>7 задач</small></div><div class="task-list" id="overview-tasks"></div><div class="panel-body"><button class="button" data-page-jump="tasks">Все мои задачи</button></div></div>
+        </section>
+        <section class="dashboard-grid equal" style="margin-top:12px">
+          <div class="panel"><div class="panel-head"><h2>Новые кандидаты за 6 недель</h2><small>все доступные вакансии</small></div><div class="panel-body"><div class="bar-chart"><div class="bar" style="height:44%"><span>41</span></div><div class="bar" style="height:61%"><span>58</span></div><div class="bar" style="height:53%"><span>50</span></div><div class="bar" style="height:76%"><span>72</span></div><div class="bar" style="height:67%"><span>63</span></div><div class="bar" style="height:92%"><span>87</span></div></div><div class="chart-labels"><span>27 июл</span><span>3 авг</span><span>10 авг</span><span>17 авг</span><span>24 авг</span><span>31 авг</span></div></div></div>
+          <div class="panel"><div class="panel-head"><h2>Ближайшие встречи</h2><small>сегодня</small></div><div class="task-list"><div class="task-row"><span class="info-icon">11:30</span><div><span class="task-title">HR-интервью · Алина Воронцова</span><span class="task-context">Senior Android-разработчик · Телемост</span></div><span class="task-date">через 48 мин.</span></div><div class="task-row"><span class="info-icon">13:00</span><div><span class="task-title">Портфолио · Марина Орлова</span><span class="task-context">Senior Product Designer · Контур Толк</span></div><span class="task-date">через 2 ч.</span></div><div class="task-row"><span class="info-icon">16:30</span><div><span class="task-title">Финал · Пётр Волков</span><span class="task-context">Data Analyst · офис</span></div><span class="task-date">сегодня</span></div></div></div>
+        </section>
+      </main>
+
+      <main class="app-page" id="page-tasks" hidden>
+        <header class="page-head"><div><h1>Мои задачи</h1><p>Рекрутинговая работа, требующая вашего действия.</p></div><div class="page-actions"><button class="button">Задачи команды</button><button class="button primary" id="new-task-button">+ Создать задачу</button></div></header>
+        <div class="filter-row"><div class="segmented" id="task-segments"><button class="active" data-task-filter="active">Активные</button><button data-task-filter="late">Просрочено</button><button data-task-filter="future">Предстоящие</button><button data-task-filter="done">Завершённые</button></div><select><option>Все вакансии</option><option>Senior Android-разработчик</option><option>Senior Product Designer</option></select><select><option>Все типы</option><option>Связаться</option><option>Получить фидбек</option><option>Добавить кандидатов</option><option>Назначить интервью</option></select></div>
+        <div class="panel"><table class="data-table"><thead><tr><th></th><th>Задача</th><th>Объект</th><th>Приоритет</th><th>Срок</th><th>Прогресс</th></tr></thead><tbody id="tasks-table"></tbody></table></div>
+      </main>
+
+      <main class="app-page" id="page-candidates" hidden>
+        <header class="page-head"><div><h1>Кандидаты</h1><p>Единая база профилей и всех доступных процессов.</p></div><div class="page-actions"><button class="button" data-page-jump="search">Расширенный поиск</button><button class="button primary recruiter-only">+ Добавить кандидата</button></div></header>
+        <div class="filter-row"><input id="global-candidate-filter" placeholder="Имя, роль, компания, навык"><select><option>Все процессы</option><option>Есть активные вакансии</option><option>Без активных вакансий</option></select><select><option>Любое согласие</option><option>Согласие дано</option><option>Согласие запрошено</option><option>Согласие отозвано</option></select></div>
+        <section class="split-view"><div class="split-list"><div class="panel-head"><h2>Найдено <span id="global-candidate-count">190</span></h2><small>в пределах ваших прав</small></div><div id="global-candidate-list"></div></div><div class="split-detail" id="global-candidate-detail"></div></section>
+      </main>
+
+      <main class="app-page" id="page-requisitions" hidden>
+        <header class="page-head"><div><h1>Заявки на вакансии</h1><p>Потребности, версии данных и цепочки согласования.</p></div><div class="page-actions"><button class="button primary">+ Создать заявку</button></div></header>
+        <div class="filter-row"><div class="segmented"><button class="active">Все доступные</button><button>Мои</button><button>Требуют моего решения</button></div><select><option>Все статусы</option><option>Черновик</option><option>На согласовании</option><option>Согласована</option></select></div>
+        <section class="requisition-layout"><div class="panel"><table class="data-table"><thead><tr><th>Заявка</th><th>Автор</th><th>Ставки</th><th>Статус</th><th>Следующий шаг</th></tr></thead><tbody id="requisition-table"></tbody></table></div><aside class="panel"><div class="panel-head"><h2 id="req-detail-title">Senior iOS-разработчик</h2></div><div class="panel-body" id="requisition-detail"></div></aside></section>
+      </main>
+
+      <main class="app-page" id="page-search" hidden>
+        <header class="page-head"><div><h1>Поиск кандидатов</h1><p>Многоуровневый запрос по базе ATS и подключённым внешним источникам.</p></div><div class="page-actions"><button class="button">Сохранённые поиски</button><button class="button">Автоподбор к вакансии</button></div></header>
+        <section class="panel"><div class="panel-head"><h2>Условия поиска</h2><small>строки объединяются выбранной логикой</small></div><div class="panel-body"><div class="query-builder" id="query-builder"></div><button class="button ghost" id="add-query-row">+ Добавить условие</button><div class="source-picks"><label class="source-pick"><input type="checkbox" checked value="ATS"> База ATS · 12 480</label><label class="source-pick"><input type="checkbox" checked value="hh.ru"> hh.ru</label><label class="source-pick"><input type="checkbox" value="Авито Работа"> Авито Работа</label><label class="source-pick"><input type="checkbox" value="Getmatch"> Getmatch</label></div><div style="display:flex;gap:8px"><button class="button primary" id="run-search">Найти кандидатов</button><button class="button">Сохранить запрос</button><label class="control-label" style="margin-left:auto">Добавлять на <select id="search-vacancy"><option value="android">Senior Android-разработчик</option><option value="designer">Senior Product Designer</option></select></label></div></div></section>
+        <section class="panel" style="margin-top:12px"><div class="panel-head"><h2>Результаты</h2><small id="search-summary">Запустите поиск</small><select id="search-sort"><option>По соответствию</option><option>Сначала новые</option><option>Недавно обновлённые</option></select></div><div id="search-results"><div class="state-card" style="margin:34px auto;box-shadow:none"><div class="state-icon">⌕</div><h2>Соберите запрос</h2><p>Можно добавлять любое количество строк и искать одновременно внутри ATS и во внешних источниках.</p></div></div></section>
+      </main>
+
+      <main class="app-page" id="page-analytics" hidden>
+        <header class="page-head"><div><h1>Аналитика</h1><p>Показатели найма с объяснимым расчётом и детализацией.</p></div><div class="page-actions"><button class="button">✦ Собрать отчёт с ИИ</button><button class="button primary">Настроить дашборд</button></div></header>
+        <div class="filter-row"><select><option>Последние 90 дней</option><option>Текущий квартал</option><option>Текущий год</option></select><select><option>Все подразделения</option><option>Разработка</option><option>Продукт</option></select><select><option>Все рекрутеры</option><option>Елена Крылова</option><option>Антон Беляев</option></select><div class="segmented"><button class="active">Медиана</button><button>Среднее</button><button>P75</button><button>P90</button></div></div>
+        <section class="kpi-grid"><button class="kpi-card metric-button" data-metric="Time to hire"><span class="kpi-label">Time to hire · медиана</span><strong>31 день</strong><small class="up">−4 дня к прошлому периоду</small></button><button class="kpi-card metric-button" data-metric="Соблюдение SLA"><span class="kpi-label">Вакансии в SLA</span><strong>82%</strong><small class="up">+6 п.п.</small></button><button class="kpi-card metric-button" data-metric="Конверсия в выход"><span class="kpi-label">Конверсия в выход</span><strong>2,8%</strong><small>из 1 142 кандидатов</small></button><button class="kpi-card metric-button" data-metric="ИИ-покрытие"><span class="kpi-label">ИИ-покрытие</span><strong>91%</strong><small>1 039 резюме оценено</small></button></section>
+        <section class="analytics-grid">
+          <div class="panel wide"><div class="panel-head"><h2>Time to hire по подразделениям</h2><small>медиана · календарные дни</small></div><div class="panel-body"><div class="bar-chart"><div class="bar" style="height:72%"><span>34</span></div><div class="bar" style="height:91%"><span>43</span></div><div class="bar" style="height:55%"><span>26</span></div><div class="bar" style="height:66%"><span>31</span></div><div class="bar" style="height:47%"><span>22</span></div></div><div class="chart-labels"><span>Разработка</span><span>Продукт</span><span>Продажи</span><span>Операции</span><span>Маркетинг</span></div></div></div>
+          <div class="panel narrow"><div class="panel-head"><h2>Текущая воронка</h2><small>активные процессы</small></div><div class="panel-body"><div class="funnel"><div class="funnel-step" style="width:100%">Новые · 418</div><div class="funnel-step" style="width:83%">Ревью · 287</div><div class="funnel-step" style="width:67%">Контакт · 196</div><div class="funnel-step" style="width:48%">Интервью · 102</div><div class="funnel-step" style="width:29%">Оффер · 31</div><div class="funnel-step" style="width:17%">Выход · 12</div></div></div></div>
+          <div class="panel wide"><div class="panel-head"><h2>Эффективность источников</h2><small>нанятые и скорость</small></div><table class="data-table"><thead><tr><th>Источник</th><th>Кандидаты</th><th>Интервью</th><th>Выходы</th><th>Конверсия</th><th>Медиана</th></tr></thead><tbody><tr><td>База ATS</td><td>312</td><td>71</td><td>8</td><td>2,6%</td><td>24 дня</td></tr><tr><td>hh.ru</td><td>604</td><td>83</td><td>9</td><td>1,5%</td><td>35 дней</td></tr><tr><td>Авито Работа</td><td>146</td><td>31</td><td>4</td><td>2,7%</td><td>29 дней</td></tr><tr><td>Getmatch</td><td>80</td><td>22</td><td>5</td><td>6,3%</td><td>27 дней</td></tr></tbody></table></div>
+          <div class="panel narrow"><div class="panel-head"><h2>Качество процесса</h2><small>ответы за период</small></div><div class="panel-body"><div class="kpi-card" style="min-height:0;margin-bottom:8px"><span class="kpi-label">NPS нанимающих</span><strong style="font-size:22px">+61</strong><small>покрытие 68% · 34 ответа</small></div><div class="kpi-card" style="min-height:0"><span class="kpi-label">Candidate experience</span><strong style="font-size:22px">4,6 / 5</strong><small>покрытие 42% · 118 ответов</small></div></div></div>
+        </section>
+      </main>
     </div>
   </div>
 
@@ -426,40 +583,104 @@
       <div class="modal-body">
         <div class="pause-warning" id="modal-pause-warning" hidden>Вакансия на паузе. Ручной переход разрешён, но автоматические сообщения и ИИ-действия не запустятся.</div>
         <p>Текущий этап: <strong id="modal-current-stage">HR-интервью</strong>. Показываются только доступные цели действующей версии воронки.</p>
-        <button class="stage-choice" data-target="Техническое интервью"><b>Техническое интервью</b><span>следующий обязательный этап →</span></button>
-        <button class="stage-choice" data-target="Финальное интервью"><b>Финальное интервью</b><span>пропуск этапа требует права</span></button>
-        <button class="stage-choice" data-target="Отказ"><b style="color:var(--danger)">Отказ</b><span>нужно выбрать причину</span></button>
-        <button class="stage-choice disabled" disabled><b>Интервью с командой</b><span>архивный этап · вход закрыт</span></button>
+        <div id="move-stage-choices"></div>
       </div>
       <div class="modal-foot"><button class="button" id="modal-cancel">Отмена</button></div>
     </section>
   </div>
 
+  <aside class="drawer" id="metric-drawer" hidden><div class="drawer-head"><div><h2 id="metric-drawer-title">Детализация метрики</h2><p>Определение, покрытие и доступные объекты</p></div><button class="icon-button" id="metric-drawer-close" aria-label="Закрыть">×</button></div><div id="metric-drawer-body"></div></aside>
   <div class="toast" id="toast" hidden></div>
-  <div class="prototype-note">Проверочный прототип · переключайте роль, состояние вакансии и сценарий в верхней панели</div>
+  <div class="prototype-note">Проверочный прототип · разделы слева кликабельны, состояние и роль переключаются сверху</div>
 
   <script>
-    const candidates = [
-      { id: 1, initials: 'АВ', name: 'Алина Воронцова', role: 'Android-разработчик', company: 'Fintech Lab', stage: 'HR-интервью', score: '8,7', scoreClass: '', source: 'hh.ru', age: '2 дня', attention: '', badges: ['HR-интервью', 'ИИ 8,7', 'Встреча завтра'], salary: 'от 320 000 ₽ на руки', email: 'alina.vorontsova@example.ru', phone: '+7 900 123-45-67' },
-      { id: 2, initials: 'МП', name: 'Михаил Петров-Соколов', role: 'Senior Android Engineer', company: 'Market Cloud', stage: 'Техническое интервью', score: '9,2', scoreClass: '', source: 'Авито Работа', age: '5 дней', attention: 'SLA этапа +1 день', badges: ['Техническое интервью', 'ИИ 9,2', 'Просрочена задача'], salary: '350 000–390 000 ₽ до вычета', email: 'm.petrov@example.ru', phone: '+7 921 555-18-09' },
-      { id: 3, initials: 'ВЧ', name: 'Виктория Чен', role: 'Android Developer', company: 'MobiGo', stage: 'Ревью', score: '6,4', scoreClass: 'mid', source: 'из базы', age: 'сегодня', attention: 'нужна ручная оценка', badges: ['Ревью', 'ИИ 6,4', 'Ручное решение'], salary: 'ожидания не указаны', email: 'v.chen@example.ru', phone: '+7 916 300-20-10' },
-      { id: 4, initials: 'ДК', name: 'Дмитрий Ким', role: 'Kotlin-разработчик', company: 'DataNorth', stage: 'ИИ-скрининг', score: '!', scoreClass: 'error', source: 'hh.ru', age: '18 минут', attention: 'файл не прочитан', badges: ['ИИ-скрининг', 'Нужно ревью вручную'], salary: 'от 300 000 ₽', email: 'd.kim@example.ru', phone: '+7 903 204-77-12' },
-      { id: 5, initials: 'ЕМ', name: 'Екатерина Мельникова-Сафронова', role: 'Ведущий Android-разработчик', company: 'Ритейл Платформа', stage: 'Интервью с командой', score: '8,1', scoreClass: '', source: 'Getmatch', age: '11 дней', attention: 'архивный этап', badges: ['Архивный этап', 'ИИ 8,1', 'Можно только вывести'], salary: '330 000 ₽ на руки', email: 'e.melnikova@example.ru', phone: '+7 999 140-08-52' }
+    const femaleFirstNames = ['Алина','Виктория','Екатерина','Марина','Софья','Полина','Дарья','Анна','Ксения','Ольга'];
+    const maleFirstNames = ['Михаил','Дмитрий','Алексей','Илья','Никита','Роман','Сергей','Тимофей','Артём','Лев'];
+    const femaleLastNames = ['Воронцова','Петрова-Соколова','Чен','Ким','Мельникова-Сафронова','Орлова','Смирнова','Беляева','Кузнецова','Волкова'];
+    const maleLastNames = ['Воронцов','Петров-Соколов','Чен','Ким','Мельников-Сафронов','Орлов','Смирнов','Беляев','Кузнецов','Волков'];
+    const companies = ['Fintech Lab','Market Cloud','MobiGo','DataNorth','Ритейл Платформа','Travel Tech','Медиа Сфера','Urban Services','Health Data','EdTech Hub'];
+    const sources = ['hh.ru','Авито Работа','Getmatch','из базы ATS','LinkedIn'];
+    const vacancyDefinitions = {
+      android: {
+        id: 'android', name: 'Senior Android-разработчик', department: 'Разработка мобильных продуктов', grade: 'Senior', priority: '1', location: 'Москва / удалённо', funnel: 'Mobile hiring v4', participants: 'Елена Крылова +2', hired: '1 из 2', progress: '78%', deadline: '8 дней',
+        roles: ['Android-разработчик','Senior Android Engineer','Kotlin-разработчик','Mobile Tech Lead'],
+        skill: 'Kotlin', secondary: 'Jetpack Compose', missing: 'Compose Multiplatform',
+        stages: [
+          { id:'Отклик', label:'Отклик' }, { id:'Новый кандидат', label:'Новые' }, { id:'ИИ-скрининг', label:'ИИ-скрининг' }, { id:'Ревью', label:'Ревью' }, { id:'Контакт', label:'Контакт' }, { id:'HR-интервью', label:'HR-интервью' }, { id:'Техническое интервью', label:'Тех. интервью' }, { id:'Оффер', label:'Оффер' }, { id:'Интервью с командой', label:'Архивный этап', legacy:true }
+        ]
+      },
+      designer: {
+        id: 'designer', name: 'Senior Product Designer', department: 'Core Product', grade: 'Senior', priority: '2', location: 'Санкт-Петербург / гибрид', funnel: 'Product Design v3', participants: 'Антон Беляев +4', hired: '0 из 1', progress: '62%', deadline: '19 дней',
+        roles: ['Senior Product Designer','UX/UI Designer','Product Designer','Design Lead'],
+        skill: 'Figma', secondary: 'Продуктовые исследования', missing: 'Дизайн B2B-платформ',
+        stages: [
+          { id:'Отклик', label:'Отклик' }, { id:'Новый кандидат', label:'Новые' }, { id:'ИИ-скрининг', label:'ИИ-скрининг' }, { id:'Ревью', label:'Ревью' }, { id:'Контакт', label:'Контакт' }, { id:'HR-интервью', label:'HR-интервью' }, { id:'Портфолио', label:'Портфолио' }, { id:'Тестовое задание', label:'Тестовое' }, { id:'Финальное интервью', label:'Финал' }, { id:'Оффер', label:'Оффер' }
+        ]
+      }
+    };
+
+    function makeCandidate(vacancy, vacancyIndex, stage, stageIndex, itemIndex) {
+      const seed = vacancyIndex * 100 + stageIndex * 10 + itemIndex;
+      const female = seed % 2 === 0;
+      const firstPool = female ? femaleFirstNames : maleFirstNames;
+      const lastPool = female ? femaleLastNames : maleLastNames;
+      const first = firstPool[(seed * 3 + stageIndex) % firstPool.length];
+      const last = lastPool[(seed * 7 + itemIndex + vacancyIndex) % lastPool.length];
+      const name = `${first} ${last}`;
+      const scoreNumber = 5.4 + ((seed * 17) % 45) / 10;
+      const unreadable = stage.id === 'ИИ-скрининг' && itemIndex === 3;
+      const score = unreadable ? '!' : scoreNumber.toFixed(1).replace('.', ',');
+      const scoreClass = unreadable ? 'error' : scoreNumber < 7 ? 'mid' : '';
+      const attention = unreadable ? 'файл не прочитан' : itemIndex === 1 ? 'SLA этапа +1 день' : itemIndex === 4 ? 'нужна ручная оценка' : stage.legacy ? 'архивный этап' : '';
+      const initials = `${first[0]}${last[0]}`;
+      const role = vacancy.roles[(seed + itemIndex) % vacancy.roles.length];
+      const years = 4 + (seed % 8);
+      const versions = 2 + (seed % 3);
+      const feedbackCount = seed % 4;
+      const consent = seed % 13 === 0 ? 'Согласие отозвано' : seed % 5 === 0 ? 'Согласие запрошено' : 'Согласие дано';
+      const signal = seed % 17 === 0 ? 'Потенциальная накрутка опыта' : seed % 19 === 0 ? 'Возможный дубль' : '';
+      return {
+        id: `${vacancy.id}-${stageIndex}-${itemIndex}`, vacancyId: vacancy.id, initials, name, role,
+        company: companies[(seed + 2) % companies.length], stage: stage.id, score, scoreNumber, scoreClass,
+        source: sources[(seed + stageIndex) % sources.length], age: `${1 + (seed % 12)} дн.`, attention,
+        badges: [stage.legacy ? 'Архивный этап' : stage.label, unreadable ? 'Нужно ревью вручную' : `ИИ ${score}`, attention || `${versions} версии резюме`].filter(Boolean),
+        salary: seed % 7 === 0 ? 'ожидания не указаны' : `${260 + (seed % 15) * 10} 000–${310 + (seed % 16) * 10} 000 ₽`,
+        email: `candidate${vacancyIndex + 1}${stageIndex}${itemIndex}@example.ru`, phone: `+7 900 ${100 + stageIndex}${10 + itemIndex}-${20 + itemIndex}-${30 + stageIndex}`,
+        years, versions, feedbackCount, consent, signal,
+        summary: `${years} лет релевантного опыта. Сильные стороны: ${vacancy.skill}, ${vacancy.secondary} и работа в продуктовой команде. ${itemIndex % 3 === 0 ? `В резюме не подтверждён опыт: ${vacancy.missing}.` : 'Ключевые обязательные требования подтверждены.'}`,
+        resumeHighlights: [`Развивал продукт с аудиторией ${(1.2 + (seed % 8) / 2).toFixed(1)} млн пользователей.`, `Сократил время выполнения ключевого процесса на ${12 + seed % 29}%.`, `Работал в кросс-функциональной команде из ${4 + seed % 9} человек.`]
+      };
+    }
+
+    const candidatePools = {};
+    Object.values(vacancyDefinitions).forEach((vacancy, vacancyIndex) => {
+      candidatePools[vacancy.id] = vacancy.stages.flatMap((stage, stageIndex) => Array.from({ length: 10 }, (_, itemIndex) => makeCandidate(vacancy, vacancyIndex, stage, stageIndex, itemIndex)));
+    });
+
+    const recruitmentTasks = [
+      { id:1, title:'Связаться с Михаилом Петровым-Соколовым', context:'Senior Android-разработчик · кандидат', priority:'Высокий', due:'сегодня, 11:00', late:true, progress:'—', done:false },
+      { id:2, title:'Получить фидбек после портфолио', context:'Senior Product Designer · 3 интервьюера', priority:'Обычный', due:'сегодня, 14:00', progress:'1 из 3', done:false },
+      { id:3, title:'Добавить 10 новых кандидатов', context:'Senior Android-разработчик · количественная', priority:'Высокий', due:'сегодня, 18:00', progress:'6 из 10', done:false },
+      { id:4, title:'Назначить 4 технических интервью', context:'Senior Android-разработчик · количественная', priority:'Обычный', due:'завтра', progress:'2 из 4', done:false },
+      { id:5, title:'Уточнить бюджет вакансии', context:'Data Analyst · вакансия', priority:'Критический', due:'вчера, 16:00', late:true, progress:'—', done:false },
+      { id:6, title:'Пересмотреть ручной отказ ИИ', context:'Senior Product Designer · Марина Орлова', priority:'Обычный', due:'5 сентября', future:true, progress:'—', done:false },
+      { id:7, title:'Отправить candidate experience анкету', context:'Руководитель клиентского сервиса', priority:'Низкий', due:'6 сентября', future:true, progress:'—', done:false },
+      { id:8, title:'Проверить новую версию резюме', context:'Senior Android-разработчик · Виктория Чен', priority:'Обычный', due:'31 августа', late:true, progress:'—', done:false },
+      { id:9, title:'Согласовать слот финального интервью', context:'Senior Product Designer · кандидат', priority:'Обычный', due:'сегодня, 17:30', progress:'—', done:false },
+      { id:10, title:'Обновить комментарий по поиску', context:'Data Analyst · вакансия', priority:'Низкий', due:'30 августа', done:true, progress:'—' }
     ];
 
-    const stages = [
-      { id: 'all', label: 'Все', count: 24 },
-      { id: 'Отклик', label: 'Отклик', count: 6 },
-      { id: 'Новый кандидат', label: 'Новые', count: 4 },
-      { id: 'ИИ-скрининг', label: 'ИИ-скрининг', count: 3 },
-      { id: 'Ревью', label: 'Ревью', count: 2 },
-      { id: 'Контакт', label: 'Контакт', count: 2 },
-      { id: 'HR-интервью', label: 'HR-интервью', count: 3 },
-      { id: 'Техническое интервью', label: 'Тех. интервью', count: 2 },
-      { id: 'Оффер', label: 'Оффер', count: 1 },
-      { id: 'Интервью с командой', label: 'Архивный этап', count: 1, legacy: true }
+    const requisitions = [
+      { id:1, title:'Senior iOS-разработчик', author:'Андрей Ковалёв', positions:2, status:'На согласовании', next:'C&B · до завтра', department:'Mobile', budget:'330–380 тыс. ₽', step:2 },
+      { id:2, title:'Product Marketing Manager', author:'Ольга Романова', positions:1, status:'Требует моего решения', next:'Вы · просрочено 1 день', department:'Маркетинг', budget:'скрыто правами', step:1 },
+      { id:3, title:'Data Engineer', author:'Сергей Волков', positions:3, status:'Согласована', next:'Распределить вакансию', department:'Data Platform', budget:'300–360 тыс. ₽', step:3 },
+      { id:4, title:'UX Researcher', author:'Анна Фёдорова', positions:1, status:'Черновик', next:'Продолжить ИИ-диалог', department:'Core Product', budget:'не заполнено', step:0 },
+      { id:5, title:'Руководитель отдела продаж', author:'Мария Соколова', positions:1, status:'Возвращена', next:'Исправить ID ставки', department:'Sales', budget:'от 420 тыс. ₽', step:1 }
     ];
 
+    let currentVacancyId = 'android';
+    let candidates = candidatePools[currentVacancyId];
+    let stages = [];
     let currentCandidate = candidates[0];
     let currentStage = 'all';
     let currentTab = 'overview';
@@ -468,6 +689,26 @@
     const roleSelect = el('role-select');
     const vacancySelect = el('vacancy-select');
     const viewSelect = el('view-select');
+    const vacancySwitch = el('vacancy-switch');
+
+    function activateVacancy(vacancyId, resetCandidate = true) {
+      currentVacancyId = vacancyId;
+      const vacancy = vacancyDefinitions[vacancyId];
+      candidates = candidatePools[vacancyId];
+      stages = [{ id:'all', label:'Все', count:candidates.length }, ...vacancy.stages.map(stage => ({ ...stage, count:candidates.filter(candidate => candidate.stage === stage.id).length }))];
+      currentStage = 'all';
+      if (resetCandidate || !candidates.some(candidate => candidate.id === currentCandidate?.id)) currentCandidate = candidates[0];
+      vacancySwitch.value = vacancyId;
+      el('vacancy-name').textContent = vacancy.name;
+      el('vacancy-meta').innerHTML = `<span>${vacancy.department}</span><span>${vacancy.grade}</span><span>Приоритет ${vacancy.priority}</span><span>${vacancy.location}</span><span>Воронка: ${vacancy.funnel}</span><span>Участники: ${vacancy.participants}</span>`;
+      el('vacancy-hired').textContent = vacancy.hired;
+      el('vacancy-progress').textContent = vacancy.progress;
+      el('vacancy-deadline').textContent = vacancy.deadline;
+      el('candidate-filter').value = '';
+      renderPipeline();
+      renderCandidateList();
+      if (typeof currentPage !== 'undefined' && currentPage === 'vacancy') history.replaceState(null, '', `#vacancy/${vacancyId}`);
+    }
 
     function renderPipeline() {
       el('pipeline').innerHTML = stages.map(stage => `
@@ -508,7 +749,7 @@
           <span class="score ${candidate.scoreClass}">${candidate.score}</span>
         </button>`).join('');
       el('candidate-list').querySelectorAll('.candidate-row').forEach(button => button.addEventListener('click', () => {
-        currentCandidate = candidates.find(candidate => candidate.id === Number(button.dataset.candidate));
+        currentCandidate = candidates.find(candidate => candidate.id === button.dataset.candidate);
         renderCandidateList();
         renderCandidate();
       }));
@@ -522,6 +763,9 @@
       el('candidate-subtitle').textContent = `${c.role} · ${c.company}`;
       el('candidate-badges').innerHTML = c.badges.map((badge, index) => `<span class="pill ${index === 0 ? 'blue' : badge.includes('Просроч') || badge.includes('архив') ? 'orange' : ''}">${badge}</span>`).join('');
       el('modal-current-stage').textContent = c.stage;
+      document.querySelector('button[data-tab="resume"] .tab-count').textContent = c.versions;
+      document.querySelector('button[data-tab="history"] .tab-count').textContent = 4 + (c.years % 8);
+      document.querySelector('button[data-tab="feedback"] .tab-count').textContent = c.feedbackCount;
       renderTab();
     }
 
@@ -542,12 +786,14 @@
               <div class="field"><label>Текущий этап</label><strong>${c.stage}</strong></div>
               <div class="field"><label>Источник добавления</label><strong>${c.source}</strong></div>
               ${salaryBlock()}
-              <div class="field"><label>Резюме процесса</label><strong>hh.ru · версия от 29.08.2026</strong></div>
+              <div class="field"><label>Резюме процесса</label><strong>${c.source} · версия от ${20 + (c.years % 9)}.08.2026</strong></div>
+              <div class="field"><label>Согласие на обработку</label><strong>${c.consent}</strong></div>
+              <div class="field"><label>Сигналы</label><strong>${c.signal || 'нет активных сигналов'}</strong></div>
             </div>
           </section>
           <section class="card-section">
             <div class="section-title"><h3>Короткое саммари</h3><span class="pill blue">✦ ИИ</span></div>
-            <p class="summary-text">7 лет в Android-разработке, последние 3 года — ведущий разработчик продуктовой команды. Сильный Kotlin и Coroutines, есть опыт модульной архитектуры и релизов приложений с аудиторией более 2 млн пользователей. Не подтверждён опыт с Compose Multiplatform.</p>
+            <p class="summary-text">${c.summary}</p>
           </section>
           <section class="card-section comment-box">
             <div class="section-title"><h3>Добавить внутренний комментарий</h3><small>видят участники с правом</small></div>
@@ -559,16 +805,16 @@
           <section class="card-section">
             <div class="section-title"><h3>Следующие действия</h3><small>2 активных</small></div>
             <div class="item-list">
-              <div class="info-item"><span class="info-icon">□</span><div><strong>HR-интервью</strong><small>Яндекс Телемост · Елена Крылова</small></div><time>завтра<br>11:30</time></div>
-              <div class="info-item"><span class="info-icon">✓</span><div><strong>Собрать фидбек интервьюеров</strong><small>Ответственный: Елена Крылова</small></div><time>до 4 сен.</time></div>
+              <div class="info-item"><span class="info-icon">□</span><div><strong>${c.stage.includes('интервью') || c.stage === 'Портфолио' ? c.stage : 'Следующее интервью'}</strong><small>${c.id.charCodeAt(c.id.length - 1) % 2 ? 'Яндекс Телемост' : 'Контур Толк'} · Елена Крылова</small></div><time>${c.id.endsWith('0') ? 'сегодня' : 'завтра'}<br>${10 + c.years % 7}:30</time></div>
+              <div class="info-item"><span class="info-icon">✓</span><div><strong>${c.feedbackCount ? 'Собрать фидбек интервьюеров' : 'Связаться с кандидатом'}</strong><small>Ответственный: Елена Крылова</small></div><time>до ${3 + c.years % 5} сен.</time></div>
             </div>
             <button class="button ghost" style="margin-top:8px">+ Создать задачу</button>
           </section>
           <section class="card-section">
             <div class="section-title"><h3>Последняя активность</h3></div>
             <div class="item-list">
-              <div class="info-item"><span class="info-icon">→</span><div><strong>Переведена на HR-интервью</strong><small>Елена Крылова · из этапа «Контакт»</small></div><time>сегодня<br>10:36</time></div>
-              <div class="info-item"><span class="info-icon">✦</span><div><strong>ИИ-оценка завершена: 8,7</strong><small>Рекомендация подтверждена вручную</small></div><time>29 авг.</time></div>
+              <div class="info-item"><span class="info-icon">→</span><div><strong>Переведён на этап «${c.stage}»</strong><small>${c.id.endsWith('4') ? 'ИИ-автоматизация' : 'Елена Крылова · ручное действие'}</small></div><time>сегодня<br>10:36</time></div>
+              <div class="info-item"><span class="info-icon">✦</span><div><strong>ИИ-оценка ${c.score === '!' ? 'завершилась ошибкой' : `завершена: ${c.score}`}</strong><small>${c.score === '!' ? 'Нужна ручная оценка' : 'Рекомендация сохранена'}</small></div><time>${20 + c.years % 9} авг.</time></div>
             </div>
           </section>
         </div>
@@ -576,44 +822,51 @@
     }
 
     function resumeTemplate() {
+      const c = currentCandidate;
+      const vacancy = vacancyDefinitions[c.vacancyId];
+      const chips = Array.from({length:c.versions}, (_, index) => `<button class="version-chip ${index === 0 ? 'current' : ''}">${index === 0 ? 'текущая · ' : ''}${29 - index * 5}.08.2026 · ${index % 2 ? 'PDF' : c.source}</button>`).join('');
       return `<section class="card-section">
-        <div class="resume-head"><div><h3>Основное резюме · hh.ru</h3><p>Выбрано для этой вакансии · актуальность проверена 29 августа 2026</p></div><button class="button">Скачать PDF</button><button class="button recruiter-only">Выбрать другую версию</button></div>
-        <div class="version-strip"><button class="version-chip current">29.08.2026 · текущая</button><button class="version-chip">11.05.2026</button><button class="version-chip">18.02.2026</button><button class="version-chip">Getmatch · 04.07.2026</button></div>
-        <div class="resume-body"><h3>${currentCandidate.name}</h3><p>${currentCandidate.role} · Москва · готова к удалённой работе</p><h4>Опыт работы</h4><p><b>Fintech Lab — ведущий Android-разработчик</b><br>Май 2023 — настоящее время</p><ul><li>Развивает мобильное приложение с аудиторией 2,4 млн MAU.</li><li>Перевела ключевые экраны на Jetpack Compose, сократила время сборки на 18%.</li><li>Ведёт команду из четырёх разработчиков и участвует в найме.</li></ul><h4>Ключевые навыки</h4><p><mark>Kotlin</mark>, Coroutines, Flow, Jetpack Compose, Clean Architecture, MVI, CI/CD.</p><h4>Образование</h4><p>МГТУ им. Н. Э. Баумана, программная инженерия, 2019.</p></div>
+        <div class="resume-head"><div><h3>Основное резюме · ${c.source}</h3><p>Выбрано для этой вакансии · актуальность проверена ${20 + c.years % 9} августа 2026</p></div><button class="button">Скачать PDF</button><button class="button recruiter-only">Выбрать другую версию</button></div>
+        <div class="version-strip">${chips}<button class="version-chip">Другое резюме · ${c.versions > 2 ? 'Getmatch' : 'hh.ru'}</button></div>
+        <div class="resume-body"><h3>${c.name}</h3><p>${c.role} · ${vacancy.location} · ${c.years} лет опыта</p><h4>Опыт работы</h4><p><b>${c.company} — ${c.role}</b><br>Май ${2026 - Math.min(5,c.years)} — настоящее время</p><ul>${c.resumeHighlights.map(item => `<li>${item}</li>`).join('')}</ul><h4>Ключевые навыки</h4><p><mark>${vacancy.skill}</mark>, ${vacancy.secondary}, командная работа, аналитика, проведение интервью.</p><h4>Образование</h4><p>${c.id.charCodeAt(0) % 2 ? 'НИУ ВШЭ' : 'МГТУ им. Н. Э. Баумана'}, профильное образование, ${2018 + c.years % 5}.</p></div>
       </section>`;
     }
 
     function aiTemplate() {
       const paused = vacancySelect.value === 'paused';
+      const vacancy = vacancyDefinitions[currentCandidate.vacancyId];
       return `<div class="stack">
         <section class="card-section">
           <div class="section-title"><h3>Актуальная ИИ-оценка</h3><small>резюме 29.08 · карта критериев v7</small></div>
-          <div class="ai-hero"><div class="score-ring"><div><span><strong>${currentCandidate.score === '!' ? '—' : currentCandidate.score}</strong><small>из 10</small></span></div></div><div class="ai-summary"><h3>${currentCandidate.score === '!' ? 'Нужно ручное ревью' : 'Кандидат соответствует вакансии'}</h3><p>${currentCandidate.score === '!' ? 'Файл резюме не удалось прочитать. Автоматического решения и перехода не было.' : 'Совпадают обязательные технические требования и уровень ответственности. Стоит проверить глубину практического опыта с Compose и ожидания от роли.'}</p><div class="ai-note">Рекомендация: ${currentCandidate.score === '!' ? 'оставить на текущем этапе для ручной оценки' : 'перевести на HR-интервью'} · Фактическое действие: ${currentCandidate.score === '!' ? 'не выполнено' : 'подтверждено рекрутером'}</div></div></div>
+          <div class="ai-hero"><div class="score-ring"><div><span><strong>${currentCandidate.score === '!' ? '—' : currentCandidate.score}</strong><small>из 10</small></span></div></div><div class="ai-summary"><h3>${currentCandidate.score === '!' ? 'Нужно ручное ревью' : currentCandidate.scoreNumber >= 7 ? 'Кандидат соответствует вакансии' : 'Нужна ручная оценка'}</h3><p>${currentCandidate.score === '!' ? 'Файл резюме не удалось прочитать. Автоматического решения и перехода не было.' : currentCandidate.summary}</p><div class="ai-note">Рекомендация: ${currentCandidate.score === '!' ? 'оставить на текущем этапе для ручной оценки' : currentCandidate.scoreNumber >= 7 ? 'продолжить процесс' : 'решить вручную'} · Фактическое действие: ${currentCandidate.id.endsWith('4') ? 'выполнено автоматически' : 'подтверждено рекрутером'}</div></div></div>
           <div style="display:flex;gap:7px;margin-top:12px"><button class="button recruiter-only" ${paused ? 'disabled title="Недоступно на паузе"' : ''}>Оценить заново</button><button class="button recruiter-only">Изменить решение</button><button class="button">Версии оценки</button></div>
         </section>
         <section class="criteria">
-          <div class="criterion"><span class="ok">✓</span><b>Kotlin от 4 лет</b><span class="pill">обязательное</span><small>Подтверждено опытом с 2019 года и тремя последними местами работы.</small></div>
-          <div class="criterion"><span class="ok">✓</span><b>Jetpack Compose</b><span class="pill">обязательное</span><small>Указан переход ключевых экранов и практический вклад в архитектуру.</small></div>
-          <div class="criterion"><span class="maybe">?</span><b>Compose Multiplatform</b><span class="pill">желательное</span><small>Прямого подтверждения в выбранной версии резюме нет.</small></div>
+          <div class="criterion"><span class="ok">✓</span><b>${vacancy.skill} от 4 лет</b><span class="pill">обязательное</span><small>Подтверждено опытом и последними местами работы.</small></div>
+          <div class="criterion"><span class="ok">✓</span><b>${vacancy.secondary}</b><span class="pill">обязательное</span><small>Есть практические примеры и измеримый результат.</small></div>
+          <div class="criterion"><span class="maybe">?</span><b>${vacancy.missing}</b><span class="pill">желательное</span><small>Прямого подтверждения в выбранной версии резюме нет.</small></div>
           <div class="criterion"><span class="ok">✓</span><b>Техническое лидерство</b><span class="pill">желательное</span><small>Команда из четырёх разработчиков, участие в найме и наставничество.</small></div>
         </section>
       </div>`;
     }
 
     function historyTemplate() {
+      const c = currentCandidate;
       return `<section class="card-section"><div class="section-title"><h3>История процесса на вакансии</h3><button class="button" style="margin-left:auto">Фильтры</button></div><div class="timeline">
-        <div class="event"><span class="event-dot">→</span><div><strong>Переход: Контакт → HR-интервью</strong><p>Елена Крылова · ручное действие. Автоматическое письмо поставлено на 15 минут и ещё не отправлено.</p></div><time>сегодня, 10:36</time></div>
-        <div class="event"><span class="event-dot">□</span><div><strong>Назначена встреча</strong><p>HR-интервью · Яндекс Телемост · 3 сентября, 11:30 (МСК).</p></div><time>сегодня, 10:34</time></div>
-        <div class="event"><span class="event-dot">✦</span><div><strong>ИИ-скрининг завершён: 8,7</strong><p>Рекомендован этап «Ревью». Елена Крылова подтвердила рекомендацию.</p></div><time>29 авг., 14:12</time></div>
-        <div class="event"><span class="event-dot">＋</span><div><strong>Кандидат добавлен на вакансию</strong><p>Источник: отклик hh.ru. Создана новая версия резюме и выбран текущий снимок.</p></div><time>29 авг., 14:10</time></div>
+        <div class="event"><span class="event-dot">→</span><div><strong>Переход на этап «${c.stage}»</strong><p>${c.id.endsWith('4') ? 'ИИ-автоматизация · выполнено по опубликованному правилу.' : 'Елена Крылова · ручное действие. Источник и время сохранены.'}</p></div><time>сегодня, 10:36</time></div>
+        ${c.feedbackCount ? `<div class="event"><span class="event-dot">★</span><div><strong>Получен фидбек</strong><p>${c.feedbackCount} ${c.feedbackCount === 1 ? 'ответ' : 'ответа'} по формам текущего и предыдущих этапов.</p></div><time>вчера, 18:20</time></div>` : ''}
+        <div class="event"><span class="event-dot">□</span><div><strong>${c.id.endsWith('2') ? 'Встреча перенесена' : 'Назначена встреча'}</strong><p>${c.stage} · ${c.id.endsWith('5') ? 'Контур Толк' : 'Яндекс Телемост'} · исходный часовой пояс сохранён.</p></div><time>вчера, 12:34</time></div>
+        <div class="event"><span class="event-dot">✦</span><div><strong>ИИ-скрининг ${c.score === '!' ? 'завершился ошибкой' : `завершён: ${c.score}`}</strong><p>${c.score === '!' ? 'Файл не прочитан; автоматического решения не было.' : 'Результат связан с выбранной версией резюме и картой критериев.'}</p></div><time>${20 + c.years % 9} авг., 14:12</time></div>
+        <div class="event"><span class="event-dot">＋</span><div><strong>Кандидат добавлен на вакансию</strong><p>Источник: ${c.source}. Создана версия резюме и выбран снимок процесса.</p></div><time>${20 + c.years % 9} авг., 14:10</time></div>
       </div></section>`;
     }
 
     function feedbackTemplate() {
+      const c = currentCandidate;
       return `<div class="stack"><section class="card-section"><div class="section-title"><h3>Формы на текущем этапе</h3><small>не блокируют переход</small></div><div class="feedback-grid">
-        <div class="feedback-card"><h3>HR-интервью</h3><p>Обязательность: нет · заполняет любой участник с правом.</p><button class="button primary">Заполнить форму</button></div>
+        <div class="feedback-card"><h3>${c.stage}</h3><p>Обязательность: нет · заполняет любой участник с правом.</p><button class="button primary">Заполнить форму</button></div>
         <div class="feedback-card"><h3>Мотивация и ожидания</h3><p>Назначено вам · срок не задан.</p><button class="button">Продолжить черновик</button></div>
-      </div></section><section class="card-section"><div class="section-title"><h3>Отправленный фидбек</h3><small>2 ответа</small></div><div class="feedback-grid"><div class="feedback-card"><h3>Техническое интервью · Илья Сергеев</h3><p>Сильная база по Kotlin и архитектуре. Стоит отдельно проверить проектирование офлайн-сценариев.</p><span class="rating">★★★★☆</span></div><div class="feedback-card"><h3>Скрининг · Елена Крылова</h3><p>Мотивация на продуктовую роль, спокойно относится к гибридному графику. Готова выйти через месяц.</p><span class="pill blue">Рекомендую дальше</span></div></div></section></div>`;
+      </div></section><section class="card-section"><div class="section-title"><h3>Отправленный фидбек</h3><small>${c.feedbackCount} ответа</small></div>${c.feedbackCount ? `<div class="feedback-grid"><div class="feedback-card"><h3>${c.stage} · Илья Сергеев</h3><p>${c.id.endsWith('1') ? 'Есть сомнения по глубине практического опыта, рекомендую дополнительный вопрос.' : `Сильная база: ${vacancyDefinitions[c.vacancyId].skill}. Есть конкретные примеры и самостоятельные решения.`}</p><span class="rating">${c.scoreNumber > 8 ? '★★★★★' : '★★★★☆'}</span></div><div class="feedback-card"><h3>Скрининг · Елена Крылова</h3><p>Мотивация на продуктовую роль, условия и сроки выхода обсуждены.</p><span class="pill blue">${c.scoreNumber >= 7 ? 'Рекомендую дальше' : 'Нужна дополнительная проверка'}</span></div></div>` : `<div class="state-card" style="box-shadow:none;padding:20px"><h2 style="font-size:14px">Фидбеков пока нет</h2><p style="font-size:10px">Форма добровольна и не блокирует переход кандидата.</p></div>`}</section></div>`;
     }
 
     function renderTab() {
@@ -664,14 +917,146 @@
 
     function openMoveModal() {
       if (roleSelect.value === 'manager') return;
+      const vacancy = vacancyDefinitions[currentVacancyId];
+      const currentIndex = vacancy.stages.findIndex(stage => stage.id === currentCandidate.stage);
+      const nextStages = vacancy.stages.filter((stage, index) => !stage.legacy && index > currentIndex).slice(0, 2);
+      const legacy = vacancy.stages.find(stage => stage.legacy);
+      el('move-stage-choices').innerHTML = `${nextStages.map((stage, index) => `<button class="stage-choice" data-target="${stage.id}"><b>${stage.label}</b><span>${index === 0 ? 'следующий доступный этап →' : 'пропуск требует права'}</span></button>`).join('')}<button class="stage-choice" data-target="Отказ"><b style="color:var(--danger)">Отказ</b><span>нужно выбрать причину</span></button>${legacy ? `<button class="stage-choice disabled" disabled><b>${legacy.label}</b><span>архивный этап · вход закрыт</span></button>` : ''}`;
+      el('move-stage-choices').querySelectorAll('.stage-choice:not(.disabled)').forEach(button => button.addEventListener('click', () => moveCandidate(button.dataset.target)));
       el('move-modal').hidden = false;
       el('modal-close').focus();
     }
 
     function closeMoveModal() { el('move-modal').hidden = true; el('move-button').focus(); }
 
-    roleSelect.addEventListener('change', () => { applyRoleVisibility(); renderTab(); });
+    let currentPage = 'vacancy';
+    let taskFilter = 'active';
+    let selectedGlobalCandidate = Object.values(candidatePools)[0][0];
+    let selectedRequisition = requisitions[0];
+    let queryRows = [
+      { logic:'И', field:'Должность и навыки', operator:'содержит', value:'Senior, Kotlin, Android' },
+      { logic:'И', field:'Опыт работы', operator:'не менее', value:'4 лет' },
+      { logic:'НЕ', field:'Компания', operator:'равно', value:'текущий работодатель' }
+    ];
+
+    function showPage(page, updateHash = true) {
+      currentPage = page;
+      if (page === 'vacancy') activateVacancy(currentVacancyId, false);
+      el('workspace').hidden = page !== 'vacancy';
+      document.querySelectorAll('.app-page').forEach(node => node.hidden = node.id !== `page-${page}`);
+      document.querySelectorAll('.nav-item[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === page));
+      document.querySelectorAll('.vacancy-only-control').forEach(control => control.hidden = page !== 'vacancy');
+      el('global-search').placeholder = page === 'search' ? 'Поиск открыт: добавляйте условия ниже' : 'Найти кандидата, вакансию или задачу';
+      if (page === 'overview') renderOverviewTasks();
+      if (page === 'tasks') renderTasks();
+      if (page === 'candidates') renderGlobalCandidates();
+      if (page === 'requisitions') renderRequisitions();
+      if (page === 'search') renderQueryBuilder();
+      applyRoleVisibility();
+      if (updateHash) history.replaceState(null, '', `#${page}${page === 'vacancy' ? `/${currentVacancyId}` : ''}`);
+    }
+
+    function renderOverviewTasks() {
+      el('overview-tasks').innerHTML = recruitmentTasks.filter(task => !task.done).slice(0, 4).map(task => `<div class="task-row"><button class="task-check" data-task-complete="${task.id}" aria-label="Завершить">✓</button><div><span class="task-title">${task.title}</span><span class="task-context">${task.context}</span></div><span class="task-date ${task.late ? 'late' : ''}">${task.due}</span></div>`).join('');
+      el('overview-tasks').querySelectorAll('[data-task-complete]').forEach(button => button.addEventListener('click', () => completeTask(Number(button.dataset.taskComplete))));
+    }
+
+    function taskMatchesFilter(task) {
+      if (taskFilter === 'done') return task.done;
+      if (taskFilter === 'late') return !task.done && task.late;
+      if (taskFilter === 'future') return !task.done && task.future;
+      return !task.done;
+    }
+
+    function renderTasks() {
+      const tasks = recruitmentTasks.filter(taskMatchesFilter);
+      el('tasks-table').innerHTML = tasks.length ? tasks.map(task => `<tr class="${task.done ? 'completed' : ''}"><td><button class="task-check" data-task-complete="${task.id}" aria-label="${task.done ? 'Вернуть задачу' : 'Завершить задачу'}">✓</button></td><td><span class="table-title">${task.title}</span><span class="table-sub">Создана ${task.id % 3 ? 'автоматизацией' : 'вручную'} · Елена Крылова</span></td><td>${task.context}</td><td><span class="pill ${task.priority === 'Критический' ? 'red' : task.priority === 'Высокий' ? 'orange' : ''}">${task.priority}</span></td><td><span class="task-date ${task.late && !task.done ? 'late' : ''}">${task.due}</span></td><td>${task.progress || '—'}</td></tr>`).join('') : `<tr><td colspan="6"><div class="state-card" style="margin:25px auto;box-shadow:none"><h2 style="font-size:14px">В этом разделе задач нет</h2><p style="font-size:10px">Переключите фильтр или создайте новую задачу.</p></div></td></tr>`;
+      el('tasks-table').querySelectorAll('[data-task-complete]').forEach(button => button.addEventListener('click', () => completeTask(Number(button.dataset.taskComplete))));
+    }
+
+    function completeTask(taskId) {
+      const task = recruitmentTasks.find(item => item.id === taskId);
+      task.done = !task.done;
+      showToast(task.done ? 'Задача завершена. Событие сохранено в истории.' : 'Задача переоткрыта. Прежнее завершение осталось в истории.');
+      if (currentPage === 'tasks') renderTasks();
+      if (currentPage === 'overview') renderOverviewTasks();
+    }
+
+    function allCandidates() { return Object.values(candidatePools).flat(); }
+
+    function renderGlobalCandidates() {
+      const term = el('global-candidate-filter').value.trim().toLowerCase();
+      const matches = allCandidates().filter(candidate => !term || `${candidate.name} ${candidate.role} ${candidate.company} ${candidate.summary}`.toLowerCase().includes(term));
+      el('global-candidate-count').textContent = matches.length;
+      const visible = matches.slice(0, 35);
+      if (!visible.some(candidate => candidate.id === selectedGlobalCandidate?.id)) selectedGlobalCandidate = visible[0];
+      el('global-candidate-list').innerHTML = visible.map(candidate => `<button class="global-candidate-row ${candidate.id === selectedGlobalCandidate?.id ? 'selected' : ''}" data-global-candidate="${candidate.id}"><span class="avatar">${candidate.initials}</span><span><b>${candidate.name}</b><small>${candidate.role} · ${candidate.company}</small><small>${vacancyDefinitions[candidate.vacancyId].name} · ${candidate.stage}</small></span><span class="signal">${candidate.signal || candidate.consent}</span></button>`).join('') || `<div class="state-card" style="margin:35px auto;box-shadow:none"><h2 style="font-size:14px">Ничего не найдено</h2><p style="font-size:10px">Измените быстрый фильтр или откройте расширенный поиск.</p></div>`;
+      el('global-candidate-list').querySelectorAll('[data-global-candidate]').forEach(button => button.addEventListener('click', () => {
+        selectedGlobalCandidate = allCandidates().find(candidate => candidate.id === button.dataset.globalCandidate);
+        renderGlobalCandidates();
+      }));
+      renderGlobalCandidateDetail();
+    }
+
+    function renderGlobalCandidateDetail() {
+      const c = selectedGlobalCandidate;
+      if (!c) { el('global-candidate-detail').innerHTML = ''; return; }
+      el('global-candidate-detail').innerHTML = `<div class="candidate-header" style="padding:0 0 14px;border:0"><div class="avatar lg">${c.initials}</div><div class="candidate-title"><h2>${c.name}</h2><p>${c.role} · ${c.company}</p><div class="candidate-badges"><span class="pill blue">${c.consent}</span>${c.signal ? `<span class="pill orange">${c.signal}</span>` : ''}</div></div></div><div class="stack"><section class="card-section"><div class="section-title"><h3>Активный процесс</h3></div><div class="fields"><div class="field"><label>Вакансия</label><strong>${vacancyDefinitions[c.vacancyId].name}</strong></div><div class="field"><label>Этап</label><strong>${c.stage}</strong></div><div class="field"><label>Источник</label><strong>${c.source}</strong></div><div class="field"><label>ИИ-оценка</label><strong>${c.score}</strong></div></div><button class="button primary" id="open-global-process" style="margin-top:12px">Открыть процесс на вакансии</button></section><section class="card-section"><div class="section-title"><h3>Резюме и история</h3><small>${c.versions} версии</small></div><p class="summary-text">${c.summary}</p><div class="version-strip">${Array.from({length:c.versions},(_,i)=>`<span class="version-chip ${i===0?'current':''}">${29-i*4}.08.2026 · ${i%2?c.source:'PDF'}</span>`).join('')}</div></section><section class="card-section"><div class="section-title"><h3>Заметки кандидата</h3></div><p class="summary-text">${c.id.endsWith('3') ? 'Личная заметка другого рекрутера скрыта от текущего пользователя.' : 'Общая заметка: готов рассматривать продуктовую команду и гибридный график.'}</p></section></div>`;
+      el('open-global-process').addEventListener('click', () => {
+        activateVacancy(c.vacancyId);
+        currentCandidate = candidates.find(candidate => candidate.id === c.id) || candidates[0];
+        renderCandidateList();
+        showPage('vacancy');
+      });
+    }
+
+    function renderRequisitions() {
+      el('requisition-table').innerHTML = requisitions.map(req => `<tr class="clickable ${req.id === selectedRequisition.id ? 'selected' : ''}" data-requisition="${req.id}"><td><span class="table-title">${req.title}</span><span class="table-sub">${req.department} · заявка #${1020 + req.id}</span></td><td>${req.author}</td><td>${req.positions}</td><td><span class="pill ${req.status.includes('моего') ? 'orange' : req.status === 'Согласована' ? 'blue' : req.status === 'Возвращена' ? 'red' : ''}">${req.status}</span></td><td>${req.next}</td></tr>`).join('');
+      el('requisition-table').querySelectorAll('[data-requisition]').forEach(row => row.addEventListener('click', () => { selectedRequisition = requisitions.find(req => req.id === Number(row.dataset.requisition)); renderRequisitions(); }));
+      const req = selectedRequisition;
+      el('req-detail-title').textContent = req.title;
+      el('requisition-detail').innerHTML = `<div class="fields"><div class="field"><label>Подразделение</label><strong>${req.department}</strong></div><div class="field"><label>Количество ставок</label><strong>${req.positions}</strong></div><div class="field"><label>Автор</label><strong>${req.author}</strong></div><div class="field"><label>Бюджет</label><strong>${req.budget}</strong></div></div><h3 style="font-size:12px;margin:18px 0 8px">Маршрут согласования</h3><div class="approval-step"><span class="step-mark">✓</span><div><b>Руководитель подразделения</b><small>Согласовано · Алексей Орлов</small></div><span class="task-date">31 авг.</span></div><div class="approval-step"><span class="step-mark ${req.step <= 1 ? 'current' : ''}">${req.step > 1 ? '✓' : '2'}</span><div><b>C&B и бюджет</b><small>${req.step > 1 ? 'Согласовано с изменениями' : 'Ожидает решения · SLA 2 дня'}</small></div><span class="task-date ${req.status.includes('моего') ? 'late' : ''}">${req.step > 1 ? '1 сен.' : 'сейчас'}</span></div><div class="approval-step"><span class="step-mark ${req.step === 2 ? 'current' : req.step > 2 ? '' : 'wait'}">${req.step > 2 ? '✓' : '3'}</span><div><b>HR-директор</b><small>${req.step > 2 ? 'Согласовано' : 'Ожидает предыдущий этап'}</small></div><span class="task-date">—</span></div><div style="display:flex;gap:8px;margin-top:14px">${req.status.includes('моего') ? '<button class="button primary" id="approve-req">Согласовать</button><button class="button">Вернуть с комментарием</button>' : '<button class="button">Открыть полную заявку</button>'}</div>`;
+      const approve = el('approve-req');
+      if (approve) approve.addEventListener('click', () => { req.status = 'На согласовании'; req.next = 'HR-директор'; req.step = 2; showToast('Решение сохранено. Заявка перешла следующему согласующему.'); renderRequisitions(); });
+    }
+
+    function renderQueryBuilder() {
+      el('query-builder').innerHTML = queryRows.map((row,index) => `<div class="query-row"><select data-query="logic" data-index="${index}"><option ${row.logic==='И'?'selected':''}>И</option><option ${row.logic==='ИЛИ'?'selected':''}>ИЛИ</option><option ${row.logic==='НЕ'?'selected':''}>НЕ</option></select><select data-query="field" data-index="${index}"><option ${row.field==='Должность и навыки'?'selected':''}>Должность и навыки</option><option ${row.field==='Опыт работы'?'selected':''}>Опыт работы</option><option ${row.field==='Компания'?'selected':''}>Компания</option><option>Город</option><option>Текст фидбека</option><option>Комментарий</option></select><select><option>${row.operator}</option><option>не содержит</option><option>равно</option><option>не менее</option></select><input data-query="value" data-index="${index}" value="${row.value}" placeholder="Значение"><button class="icon-button" data-remove-query="${index}" ${queryRows.length===1?'disabled':''}>×</button></div>`).join('');
+      el('query-builder').querySelectorAll('[data-remove-query]').forEach(button => button.addEventListener('click', () => { queryRows.splice(Number(button.dataset.removeQuery),1); renderQueryBuilder(); }));
+      el('query-builder').querySelectorAll('[data-query="value"]').forEach(input => input.addEventListener('input', () => { queryRows[Number(input.dataset.index)].value = input.value; }));
+    }
+
+    function renderSearchResults() {
+      const checkedSources = [...document.querySelectorAll('.source-pick input:checked')].map(input => input.value);
+      const pools = Object.values(candidatePools);
+      const mixedPool = Array.from({length:Math.max(...pools.map(pool => pool.length))}, (_,index) => pools.map(pool => pool[index]).filter(Boolean)).flat();
+      const results = mixedPool.slice(0, Math.max(8, 20 - queryRows.length));
+      el('search-summary').textContent = `${results.length * 37 + 12} найдено · показаны первые ${results.length} · источники: ${checkedSources.join(', ') || 'не выбраны'}`;
+      el('search-results').innerHTML = results.map((candidate,index) => `<div class="search-result"><span class="avatar">${candidate.initials}</span><div><span class="table-title">${candidate.name}</span><span class="table-sub">${candidate.role} · ${candidate.company}</span></div><div><span class="table-title">${candidate.summary.split('. ')[0]}</span><span class="table-sub">${index % 4 === 0 ? 'Внешний профиль · контакты не открыты' : `В базе ATS · ${candidate.stage}`}</span></div><span class="match">${96-index}%</span><button class="button ${index < 3 ? 'primary' : ''}" data-add-search="${candidate.id}">${candidate.vacancyId === el('search-vacancy').value ? 'Уже на вакансии' : 'Добавить'}</button></div>`).join('');
+      el('search-results').querySelectorAll('[data-add-search]').forEach(button => button.addEventListener('click', () => addSearchCandidate(button.dataset.addSearch, button)));
+    }
+
+    function addSearchCandidate(candidateId, button) {
+      const sourceCandidate = allCandidates().find(candidate => candidate.id === candidateId);
+      const targetVacancy = el('search-vacancy').value;
+      if (sourceCandidate.vacancyId === targetVacancy) { showToast('Кандидат уже находится на этой вакансии. Новый профиль не создаётся.'); return; }
+      const targetPool = candidatePools[targetVacancy];
+      const firstStage = vacancyDefinitions[targetVacancy].stages[0];
+      const clone = { ...sourceCandidate, id:`${targetVacancy}-search-${Date.now()}`, vacancyId:targetVacancy, stage:firstStage.id, badges:[firstStage.label,`ИИ ${sourceCandidate.score}`,'Добавлен из поиска'] };
+      targetPool.unshift(clone);
+      button.textContent = 'Добавлен'; button.disabled = true;
+      showToast(`Кандидат добавлен на вакансию «${vacancyDefinitions[targetVacancy].name}» на этап «${firstStage.label}».`);
+    }
+
+    function openMetricDrawer(metric) {
+      el('metric-drawer').hidden = false;
+      el('metric-drawer-title').textContent = metric;
+      el('metric-drawer-body').innerHTML = `<section class="card-section"><div class="section-title"><h3>Как считается</h3></div><p class="summary-text">Версия метрики зафиксирована на момент расчёта. По умолчанию используется медиана; права применены до агрегирования. Неполные данные показаны отдельно и не превращаются в нули.</p></section><section class="card-section" style="margin-top:10px"><div class="section-title"><h3>Что сформировало показатель</h3><small>доступные вам объекты</small></div><table class="data-table"><tbody><tr><td>Senior Android-разработчик</td><td>34 дня</td><td><span class="pill orange">около SLA</span></td></tr><tr><td>Senior Product Designer</td><td>43 дня</td><td><span class="pill red">выше SLA</span></td></tr><tr><td>Data Analyst</td><td>26 дней</td><td><span class="pill blue">в SLA</span></td></tr><tr><td>Руководитель клиентского сервиса</td><td>31 день</td><td><span class="pill blue">в SLA</span></td></tr></tbody></table></section><button class="button" style="margin-top:10px">Открыть отчёт с событиями</button>`;
+    }
+
+    roleSelect.addEventListener('change', () => { applyRoleVisibility(); renderTab(); if (currentPage === 'candidates') renderGlobalCandidates(); });
     vacancySelect.addEventListener('change', () => { applyVacancyState(); applyViewState(); });
+    vacancySwitch.addEventListener('change', () => activateVacancy(vacancySwitch.value));
     viewSelect.addEventListener('change', applyViewState);
     el('candidate-filter').addEventListener('input', renderCandidateList);
     el('tabs').addEventListener('click', event => {
@@ -684,20 +1069,43 @@
     el('modal-close').addEventListener('click', closeMoveModal);
     el('modal-cancel').addEventListener('click', closeMoveModal);
     el('move-modal').addEventListener('click', event => { if (event.target === el('move-modal')) closeMoveModal(); });
-    document.querySelectorAll('.stage-choice:not(.disabled)').forEach(button => button.addEventListener('click', () => {
+    function moveCandidate(target) {
       const previous = currentCandidate.stage;
-      currentCandidate.stage = button.dataset.target;
-      currentCandidate.badges[0] = button.dataset.target;
+      currentCandidate.stage = target;
+      currentCandidate.badges[0] = target;
       closeMoveModal();
+      stages = [{ id:'all', label:'Все', count:candidates.length }, ...vacancyDefinitions[currentVacancyId].stages.map(stage => ({ ...stage, count:candidates.filter(candidate => candidate.stage === stage.id).length }))];
+      renderPipeline();
       renderCandidateList();
-      showToast(`Кандидат перемещён: ${previous} → ${button.dataset.target}. В прототипе это действие можно обновить перезагрузкой страницы.`);
-    }));
+      showToast(`Кандидат перемещён: ${previous} → ${target}. В прототипе это действие можно отменить перезагрузкой страницы.`);
+    }
     el('retry-button').addEventListener('click', () => { viewSelect.value = 'loading'; applyViewState(); window.setTimeout(() => { viewSelect.value = 'normal'; applyViewState(); showToast('Данные обновлены'); }, 850); });
     el('assistant-button').addEventListener('click', () => showToast('Здесь откроется ИИ-ассистент настроек с предпросмотром изменений. Его отдельный экран спроектируем позже.'));
+    document.querySelectorAll('.nav-item[data-page]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.page)));
+    document.querySelectorAll('[data-page-jump]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.pageJump)));
+    document.querySelectorAll('[data-open-vacancy]').forEach(row => row.addEventListener('click', () => { activateVacancy(row.dataset.openVacancy); showPage('vacancy'); }));
+    document.querySelectorAll('[data-placeholder]').forEach(button => button.addEventListener('click', () => showToast(`Раздел «${button.dataset.placeholder}» будет добавлен в следующую итерацию прототипа.`)));
+    el('task-segments').querySelectorAll('[data-task-filter]').forEach(button => button.addEventListener('click', () => { taskFilter = button.dataset.taskFilter; el('task-segments').querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button)); renderTasks(); }));
+    el('new-task-button').addEventListener('click', () => { recruitmentTasks.unshift({ id:Date.now(), title:'Новая задача без срока', context:'Самостоятельная задача', priority:'Обычный', due:'без срока', progress:'—', done:false }); renderTasks(); showToast('Создана новая задача. В полном экране откроется форма редактирования.'); });
+    el('global-candidate-filter').addEventListener('input', renderGlobalCandidates);
+    el('add-query-row').addEventListener('click', () => { queryRows.push({logic:'И',field:'Должность и навыки',operator:'содержит',value:''}); renderQueryBuilder(); });
+    el('run-search').addEventListener('click', renderSearchResults);
+    el('metric-drawer-close').addEventListener('click', () => el('metric-drawer').hidden = true);
+    document.querySelectorAll('[data-metric]').forEach(button => button.addEventListener('click', () => openMetricDrawer(button.dataset.metric)));
+    document.querySelectorAll('.segmented').forEach(group => group.addEventListener('click', event => { const button = event.target.closest('button'); if (!button || button.dataset.taskFilter) return; group.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button)); }));
+    el('global-search').addEventListener('keydown', event => { if (event.key === 'Enter') { showPage('search'); if (event.target.value.trim()) { queryRows[0].value = event.target.value.trim(); renderQueryBuilder(); } } });
+    el('global-search').addEventListener('focus', () => { if (currentPage !== 'search') el('global-search').title = 'Введите запрос и нажмите Enter, чтобы открыть расширенный поиск'; });
+    window.addEventListener('hashchange', () => {
+      const parts = location.hash.replace('#','').split('/');
+      const page = ['overview','tasks','vacancy','candidates','requisitions','search','analytics'].includes(parts[0]) ? parts[0] : 'vacancy';
+      if (page === 'vacancy' && vacancyDefinitions[parts[1]] && parts[1] !== currentVacancyId) activateVacancy(parts[1]);
+      showPage(page, false);
+    });
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !el('move-modal').hidden) closeMoveModal();
       if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
+      if (currentPage !== 'vacancy') return;
       const visible = filteredCandidates();
       const index = visible.findIndex(candidate => candidate.id === currentCandidate.id);
       if (event.key.toLowerCase() === 'j' && visible.length) { currentCandidate = visible[Math.min(index + 1, visible.length - 1)]; renderCandidateList(); event.preventDefault(); }
@@ -705,11 +1113,13 @@
       if (/^[1-5]$/.test(event.key)) { currentTab = ['overview','resume','ai','history','feedback'][Number(event.key) - 1]; renderTab(); event.preventDefault(); }
     });
 
-    renderPipeline();
-    renderCandidateList();
+    const initialParts = location.hash.replace('#','').split('/');
+    const initialPage = ['overview','tasks','vacancy','candidates','requisitions','search','analytics'].includes(initialParts[0]) ? initialParts[0] : 'vacancy';
+    activateVacancy(vacancyDefinitions[initialParts[1]] ? initialParts[1] : 'android');
     applyRoleVisibility();
     applyVacancyState();
     applyViewState();
+    showPage(initialPage, false);
   </script>
 </body>
 </html>
