@@ -165,7 +165,7 @@
     .score.error { color: var(--danger); background: var(--danger-soft); }
     .attention-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
 
-    .candidate-card { min-width: 0; min-height: 650px; display: grid; grid-template-rows: auto auto 1fr; background: white; }
+    .candidate-card { min-width: 0; min-height: 650px; display: grid; grid-template-rows: auto 42px minmax(0, 1fr); background: white; }
     .candidate-header { display: flex; align-items: flex-start; gap: 12px; padding: 15px 18px 12px; border-bottom: 1px solid var(--line); }
     .candidate-title { min-width: 0; flex: 1; }
     .candidate-title h2 { margin: 1px 0 4px; font-size: 18px; letter-spacing: -.015em; }
@@ -182,7 +182,7 @@
     .tab:hover { color: var(--text); }
     .tab.active { color: var(--accent-strong); border-color: var(--accent); font-weight: 650; }
     .tab .tab-count { margin-left: 4px; color: var(--subtle); }
-    .card-scroll { overflow-y: visible; padding: 16px 18px 34px; background: #fbfcfd; }
+    .card-scroll { min-height: 0; overflow-y: auto; padding: 16px 18px 34px; background: #fbfcfd; }
     .content-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(245px, .8fr); gap: 12px; align-items: start; }
     .stack { display: grid; gap: 12px; }
     .card-section { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
@@ -583,10 +583,190 @@
     .notification-item small { margin-top:4px; color:var(--muted); font-size:9px; }
     .audit-chip { display:inline-flex; gap:4px; align-items:center; padding:4px 6px; border-radius:999px; color:#4d5e74; background:#eef1f5; font-size:8px; }
 
+    .brand-copy { min-width: 0; }
+    .design-switch { margin-left: auto; display: flex; padding: 2px; border: 1px solid rgba(255,255,255,.14); border-radius: 8px; background: rgba(255,255,255,.06); }
+    .design-switch button { width: 27px; height: 25px; padding: 0; border: 0; border-radius: 6px; color: var(--sidebar-muted); background: transparent; font-size: 9px; font-weight: 750; }
+    .design-switch button.active { color: #17253d; background: #b9f1dc; }
+    .ai-search-mark { display: none; }
+    .ai-context-button { min-height: 38px; align-items: center; gap: 7px; padding: 0 12px; border: 1px solid #ded9ef; border-radius: 11px; color: #514669; background: #fff; font-size: 10px; white-space: nowrap; }
+    .ai-context-button span { color: #745de8; font-size: 14px; }
+    .v2-only { display: none; }
+    .ai-briefing { margin-bottom: 14px; padding: 15px 16px; border: 1px solid #ded7ff; border-radius: 16px; background: linear-gradient(118deg,#f3efff,#fff 62%,#edf9f7); }
+    .ai-briefing-head { display: flex; align-items: center; gap: 9px; margin-bottom: 11px; }
+    .ai-briefing-head span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 10px; color: white; background: #6957db; }
+    .ai-briefing-head b, .ai-briefing-head small { display: block; }
+    .ai-briefing-head small { margin-top: 2px; color: #766e7e; font-size: 9px; }
+    .ai-briefing-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+    .ai-briefing-actions button { padding: 10px 11px; border: 1px solid rgba(105,87,219,.14); border-radius: 11px; color: #4c4458; background: rgba(255,255,255,.76); text-align: left; }
+    .ai-briefing-actions b, .ai-briefing-actions small { display: block; }
+    .ai-briefing-actions small { margin-top: 4px; color: #837b8a; font-size: 9px; line-height: 1.4; }
+    .review-shell { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(250px,.85fr); gap: 12px; }
+    .review-card { padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: white; }
+    .review-card h3 { margin: 0 0 7px; font-size: 13px; }
+    .review-progress { height: 5px; margin: 8px 0 14px; border-radius: 999px; background: #eeeaf1; overflow: hidden; }
+    .review-progress span { display: block; width: 31%; height: 100%; background: #6957db; }
+
+    /* Версия 2: лёгкая AI-first оболочка с разделёнными рабочими режимами. */
+    body.design-v2 {
+      --bg: #f8f7fa;
+      --surface: #ffffff;
+      --surface-soft: #fbfafc;
+      --line: #e9e6ed;
+      --line-strong: #d9d4df;
+      --text: #211f26;
+      --muted: #716c78;
+      --subtle: #9a95a0;
+      --accent: #6957db;
+      --accent-soft: #f0edff;
+      --accent-strong: #5141bd;
+      --good: #21775a;
+      --good-soft: #eaf7f1;
+      --warn: #9c6414;
+      --warn-soft: #fff5df;
+      --danger: #b84756;
+      --danger-soft: #fff0f2;
+      --sidebar: #ffffff;
+      --sidebar-muted: #837e89;
+      --shadow: 0 14px 45px rgba(45, 36, 64, .07);
+      --radius: 14px;
+      color: var(--text);
+      background: var(--bg);
+    }
+    body.design-v2 .app { grid-template-columns: 202px minmax(0, 1fr); }
+    body.design-v2 .sidebar { color: var(--text); background: #fff; border-right-color: var(--line); }
+    body.design-v2 .brand { height: 72px; padding: 0 13px; gap: 8px; border-bottom: 1px solid #f0edf2; }
+    body.design-v2 .brand-mark { width: 31px; height: 31px; color: #fff; background: linear-gradient(145deg,#6d5ce8,#8d73f1 55%,#57b9b0); box-shadow: 0 7px 18px rgba(105,87,219,.24); }
+    body.design-v2 .brand-copy { color: #26232b; font-size: 13px; letter-spacing: -.02em; }
+    body.design-v2 .brand small { color: #99939e; }
+    body.design-v2 .design-switch { border-color: #e7e2ea; background: #f6f4f8; }
+    body.design-v2 .design-switch button { color: #8d8792; }
+    body.design-v2 .design-switch button.active { color: #fff; background: #6957db; }
+    body.design-v2 .nav { padding: 12px 9px; }
+    body.design-v2 .nav-label { margin: 16px 11px 6px; color: #aaa4af; font-size: 8px; letter-spacing: .12em; }
+    body.design-v2 .nav-item { min-height: 36px; gap: 9px; padding: 7px 10px; border-radius: 9px; color: #68636e; font-size: 12px; }
+    body.design-v2 .nav-item:hover { color: #342f3a; background: #f8f6fa; }
+    body.design-v2 .nav-item.active { color: #5543c5; background: #f0edff; font-weight: 680; }
+    body.design-v2 .nav-icon { color: #a19aa7; }
+    body.design-v2 .nav-item.active .nav-icon { color: #6a56dc; }
+    body.design-v2 .nav-badge { color: #726d78; background: #f0edf3; }
+    body.design-v2 .nav-item.active .nav-badge { color: #5947c8; background: #e3ddff; }
+    body.design-v2 .sidebar-bottom { border-top-color: var(--line); }
+    body.design-v2 .user-mini small { color: #99939e; }
+    body.design-v2 .main-shell { grid-template-rows: 72px minmax(0, 1fr); }
+    body.design-v2 .topbar { gap: 9px; padding: 0 20px; background: rgba(248,247,250,.96); border-bottom-color: transparent; }
+    body.design-v2 .search { max-width: 650px; }
+    body.design-v2 .search::before { display: none; }
+    body.design-v2 .ai-search-mark { position: absolute; left: 13px; top: 9px; z-index: 1; display: block; color: #6d59df; font-size: 15px; }
+    body.design-v2 .search input { height: 42px; padding-left: 39px; border-color: #ddd7e5; border-radius: 13px; background: white; box-shadow: 0 5px 20px rgba(55,43,76,.045); }
+    body.design-v2 .search input:focus { border-color: #8d7bea; box-shadow: 0 0 0 3px rgba(105,87,219,.12), 0 7px 22px rgba(55,43,76,.06); }
+    body.design-v2 .shortcut { top: 11px; }
+    body.design-v2 .ai-context-button { display: inline-flex; }
+    body.design-v2 .prototype-controls { gap: 6px; }
+    body.design-v2 .control-label { font-size: 9px; }
+    body.design-v2 .control-label select { height: 34px; border-color: #e3dfe7; border-radius: 10px; background: rgba(255,255,255,.85); }
+    body.design-v2 .icon-button { border-color: #e3dfe7; border-radius: 10px; }
+    body.design-v2 .assistant-button { color: #fff; border-color: #6552d7; background: #6957db; box-shadow: 0 7px 18px rgba(105,87,219,.20); }
+    body.design-v2 .v2-only { display: inline-flex; }
+    body.design-v2 .ai-briefing.v2-only { display: block; }
+    body.design-v2 .workspace,
+    body.design-v2 .app-page { background: var(--bg); }
+    body.design-v2 .app-page { padding: 25px 28px 58px; }
+    body.design-v2 .page-head { margin-bottom: 20px; align-items: center; }
+    body.design-v2 .page-head h1 { font-size: 25px; font-weight: 720; letter-spacing: -.035em; }
+    body.design-v2 .page-head p { color: #817b86; }
+    body.design-v2 .button { min-height: 34px; border-color: #ded9e2; border-radius: 10px; color: #4d4852; background: #fff; font-weight: 620; }
+    body.design-v2 .button:hover { border-color: #bbb2c8; background: #fbf9fc; }
+    body.design-v2 .button.primary { color: white; border-color: #6552d7; background: #6957db; box-shadow: 0 5px 14px rgba(105,87,219,.16); }
+    body.design-v2 .panel,
+    body.design-v2 .card-section,
+    body.design-v2 .group-card,
+    body.design-v2 .operation-card,
+    body.design-v2 .session-card,
+    body.design-v2 .rule-card,
+    body.design-v2 .integration-card { border-color: var(--line); border-radius: 15px; box-shadow: none; }
+    body.design-v2 .panel-head { min-height: 49px; padding: 13px 15px; }
+    body.design-v2 .kpi-card { min-height: 91px; padding: 15px; border-color: var(--line); border-radius: 15px; background: #fff; box-shadow: none; }
+    body.design-v2 .kpi-card strong { color: #29252e; font-size: 26px; letter-spacing: -.035em; }
+    body.design-v2 .kpi-label { color: #837d88; }
+    body.design-v2 .data-table th { color: #9b95a1; background: #fbfafc; font-size: 8px; letter-spacing: .06em; }
+    body.design-v2 .data-table td { border-color: #f0edf2; }
+    body.design-v2 .filter-row,
+    body.design-v2 .portfolio-toolbar { padding: 6px; border: 1px solid var(--line); border-radius: 13px; background: rgba(255,255,255,.72); }
+    body.design-v2 .filter-row input,
+    body.design-v2 .filter-row select,
+    body.design-v2 .portfolio-toolbar input,
+    body.design-v2 .portfolio-toolbar select { border-color: transparent; background: #fff; }
+    body.design-v2 .module-tabs,
+    body.design-v2 .segmented { padding: 3px; border-color: var(--line); border-radius: 11px; background: #f2eff4; }
+    body.design-v2 .module-tabs button.active,
+    body.design-v2 .segmented button.active { color: #4f3ebb; background: white; box-shadow: 0 2px 8px rgba(45,36,64,.07); }
+    body.design-v2 .vacancy-head { padding: 21px 25px 16px; background: #fff; border-bottom: 0; }
+    body.design-v2 .vacancy-title h1 { font-size: 23px; letter-spacing: -.035em; }
+    body.design-v2 .vacancy-title { min-width: 360px; }
+    body.design-v2 .vacancy-heading-row { display: block; }
+    body.design-v2 .vacancy-switch { margin-top: 8px; }
+    body.design-v2 .head-metrics { gap: 6px; }
+    body.design-v2 .metric { min-height: 51px; border-color: #eeeaf1; border-radius: 12px; background: #fbfafc; }
+    body.design-v2 .pipeline-wrap { padding: 0 24px; border-color: var(--line); }
+    body.design-v2 .stage { height: 54px; border-bottom-width: 2px; }
+    body.design-v2 .stage.active { color: #5441c3; background: #faf9ff; }
+    body.design-v2 .work-area { min-height: 680px; grid-template-columns: 322px minmax(600px, 1fr); gap: 12px; padding: 12px 14px 16px; background: var(--bg); }
+    body.design-v2 .candidate-column,
+    body.design-v2 .candidate-card { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    body.design-v2 .candidate-card { overflow: hidden; }
+    body.design-v2 .candidate-column { box-shadow: none; }
+    body.design-v2 .list-toolbar { border-color: var(--line); }
+    body.design-v2 .candidate-list { padding: 7px; background: #fbfafc; }
+    body.design-v2 .candidate-row { min-height: 82px; border-radius: 12px; }
+    body.design-v2 .candidate-row.selected { border-color: #d3cafb; background: #fff; box-shadow: 0 7px 22px rgba(73,55,123,.08); }
+    body.design-v2 .candidate-card { min-height: 650px; }
+    body.design-v2 .candidate-header { padding: 16px 18px; border-color: var(--line); }
+    body.design-v2 .tabs { gap: 4px; padding: 0 13px; border-color: var(--line); }
+    body.design-v2 .tab { height: 41px; padding: 0 9px; border: 0; border-radius: 9px; background: transparent; }
+    body.design-v2 .tab.active { color: #4f3dbb; background: #f0edff; }
+    body.design-v2 .card-scroll { padding: 15px 17px 34px; background: #fbfafc; }
+    body.design-v2 .ai-hero { padding: 16px; border: 1px solid #ded7ff; border-radius: 15px; background: linear-gradient(135deg,#f7f4ff,#fff 58%,#f2fbfa); }
+    body.design-v2 .score-ring { background: conic-gradient(#6d59df 0 87%, #ebe7f1 87% 100%); }
+    body.design-v2 .ai-note { color: #574d6d; background: rgba(105,87,219,.08); }
+    body.design-v2 .info-item { border: 1px solid #efebf1; border-radius: 11px; background: #fcfbfd; }
+    body.design-v2 .vacancy-lower { border-color: var(--line); }
+    body.design-v2 .inbox-shell,
+    body.design-v2 .offer-list,
+    body.design-v2 .offer-editor,
+    body.design-v2 .settings-shell,
+    body.design-v2 .split-view,
+    body.design-v2 .calendar-shell { border-color: var(--line); border-radius: 16px; box-shadow: none; }
+    body.design-v2 .inbox-folders,
+    body.design-v2 .inbox-list,
+    body.design-v2 .settings-nav,
+    body.design-v2 .calendar-sidebar { background: #fbfafc; }
+    body.design-v2 .conversation-row.selected,
+    body.design-v2 .offer-row.selected { background: #f1eeff; }
+    body.design-v2 .settings-nav button { border-radius: 9px; }
+    body.design-v2 .settings-nav button.active { color: #5140be; background: #efebff; }
+    body.design-v2 .assistant-panel { right: 22px; bottom: 22px; width: 430px; height: min(650px, calc(100vh - 104px)); border-color: #d8d0fa; border-radius: 20px; box-shadow: 0 25px 75px rgba(45,34,78,.20); }
+    body.design-v2 .assistant-head { padding: 16px; background: linear-gradient(135deg,#5744c7,#7862e8 58%,#458e8c); }
+    body.design-v2 .assistant-orb { border-radius: 12px; color: #5c48cd; background: white; }
+    body.design-v2 .assistant-messages { padding: 16px; background: #faf8fc; }
+    body.design-v2 .assistant-message { border-color: #ece8f0; border-radius: 14px 14px 14px 4px; }
+    body.design-v2 .assistant-message.user { border-color: #6957db; border-radius: 14px 14px 4px 14px; background: #6957db; }
+    body.design-v2 .change-preview { border-color: #d8cffb; border-radius: 13px; background: #f6f3ff; }
+    body.design-v2 .detail-drawer,
+    body.design-v2 .notification-drawer { top: 72px; border-color: var(--line); box-shadow: -20px 0 60px rgba(45,36,64,.12); }
+    body.design-v2 .detail-drawer { border-radius: 18px 0 0 0; }
+    body.design-v2 .modal { border: 1px solid #ece8ef; border-radius: 18px; box-shadow: 0 28px 90px rgba(35,28,50,.22); }
+    body.design-v2 .prototype-note { left: 214px; color: #7d7585; border-color: #e3dee7; border-radius: 10px; }
+    body.design-v2 #page-search:not([hidden]) { display: grid; grid-template-columns: minmax(420px,.85fr) minmax(560px,1.15fr); gap: 14px; align-content: start; }
+    body.design-v2 #page-search .page-head { grid-column: 1 / -1; margin-bottom: 2px; }
+    body.design-v2 #page-search > .panel { min-width: 0; margin-top: 0 !important; }
+    body.design-v2 #page-search > .panel:last-child { max-height: calc(100vh - 132px); overflow: auto; }
+
     @media (max-width: 1120px) {
       .app { grid-template-columns: 72px 1fr; }
       .brand { justify-content: center; padding: 0; }
-      .brand > div:last-child, .nav-label, .nav-item > span:not(.nav-icon):not(.nav-badge), .user-mini > div { display: none; }
+      .brand-copy, .nav-label, .nav-item > span:not(.nav-icon):not(.nav-badge), .user-mini > div { display: none; }
+      .brand .brand-mark { display: none; }
+      .design-switch { margin: 0; }
       .nav-item { justify-content: center; }
       .nav-badge { position: absolute; margin: -22px 0 0 24px; }
       .head-metrics .metric:nth-child(2) { display: none; }
@@ -596,13 +776,15 @@
       .split-view { grid-template-columns: 390px minmax(420px, 1fr); }
       .calendar-shell, .settings-shell { grid-template-columns: 190px minmax(700px, 1fr); }
       .inbox-shell { grid-template-columns:180px 320px minmax(480px,1fr); }
+      body.design-v2 .app { grid-template-columns: 72px 1fr; }
+      body.design-v2 .prototype-note { left: 82px; }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar" aria-label="Основная навигация">
-      <div class="brand"><div class="brand-mark">ATS</div><div>Recruit OS<small>демо-компания</small></div></div>
+      <div class="brand"><div class="brand-mark">ATS</div><div class="brand-copy">Recruit OS<small>демо-компания</small></div><div class="design-switch" aria-label="Версия дизайна"><button class="active" data-design="1" title="Версия 1">V1</button><button data-design="2" title="Версия 2">V2</button></div></div>
       <nav class="nav">
         <div class="nav-label">Работа</div>
         <button class="nav-item" data-page="overview"><span class="nav-icon">⌂</span><span>Обзор</span></button>
@@ -626,7 +808,8 @@
 
     <div class="main-shell">
       <header class="topbar">
-        <div class="search"><input id="global-search" aria-label="Глобальный поиск" placeholder="Найти кандидата, вакансию или задачу"><span class="shortcut">⌘ K</span></div>
+        <div class="search"><span class="ai-search-mark">✦</span><input id="global-search" aria-label="Глобальный поиск" placeholder="Найти кандидата, вакансию или задачу"><span class="shortcut">⌘ K</span></div>
+        <button class="ai-context-button" id="ai-context-button" hidden><span>✦</span><b>Что требует внимания?</b></button>
         <div class="prototype-controls" aria-label="Переключатели прототипа">
           <label class="control-label">Роль
             <select id="role-select">
@@ -670,7 +853,7 @@
             <div class="metric"><strong id="vacancy-progress">78%</strong><span>близость к закрытию</span></div>
             <div class="metric warn"><strong id="vacancy-deadline">8 дней</strong><span>до плановой даты</span></div>
           </div>
-          <div class="head-actions"><button class="button" id="vacancy-details-button">Сведения</button><button class="button primary recruiter-only" id="add-candidate-button">+ Кандидат</button><button class="button" id="vacancy-more-button">•••</button></div>
+          <div class="head-actions"><button class="button v2-only recruiter-only" id="review-queue-button">✦ Разобрать очередь</button><button class="button" id="vacancy-details-button">Сведения</button><button class="button primary recruiter-only" id="add-candidate-button">+ Кандидат</button><button class="button" id="vacancy-more-button">•••</button></div>
         </section>
 
         <div class="pause-banner" id="pause-banner" hidden><strong>Вакансия на паузе.</strong><span>SLA и новые ИИ-действия остановлены. Ручная работа и назначение встреч доступны с предупреждением.</span><button class="button recruiter-only">Возобновить</button></div>
@@ -745,6 +928,7 @@
 
       <main class="app-page" id="page-overview" hidden>
         <header class="page-head"><div><h1>Обзор</h1><p id="overview-subtitle">Добрый день, Елена. Вот что требует внимания сегодня.</p></div><div class="page-actions"><button class="button" id="overview-configure-button">Настроить дашборд</button><button class="button primary" data-page-jump="tasks">Открыть мои задачи</button></div></header>
+        <section class="ai-briefing v2-only" id="ai-briefing"><div class="ai-briefing-head"><span>✦</span><div><b>ИИ-брифинг на сегодня</b><small>Собран по доступным вам вакансиям, задачам, сообщениям и SLA</small></div><button class="button" id="ai-briefing-chat" style="margin-left:auto">Обсудить с ассистентом</button></div><div class="ai-briefing-actions"><button data-page-jump="vacancy"><b>48 резюме ждут ревью</b><small>ИИ выделил 12 сильных и 5 спорных кандидатов</small></button><button data-page-jump="tasks"><b>3 риска на сегодня</b><small>Просроченный фидбек и две вакансии около SLA</small></button><button data-page-jump="communications"><b>2 кандидата позвали рекрутера</b><small>Один вопрос может заблокировать интервью</small></button></div></section>
         <div id="overview-personal">
         <section class="kpi-grid dashboard-widget" id="overview-kpis">
           <button class="kpi-card metric-button" data-page-jump="portfolio"><span class="kpi-label">Вакансии в работе</span><strong>18</strong><small class="up">2 близки к закрытию</small></button>
@@ -880,7 +1064,7 @@
 
   <aside class="drawer" id="metric-drawer" hidden><div class="drawer-head"><div><h2 id="metric-drawer-title">Детализация метрики</h2><p>Определение, покрытие и доступные объекты</p></div><button class="icon-button" id="metric-drawer-close" aria-label="Закрыть">×</button></div><div id="metric-drawer-body"></div></aside>
   <div class="toast" id="toast" hidden></div>
-  <div class="prototype-note">Проверочный прототип · разделы слева кликабельны, состояние и роль переключаются сверху</div>
+  <div class="prototype-note" id="prototype-note">Версия 1 · плотный рабочий интерфейс в логике Huntflow</div>
 
   <script>
     const femaleFirstNames = ['Алина','Виктория','Екатерина','Марина','Софья','Полина','Дарья','Анна','Ксения','Ольга'];
@@ -979,6 +1163,36 @@
     const vacancySelect = el('vacancy-select');
     const viewSelect = el('view-select');
     const vacancySwitch = el('vacancy-switch');
+    let designVersion = (()=>{ const fromUrl=new URL(location.href).searchParams.get('design'); if(fromUrl)return Number(fromUrl)===2?2:1; try{return Number(localStorage.getItem('ats-design-version'))===2?2:1;}catch(_){return 1;} })();
+    let advancedSettingsOpen = false;
+
+    function applyDesign(version, persist = true) {
+      designVersion = Number(version) === 2 ? 2 : 1;
+      document.body.classList.toggle('design-v2', designVersion === 2);
+      document.querySelectorAll('[data-design]').forEach(button=>button.classList.toggle('active',Number(button.dataset.design)===designVersion));
+      el('ai-context-button').hidden = designVersion !== 2;
+      el('assistant-button').textContent = designVersion === 2 ? '✦ Ассистент' : '✦ ИИ';
+      el('prototype-note').textContent = designVersion === 2 ? 'Версия 2 · минималистичный AI-first интерфейс с паттернами Greenhouse' : 'Версия 1 · плотный рабочий интерфейс в логике Huntflow';
+      updateGlobalPrompt();
+      advancedSettingsOpen = false;
+      if (typeof currentPage !== 'undefined' && currentPage === 'settings') {
+        const primary=['users','roles','funnels','automations','integrations','ai'];
+        if (designVersion === 2 && !primary.includes(settingsSection)) settingsSection='ai';
+        renderSettingsNav();
+        renderSettings();
+      }
+      if (persist) {
+        try { localStorage.setItem('ats-design-version',String(designVersion)); } catch (_) {}
+        const url=new URL(location.href);
+        url.searchParams.set('design',String(designVersion));
+        history.replaceState(null,'',url.pathname+url.search+url.hash);
+      }
+    }
+
+    function updateGlobalPrompt() {
+      if (!el('global-search')) return;
+      el('global-search').placeholder = designVersion === 2 ? 'Спросите ИИ: найти кандидатов, объяснить риск, настроить процесс…' : (typeof currentPage !== 'undefined' && currentPage === 'search' ? 'Поиск открыт: добавляйте условия ниже' : 'Найти кандидата, вакансию или задачу');
+    }
 
     function activateVacancy(vacancyId, resetCandidate = true) {
       currentVacancyId = vacancyId;
@@ -1166,7 +1380,7 @@
     }
     function candidateInterviewsTemplate() {
       const c=currentCandidate;
-      return `<div class="stack"><section class="card-section"><div class="section-title"><h3>ИИ-интервью</h3><small>2 сессии</small><button class="button primary recruiter-only" id="start-ai-interview" style="margin-left:auto">+ Запустить</button></div><div class="session-card"><div class="section-title"><h3>Текстовый чат-бот · hh.ru</h3><span class="pill orange">позвал рекрутера</span></div><p>Саммари: кандидат подтвердил ожидания, готовность к гибриду и опыт с ${vacancyDefinitions[c.vacancyId].skill}. Просит обсудить уровень роли с человеком.</p><div style="display:flex;gap:6px"><button class="button" data-interview-material="summary">Саммари</button><button class="button" data-interview-material="transcript">Полный диалог</button></div></div><div class="session-card"><div class="section-title"><h3>Голосовое интервью с видео</h3><span class="pill blue">завершено</span></div><p>Саммари: сильные продуктовые примеры, структурная коммуникация. Техническая ошибка в конце записи не повлияла на результат.</p><div style="display:flex;gap:6px"><button class="button" data-interview-material="transcript">Расшифровка</button><button class="button">▶ Запись · 28:14</button><button class="button">Скачать</button></div></div></section><section class="card-section"><div class="section-title"><h3>Материалы живой встречи</h3><small>ИИ-протоколист</small></div><div class="session-card"><h3>Техническое интервью · 2 сентября</h3><p>Итоги, решения и вопросы для следующего этапа. Полная расшифровка и запись имеют отдельные права доступа.</p><button class="button" data-interview-material="notetaker">Открыть протокол</button></div></section></div>`;
+      return `<div class="stack"><section class="card-section"><div class="section-title"><h3>ИИ-интервью</h3><small>2 сессии</small><button class="button v2-only" id="interview-kit-button">Режим интервьюера</button><button class="button primary recruiter-only" id="start-ai-interview" style="margin-left:auto">+ Запустить</button></div><div class="session-card"><div class="section-title"><h3>Текстовый чат-бот · hh.ru</h3><span class="pill orange">позвал рекрутера</span></div><p>Саммари: кандидат подтвердил ожидания, готовность к гибриду и опыт с ${vacancyDefinitions[c.vacancyId].skill}. Просит обсудить уровень роли с человеком.</p><div style="display:flex;gap:6px"><button class="button" data-interview-material="summary">Саммари</button><button class="button" data-interview-material="transcript">Полный диалог</button></div></div><div class="session-card"><div class="section-title"><h3>Голосовое интервью с видео</h3><span class="pill blue">завершено</span></div><p>Саммари: сильные продуктовые примеры, структурная коммуникация. Техническая ошибка в конце записи не повлияла на результат.</p><div style="display:flex;gap:6px"><button class="button" data-interview-material="transcript">Расшифровка</button><button class="button">▶ Запись · 28:14</button><button class="button">Скачать</button></div></div></section><section class="card-section"><div class="section-title"><h3>Материалы живой встречи</h3><small>ИИ-протоколист</small></div><div class="session-card"><h3>Техническое интервью · 2 сентября</h3><p>Итоги, решения и вопросы для следующего этапа. Полная расшифровка и запись имеют отдельные права доступа.</p><button class="button" data-interview-material="notetaker">Открыть протокол</button></div></section></div>`;
     }
     function candidateOffersTemplate() {
       const compensation=['manager','admin','platform'].includes(roleSelect.value)?'Оклад скрыт правами':currentCandidate.salary;
@@ -1190,6 +1404,7 @@
       el('tab-content').querySelectorAll('[data-feedback-form]').forEach(button => button.addEventListener('click', () => openFeedbackForm(button.dataset.feedbackForm)));
       el('candidate-open-message')?.addEventListener('click',openMessageForm);
       el('start-ai-interview')?.addEventListener('click',openAiInterviewForm);
+      el('interview-kit-button')?.addEventListener('click',openInterviewKit);
       el('candidate-new-offer')?.addEventListener('click',()=>{showPage('offers');openOfferBuilder();});
       el('candidate-open-offers')?.addEventListener('click',()=>showPage('offers'));
       el('tab-content').querySelectorAll('[data-interview-material]').forEach(button=>button.addEventListener('click',()=>openInterviewMaterial(button.dataset.interviewMaterial)));
@@ -1406,6 +1621,17 @@
     function openAiInterviewForm() { openActionModal('Запустить ИИ-интервью',currentCandidate.name,`<div class="choice-grid"><label class="choice-card selected"><b><input type="radio" name="ai-kind" checked> Текстовый чат-бот</b><span>hh.ru или Авито Работа</span></label><label class="choice-card"><b><input type="radio" name="ai-kind"> Голосовое интервью</b><span>Видео можно включить дополнительно</span></label></div><div class="form-grid" style="margin-top:12px"><label class="form-field"><span>Сценарий</span><select><option>Первичный скрининг v6</option><option>Мотивация и ожидания v3</option></select></label><label class="form-field"><span>Канал</span><select><option>hh.ru</option><option>Авито Работа</option></select></label><label class="form-field"><span>Напоминания</span><select><option>Через 24 и 72 часа</option><option>Не напоминать</option></select></label><label class="form-field"><span><input type="checkbox"> Записывать видео</span></label></div>`,'Запустить сессию',()=>showToast('ИИ-интервью запущено. Сессия появится в карточке кандидата.')); }
     function openInterviewMaterial(kind) { openDetailDrawer(kind==='notetaker'?'Протокол живого интервью':kind==='summary'?'Саммари ИИ-интервью':'Полная расшифровка',`${currentCandidate.name} · доступ проверен отдельно`,[{key:'summary',label:'Саммари',body:`<section class="drawer-section"><h3>Ключевые выводы</h3><p class="summary-text">Кандидат подтвердил релевантный опыт, мотивацию и сроки выхода. Рекомендуется уточнить масштаб последнего проекта и роль в архитектурных решениях.</p><div class="criteria"><div class="criterion"><span class="ok">✓</span><b>Мотивация</b><small>Ищет продуктовую команду и влияние на решения.</small></div><div class="criterion"><span class="maybe">?</span><b>Масштаб</b><small>Нужно уточнить на следующем интервью.</small></div></div></section>`},{key:'full',label:'Полный материал',body:`<section class="drawer-section"><div class="event"><span class="event-dot">00:42</span><div><strong>Интервьюер</strong><p>Расскажите о последнем проекте и вашей зоне ответственности.</p></div></div><div class="event"><span class="event-dot">01:18</span><div><strong>Кандидат</strong><p>Я отвечал за ключевой модуль, участвовал в архитектуре и наставлял двух разработчиков.</p></div></div><div class="settings-note">Исходная запись доступна только пользователям с отдельным правом; зарплатные фрагменты скрываются поверх этого доступа.</div></section>`}]); }
 
+    function openInterviewKit() {
+      const vacancy=vacancyDefinitions[currentCandidate.vacancyId];
+      openDetailDrawer('Рабочее место интервьюера',`${currentCandidate.name} · ${currentCandidate.stage}`,[{key:'brief',label:'Подготовка',body:`<section class="drawer-section"><div class="section-title"><h3>Цель интервью</h3><span class="pill blue">60 минут</span></div><p class="summary-text">Проверить глубину практического опыта, самостоятельность решений и соответствие задачам команды.</p><h3 style="margin-top:16px">Фокусные критерии</h3><div class="criteria"><div class="criterion"><span class="ok">1</span><b>${vacancy.skill}</b><span class="pill">обязательное</span><small>Попросить конкретный сложный пример.</small></div><div class="criterion"><span class="maybe">2</span><b>${vacancy.secondary}</b><span class="pill">обязательное</span><small>Уточнить личный вклад кандидата.</small></div></div><div class="settings-note">Чужие оценки скрыты до отправки собственного фидбека, если так настроила компания.</div></section>`},{key:'questions',label:'Вопросы',body:`<section class="drawer-section"><div class="mini-stat"><b>1. Последнее сложное решение</b><span>архитектура</span><small>Что было вашей зоной ответственности и как измеряли результат?</small></div><div class="mini-stat"><b>2. Конфликт приоритетов</b><span>коммуникация</span><small>Как договорились с продуктом и командой?</small></div><div class="mini-stat"><b>3. Разбор кейса</b><span>${vacancy.skill}</span><small>Предложите решение и проговорите компромиссы.</small></div></section>`},{key:'resume',label:'Резюме',body:`<section class="drawer-section"><h3>${currentCandidate.name}</h3><p class="summary-text">${currentCandidate.summary}</p><h3 style="margin-top:16px">Последний опыт</h3><p class="summary-text">${currentCandidate.company} · ${currentCandidate.role} · ${currentCandidate.years} лет опыта.</p></section>`},{key:'feedback',label:'Мой фидбек',body:`<section class="drawer-section"><label class="form-field"><span>Ключевые выводы</span><textarea rows="5" placeholder="Факты и наблюдения"></textarea></label><label class="form-field" style="margin-top:10px"><span>Рекомендация</span><select><option>Продолжить процесс</option><option>Нужна дополнительная проверка</option><option>Не продолжать</option></select></label><button class="button primary" style="margin-top:12px">Отправить фидбек</button></section>`}]);
+    }
+
+    function openReviewQueue() {
+      const c=candidates.find(candidate=>candidate.stage==='Ревью')||currentCandidate;
+      openActionModal('ИИ-разбор очереди',`15 из 48 · ${vacancyDefinitions[currentVacancyId].name}`,`<div class="review-progress"><span></span></div><div class="review-shell"><section class="review-card"><div class="candidate-header" style="padding:0 0 12px;border:0"><div class="avatar lg">${c.initials}</div><div class="candidate-title"><h2>${c.name}</h2><p>${c.role} · ${c.company}</p><div class="candidate-badges"><span class="pill blue">ИИ ${c.score}</span><span class="pill">${c.source}</span></div></div></div><p class="summary-text">${c.summary}</p><div class="resume-body"><h4>Последний опыт</h4><p>${c.resumeHighlights.join(' ')}</p></div></section><aside class="review-card"><h3>Почему ИИ рекомендует дальше</h3><div class="mini-stat"><b>${vacancyDefinitions[currentVacancyId].skill}</b><span class="pill blue">подтверждено</span><small>4+ года и измеримый результат</small></div><div class="mini-stat"><b>${vacancyDefinitions[currentVacancyId].secondary}</b><span class="pill blue">подтверждено</span><small>найдены прямые примеры</small></div><div class="mini-stat"><b>${vacancyDefinitions[currentVacancyId].missing}</b><span class="pill orange">не найдено</span><small>желательный критерий</small></div><div class="settings-note">Решение остаётся за рекрутером. Горячие клавиши: P — дальше, R — оставить, X — отказ.</div></aside></div><div style="display:flex;gap:8px;margin-top:12px"><button class="button" data-review-decision="keep">Оставить на ревью</button><button class="button danger" data-review-decision="reject">Отказать</button></div>`,'Продвинуть и открыть следующего',()=>showToast('Кандидат продвинут. Открыт следующий профиль очереди.'));
+      el('action-modal-body').querySelectorAll('[data-review-decision]').forEach(button=>button.addEventListener('click',()=>{showToast(button.dataset.reviewDecision==='reject'?'Кандидат перемещён в отказ. Открыт следующий.':'Кандидат оставлен на ручном ревью. Открыт следующий.');}));
+    }
+
     function openAiAction(kind) {
       if (kind === 'rerun') return openActionModal('Повторить ИИ-скрининг', currentCandidate.name, `<div class="form-grid"><label class="form-field full"><span>Версия резюме</span><select><option>Текущая · 29.08.2026</option><option>Предыдущая · PDF</option></select></label><label class="form-field full"><span>Scorecard</span><select><option>Текущая опубликованная · v7</option><option>Черновик · v8</option></select></label></div><div class="settings-note">Новый результат сохранится отдельной версией. Предыдущая оценка и решение останутся в истории.</div>`, 'Запустить', () => showToast('Повторный скрининг запущен без блокировки ручной работы.'));
       if (kind === 'override') return openActionModal('Изменить решение ИИ', currentCandidate.name, `<div class="form-grid"><label class="form-field"><span>Решение</span><select><option>Продолжить процесс</option><option>Оставить на ручном ревью</option><option>Отказать</option></select></label><label class="form-field"><span>Этап</span><select><option>${currentCandidate.stage}</option><option>Ревью</option><option>Контакт</option><option>Отказ</option></select></label><label class="form-field full"><span>Комментарий</span><textarea rows="5" placeholder="Почему ручное решение отличается от рекомендации"></textarea></label></div><div class="settings-note">Ручное решение всегда имеет приоритет. Запланированное ИИ-письмо будет отменено.</div>`, 'Применить ручное решение', () => showToast('Решение изменено. ИИ-действие отменено без ограничения по времени.'));
@@ -1522,7 +1748,13 @@
     }
 
     const settingsSections=[['users','Пользователи'],['roles','Роли и права'],['teams','Команды'],['fields','Кастомные поля'],['dictionaries','Справочники'],['layouts','Карточки объектов'],['funnels','Воронки'],['automations','Автоматизации'],['requests','Заявки'],['forms','Формы и опросы'],['offers','Офферы'],['messages','Коммуникации'],['sla','SLA и календари'],['privacy','Персональные данные'],['integrations','Интеграции'],['analytics','Метрики и отчёты'],['security','Безопасность и данные'],['ai','ИИ и данные']];
-    function renderSettingsNav(){el('settings-nav').innerHTML=settingsSections.map(([key,label])=>`<button class="${settingsSection===key?'active':''}" data-settings-section="${key}">${label}<span>›</span></button>`).join('');el('settings-nav').querySelectorAll('[data-settings-section]').forEach(button=>button.addEventListener('click',()=>{settingsSection=button.dataset.settingsSection;renderSettingsNav();renderSettings();}));}
+    function renderSettingsNav(){
+      const primary=['users','roles','funnels','automations','integrations','ai'];
+      const visible=designVersion===2&&!advancedSettingsOpen?settingsSections.filter(([key])=>primary.includes(key)):settingsSections;
+      el('settings-nav').innerHTML=`${designVersion===2?'<div class="settings-note" style="margin:0 0 10px">Частые настройки</div>':''}${visible.map(([key,label])=>`<button class="${settingsSection===key?'active':''}" data-settings-section="${key}">${label}<span>›</span></button>`).join('')}${designVersion===2&&!advancedSettingsOpen?'<button id="show-advanced-settings" style="margin-top:10px"><b>Все настройки</b><span>12 скрыто · ↓</span></button>':''}`;
+      el('settings-nav').querySelectorAll('[data-settings-section]').forEach(button=>button.addEventListener('click',()=>{settingsSection=button.dataset.settingsSection;renderSettingsNav();renderSettings();}));
+      el('show-advanced-settings')?.addEventListener('click',()=>{advancedSettingsOpen=true;renderSettingsNav();showToast('Показаны все 18 разделов настроек.');});
+    }
     function renderSettings(){
       if(!el('settings-content'))return;
       const renderers={
@@ -1588,7 +1820,7 @@
       const navPage = page === 'vacancy' ? 'portfolio' : page;
       document.querySelectorAll('.nav-item[data-page]').forEach(button => button.classList.toggle('active', button.dataset.page === navPage));
       document.querySelectorAll('.vacancy-only-control').forEach(control => control.hidden = page !== 'vacancy');
-      el('global-search').placeholder = page === 'search' ? 'Поиск открыт: добавляйте условия ниже' : 'Найти кандидата, вакансию или задачу';
+      updateGlobalPrompt();
       if (page === 'overview') renderOverviewTasks();
       if (page === 'tasks') renderTasks();
       if (page === 'portfolio') renderPortfolio();
@@ -1754,6 +1986,9 @@
     }
     el('retry-button').addEventListener('click', () => { viewSelect.value = 'loading'; applyViewState(); window.setTimeout(() => { viewSelect.value = 'normal'; applyViewState(); showToast('Данные обновлены'); }, 850); });
     el('assistant-button').addEventListener('click', () => toggleAssistant());
+    el('ai-context-button').addEventListener('click',()=>{const prompt=`Покажи, что требует моего внимания в разделе «${document.querySelector('.nav-item.active span:nth-child(2)')?.textContent||'Обзор'}»`;if(el('assistant-panel').hidden)toggleAssistant(prompt);else sendAssistantMessage(prompt);});
+    el('ai-briefing-chat').addEventListener('click',()=>{if(el('assistant-panel').hidden)toggleAssistant('Разбери мой план дня и предложи оптимальный порядок действий');else sendAssistantMessage('Разбери мой план дня и предложи оптимальный порядок действий');});
+    document.querySelectorAll('[data-design]').forEach(button=>button.addEventListener('click',()=>applyDesign(button.dataset.design)));
     el('assistant-close').addEventListener('click', () => el('assistant-panel').hidden = true);
     el('assistant-send').addEventListener('click', () => sendAssistantMessage());
     el('assistant-input').addEventListener('keydown', event => { if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAssistantMessage();} });
@@ -1765,6 +2000,7 @@
     el('detail-drawer-close').addEventListener('click',()=>el('detail-drawer').hidden=true);
     el('vacancy-back-button').addEventListener('click',()=>showPage('portfolio'));
     el('vacancy-details-button').addEventListener('click',()=>openVacancyDetails('info'));
+    el('review-queue-button').addEventListener('click',openReviewQueue);
     el('add-candidate-button').addEventListener('click',openAddCandidate);
     el('empty-add-candidate').addEventListener('click',openAddCandidate);
     el('global-add-candidate').addEventListener('click',openAddCandidate);
@@ -1814,8 +2050,8 @@
     el('metric-drawer-close').addEventListener('click', () => el('metric-drawer').hidden = true);
     document.querySelectorAll('[data-metric]').forEach(button => button.addEventListener('click', () => openMetricDrawer(button.dataset.metric)));
     document.querySelectorAll('.segmented').forEach(group => group.addEventListener('click', event => { const button = event.target.closest('button'); if (!button || button.dataset.taskFilter) return; group.querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button)); }));
-    el('global-search').addEventListener('keydown', event => { if (event.key === 'Enter') { showPage('search'); if (event.target.value.trim()) { queryRows[0].value = event.target.value.trim(); renderQueryBuilder(); } } });
-    el('global-search').addEventListener('focus', () => { if (currentPage !== 'search') el('global-search').title = 'Введите запрос и нажмите Enter, чтобы открыть расширенный поиск'; });
+    el('global-search').addEventListener('keydown', event => { if (event.key === 'Enter') { const value=event.target.value.trim(); if(designVersion===2&&value){if(el('assistant-panel').hidden)toggleAssistant(value);else sendAssistantMessage(value);event.target.value='';return;} showPage('search'); if (value) { queryRows[0].value = value; renderQueryBuilder(); } } });
+    el('global-search').addEventListener('focus', () => { el('global-search').title = designVersion===2?'Опишите задачу обычным языком и нажмите Enter':'Введите запрос и нажмите Enter, чтобы открыть расширенный поиск'; });
     window.addEventListener('hashchange', () => {
       const parts = location.hash.replace('#','').split('/');
       const page = ['overview','tasks','portfolio','vacancy','candidates','requisitions','communications','offers','search','calendar','operations','analytics','settings'].includes(parts[0]) ? parts[0] : 'portfolio';
@@ -1839,6 +2075,7 @@
     const initialParts = location.hash.replace('#','').split('/');
     const initialPage = ['overview','tasks','portfolio','vacancy','candidates','requisitions','communications','offers','search','calendar','operations','analytics','settings'].includes(initialParts[0]) ? initialParts[0] : 'portfolio';
     currentPage = initialPage;
+    applyDesign(designVersion, false);
     activateVacancy(vacancyDefinitions[initialParts[1]] ? initialParts[1] : 'android');
     applyRoleVisibility();
     applyVacancyState();
