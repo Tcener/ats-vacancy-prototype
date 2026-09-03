@@ -1519,6 +1519,7 @@
 
     const initialParts = location.hash.replace('#','').split('/');
     const initialPage = ['overview','tasks','vacancy','candidates','requisitions','search','calendar','analytics','settings'].includes(initialParts[0]) ? initialParts[0] : 'vacancy';
+    currentPage = initialPage;
     activateVacancy(vacancyDefinitions[initialParts[1]] ? initialParts[1] : 'android');
     applyRoleVisibility();
     applyVacancyState();
