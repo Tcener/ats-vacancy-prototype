@@ -93,7 +93,7 @@
     .icon-button { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: white; }
     .assistant-button { min-width: 34px; padding: 0 10px; color: var(--accent-strong); border-color: #cbd7fa; background: var(--accent-soft); font-weight: 650; }
 
-    .workspace { position: relative; min-height: 0; display: grid; grid-template-rows: auto auto auto 1fr; overflow: hidden; }
+    .workspace { position: relative; min-height: 0; display: grid; grid-template-rows: auto auto auto minmax(650px, auto) auto; overflow-y: auto; overflow-x: hidden; }
     .vacancy-head { display: flex; align-items: flex-start; gap: 18px; padding: 18px 22px 14px; background: white; }
     .back { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--muted); }
     .vacancy-title { min-width: 260px; flex: 1; }
@@ -137,7 +137,7 @@
     .stage small { color: var(--subtle); font-size: 10px; }
     .stage.legacy { margin-left: 8px; color: #7b5b2a; border-left: 1px dashed #cfa866; background: #fffaf0; }
 
-    .work-area { min-height: 0; display: grid; grid-template-columns: 350px minmax(560px, 1fr); }
+    .work-area { min-height: 650px; display: grid; grid-template-columns: 350px minmax(560px, 1fr); }
     .candidate-column { min-height: 0; display: grid; grid-template-rows: auto 1fr; background: var(--surface-soft); border-right: 1px solid var(--line); }
     .list-toolbar { padding: 12px 13px 9px; background: white; border-bottom: 1px solid var(--line); }
     .list-toolbar-top { display: flex; align-items: center; gap: 8px; }
@@ -146,7 +146,7 @@
     .list-toolbar .icon-button { width: 30px; height: 30px; margin-left: auto; }
     .list-filter { display: flex; gap: 7px; margin-top: 9px; }
     .list-filter input { min-width: 0; flex: 1; height: 31px; padding: 0 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-soft); font-size: 11px; }
-    .candidate-list { overflow-y: auto; padding: 7px; }
+    .candidate-list { overflow-y: auto; max-height: 1120px; padding: 7px; }
     .candidate-row {
       width: 100%; display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 9px;
       min-height: 88px; padding: 11px 10px; border: 1px solid transparent; border-radius: 9px;
@@ -165,7 +165,7 @@
     .score.error { color: var(--danger); background: var(--danger-soft); }
     .attention-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
 
-    .candidate-card { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto auto 1fr; background: white; }
+    .candidate-card { min-width: 0; min-height: 650px; display: grid; grid-template-rows: auto auto 1fr; background: white; }
     .candidate-header { display: flex; align-items: flex-start; gap: 12px; padding: 15px 18px 12px; border-bottom: 1px solid var(--line); }
     .candidate-title { min-width: 0; flex: 1; }
     .candidate-title h2 { margin: 1px 0 4px; font-size: 18px; letter-spacing: -.015em; }
@@ -182,7 +182,7 @@
     .tab:hover { color: var(--text); }
     .tab.active { color: var(--accent-strong); border-color: var(--accent); font-weight: 650; }
     .tab .tab-count { margin-left: 4px; color: var(--subtle); }
-    .card-scroll { overflow-y: auto; padding: 16px 18px 34px; background: #fbfcfd; }
+    .card-scroll { overflow-y: visible; padding: 16px 18px 34px; background: #fbfcfd; }
     .content-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(245px, .8fr); gap: 12px; align-items: start; }
     .stack { display: grid; gap: 12px; }
     .card-section { padding: 14px; border: 1px solid var(--line); border-radius: var(--radius); background: white; }
@@ -264,7 +264,8 @@
     @keyframes shimmer { to { background-position: -200% 0; } }
 
     .modal-backdrop { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 24px; background: rgba(19, 29, 43, .42); }
-    .modal { width: min(480px, 92vw); border-radius: 13px; background: white; box-shadow: 0 20px 60px rgba(14,25,40,.25); }
+    .modal { width: min(520px, 92vw); max-height: calc(100vh - 48px); overflow: auto; border-radius: 13px; background: white; box-shadow: 0 20px 60px rgba(14,25,40,.25); }
+    .modal.wide { width: min(820px, 94vw); }
     .modal-head { display: flex; align-items: center; padding: 15px 17px; border-bottom: 1px solid var(--line); }
     .modal-head h2 { margin: 0; font-size: 15px; }
     .modal-head .icon-button { margin-left: auto; }
@@ -375,6 +376,154 @@
     .drawer-head p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
     .drawer-head .icon-button { margin-left: auto; }
 
+    .vacancy-lower { padding: 18px 22px 48px; background: var(--bg); border-top: 1px solid var(--line); }
+    .vacancy-lower-grid { display: grid; grid-template-columns: repeat(3, minmax(240px, 1fr)); gap: 12px; }
+    .mini-stat { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 9px 0; border-bottom: 1px solid #edf0f3; }
+    .mini-stat:last-child { border-bottom: 0; }
+    .mini-stat b { font-size: 11px; }
+    .mini-stat span, .mini-stat small { color: var(--muted); font-size: 9px; }
+    .mini-stat small { grid-column: 1 / -1; }
+
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .form-field { display: grid; gap: 5px; color: var(--muted); font-size: 10px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field input, .form-field select, .form-field textarea { width: 100%; min-height: 36px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: white; font-size: 11px; }
+    .form-field textarea { min-height: 90px; resize: vertical; }
+    .choice-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .choice-card { display: flex; gap: 8px; align-items: flex-start; padding: 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--text); background: white; font-size: 10px; }
+    .choice-card b { display: block; margin-bottom: 3px; font-size: 11px; }
+    .choice-card small { color: var(--muted); }
+    .inline-note { padding: 9px 10px; border-radius: 8px; color: #445574; background: var(--accent-soft); font-size: 10px; line-height: 1.45; }
+    .danger-note { color: #713f3f; background: var(--danger-soft); }
+    .success-note { color: #215942; background: var(--good-soft); }
+
+    .assistant-panel { position: fixed; right: 18px; bottom: 18px; z-index: 40; width: 390px; height: min(570px, calc(100vh - 92px)); display: grid; grid-template-rows: auto 1fr auto; border: 1px solid #c9d5f4; border-radius: 15px; background: white; box-shadow: 0 18px 55px rgba(23,33,43,.22); overflow: hidden; }
+    .assistant-head { display: flex; align-items: center; gap: 10px; padding: 13px 14px; color: #fff; background: linear-gradient(135deg,#244db8,#6b5bd2); }
+    .assistant-orb { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; color: #294eae; background: #eef2ff; font-weight: 800; }
+    .assistant-head b { display: block; font-size: 12px; }
+    .assistant-head small { color: #dfe6ff; font-size: 9px; }
+    .assistant-head .icon-button { margin-left: auto; color: white; border-color: rgba(255,255,255,.24); background: rgba(255,255,255,.08); }
+    .assistant-messages { overflow-y: auto; padding: 13px; background: #f7f8fc; }
+    .assistant-message { max-width: 88%; margin-bottom: 9px; padding: 9px 10px; border: 1px solid #e2e7f0; border-radius: 10px 10px 10px 3px; color: #334155; background: white; font-size: 10px; line-height: 1.5; }
+    .assistant-message.user { margin-left: auto; border-color: #3768e5; border-radius: 10px 10px 3px 10px; color: white; background: #3768e5; }
+    .chat-message { max-width: 88%; margin-bottom: 9px; padding: 9px 10px; border-radius: 10px 10px 10px 3px; color: #334155; background: white; border: 1px solid #e2e7f0; font-size: 10px; line-height: 1.5; }
+    .chat-message.user { margin-left: auto; border-radius: 10px 10px 3px 10px; color: white; background: #3768e5; border-color: #3768e5; }
+    .chat-message small { display: block; margin-top: 5px; color: var(--subtle); font-size: 8px; }
+    .assistant-suggestions { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0 12px; }
+    .assistant-suggestions button { padding: 5px 7px; border: 1px solid #cbd7fa; border-radius: 999px; color: var(--accent-strong); background: white; font-size: 9px; }
+    .change-preview { margin: 8px 0 11px; padding: 10px; border: 1px solid #b9caf8; border-radius: 9px; background: #f8faff; }
+    .change-preview > span, .change-preview > strong, .change-preview > small { display: block; margin-top: 5px; font-size: 9px; }
+    .change-preview > div { display: flex; gap: 6px; margin-top: 9px; }
+    .change-preview h4 { margin: 0 0 7px; font-size: 10px; }
+    .change-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; color: var(--muted); font-size: 9px; }
+    .change-row b { color: var(--text); }
+    .change-preview .actions { display: flex; gap: 6px; margin-top: 9px; }
+    .assistant-compose { display: grid; grid-template-columns: 1fr auto; gap: 7px; padding: 10px; border-top: 1px solid var(--line); background: white; }
+    .assistant-compose textarea { height: 58px; resize: none; padding: 9px; border: 1px solid var(--line); border-radius: 9px; font-size: 10px; }
+
+    .detail-drawer { position: fixed; top: 62px; right: 0; bottom: 0; z-index: 18; width: min(760px, 70vw); display: grid; grid-template-rows: auto auto 1fr; border-left: 1px solid var(--line); background: white; box-shadow: -18px 0 42px rgba(23,33,43,.16); }
+    .detail-drawer .drawer-head { padding: 17px 18px 10px; margin: 0; }
+    .drawer-tabs { display: flex; padding: 0 18px; border-bottom: 1px solid var(--line); }
+    .drawer-tabs button { padding: 10px 11px; border: 0; border-bottom: 2px solid transparent; color: var(--muted); background: transparent; font-size: 10px; }
+    .drawer-tabs button.active { border-bottom-color: var(--accent); color: var(--accent-strong); font-weight: 700; }
+    .drawer-body { overflow-y: auto; padding: 17px 18px 34px; background: #fbfcfd; }
+    .drawer-section { margin-bottom: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+    .drawer-section h3 { margin: 0 0 10px; font-size: 13px; }
+
+    .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 11px; background: white; }
+    .lead-table { min-width: 1380px; }
+    .lead-table-wrap { overflow-x: auto; }
+    .lead-filters { display: flex; gap: 6px; padding: 0 10px 10px; }
+    .lead-filters input, .lead-filters select { height: 29px; padding: 0 7px; border: 1px solid var(--line); border-radius: 6px; font-size: 9px; }
+    .lead-table th { position: sticky; top: 0; z-index: 1; }
+    .lead-table .filter-cell { padding: 5px 7px; background: white; }
+    .lead-table .filter-cell input, .lead-table .filter-cell select { width: 100%; height: 28px; padding: 0 6px; border: 1px solid var(--line); border-radius: 6px; font-size: 9px; }
+    .column-config { display: grid; gap: 7px; }
+    .config-row { display: grid; grid-template-columns: 24px 1fr auto; gap: 8px; align-items: center; padding: 9px; border: 1px solid var(--line); border-radius: 8px; background: white; }
+    .config-row b { font-size: 11px; }
+    .config-row small { display: block; color: var(--muted); font-size: 9px; }
+    .config-row .row-actions { display: flex; gap: 4px; }
+
+    .calendar-shell { display: grid; grid-template-columns: 220px minmax(700px, 1fr); min-height: 690px; border: 1px solid var(--line); border-radius: 11px; overflow: hidden; background: white; }
+    .calendar-sidebar { padding: 14px; border-right: 1px solid var(--line); background: #fbfcfd; }
+    .calendar-sidebar h3 { margin: 12px 0 8px; font-size: 12px; }
+    .calendar-sidebar > label { width: 100%; display: grid !important; grid-template-columns: 15px 1fr; align-items: center; gap: 6px; margin: 7px 0; font-size: 10px; }
+    .mini-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin: 10px 0 18px; }
+    .mini-calendar span { height: 25px; display: grid; place-items: center; border-radius: 6px; color: var(--muted); font-size: 9px; }
+    .mini-calendar .today { color: white; background: var(--accent); }
+    .calendar-list { display: grid; gap: 8px; }
+    .calendar-check { display: flex; align-items: center; gap: 7px; font-size: 10px; }
+    .calendar-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .calendar-main { min-width: 0; overflow: auto; }
+    .calendar-toolbar { min-width: 900px; display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+    .calendar-toolbar h2 { margin: 0 8px; font-size: 15px; }
+    .week-grid { min-width: 900px; display: grid; grid-template-columns: 62px repeat(5, minmax(150px, 1fr)); grid-template-rows: 44px repeat(10, 58px); position: relative; }
+    .week-corner, .week-day-head, .week-time, .week-slot { border-right: 1px solid #edf0f3; border-bottom: 1px solid #edf0f3; }
+    .week-day-head { display: grid; place-items: center; position: sticky; top: 0; z-index: 2; background: white; font-size: 10px; font-weight: 700; }
+    .week-time { padding: 6px 7px; color: var(--muted); font-size: 9px; }
+    .week-slot { min-width: 0; position: relative; }
+    .week-slot .calendar-event { width: calc(100% - 10px); margin: 3px 5px; }
+    .week-cell { padding: 7px; border-right: 1px solid #edf0f3; border-bottom: 1px solid #edf0f3; color: var(--muted); font-size: 9px; }
+    .week-cell.day-head { position: sticky; top: 0; z-index: 2; background: white; text-align: center; font-weight: 700; }
+    .calendar-event { z-index: 3; margin: 4px 6px; padding: 7px; border-left: 3px solid var(--accent); border-radius: 7px; color: #203455; background: #eaf0ff; font-size: 9px; overflow: hidden; text-align: left; }
+    .calendar-event b { display: block; margin-bottom: 3px; font-size: 10px; }
+    .calendar-event.green { border-color: var(--good); background: var(--good-soft); }
+    .calendar-event.orange { border-color: #d88a13; background: var(--warn-soft); }
+    .month-grid { min-width: 900px; display: grid; grid-template-columns: repeat(7, 1fr); }
+    .month-cell { min-height: 112px; padding: 7px; border-right: 1px solid #edf0f3; border-bottom: 1px solid #edf0f3; font-size: 9px; }
+    .month-cell.head { min-height: 36px; background: #fafbfc; }
+    .month-day { min-height: 112px; padding: 7px; border-right: 1px solid #edf0f3; border-bottom: 1px solid #edf0f3; font-size: 9px; }
+    .month-day b { display: block; margin-bottom: 5px; }
+    .month-event { margin-bottom: 4px; padding: 4px 5px; border-radius: 5px; color: #244db8; background: var(--accent-soft); }
+
+    .settings-shell { min-height: 680px; display: grid; grid-template-columns: 230px minmax(620px, 1fr); border: 1px solid var(--line); border-radius: 11px; overflow: hidden; background: white; }
+    .settings-nav { padding: 12px; border-right: 1px solid var(--line); background: #f8fafc; }
+    .settings-nav button { width: 100%; display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 0; border-radius: 7px; color: var(--muted); background: transparent; font-size: 10px; text-align: left; }
+    .settings-nav button:hover, .settings-nav button.active { color: var(--accent-strong); background: var(--accent-soft); font-weight: 650; }
+    .settings-content { min-width: 0; padding: 18px; overflow: auto; }
+    .settings-note { margin-top: 10px; padding: 9px 10px; border-radius: 8px; color: #526174; background: #f1f4f8; font-size: 9px; line-height: 1.45; }
+    .settings-title { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+    .settings-title h2 { margin: 0 0 4px; font-size: 19px; }
+    .settings-title p { margin: 0; color: var(--muted); font-size: 10px; }
+    .settings-title .button { margin-left: auto; }
+    .toggle { width: 38px; height: 21px; position: relative; display: inline-block; border: 0; border-radius: 999px; background: #cbd3dd; }
+    .toggle input { position: absolute; opacity: 0; pointer-events: none; }
+    .toggle:has(input:checked) { background: var(--good); }
+    .toggle:has(input:checked)::after { left: 20px; }
+    .toggle::after { content:""; position:absolute; top:3px; left:3px; width:15px; height:15px; border-radius:50%; background:white; transition:.15s; }
+    .toggle.on { background: var(--good); }
+    .toggle.on::after { left:20px; }
+    .permission-grid { width: 100%; border-collapse: collapse; }
+    div.permission-grid { display: grid; grid-template-columns: minmax(220px,1fr) repeat(4,70px); align-items: center; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+    div.permission-grid > * { min-height: 36px; display: grid; place-items: center; padding: 8px; border-bottom: 1px solid #edf0f3; font-size: 10px; }
+    div.permission-grid > span { justify-items: start; }
+    .stage-editor > div { display: grid; grid-template-columns: 26px 1fr 160px auto; gap: 8px; align-items: center; padding: 9px; border-bottom: 1px solid #edf0f3; }
+    .stage-editor small { color: var(--muted); font-size: 9px; }
+    .automation-rule, .integration-row { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 11px; border-bottom: 1px solid #edf0f3; }
+    .automation-rule b, .automation-rule small, .integration-row b, .integration-row small { display: block; }
+    .automation-rule small, .integration-row small { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .dashboard-config-list { display: grid; gap: 7px; }
+    .dashboard-config-row { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
+    .dashboard-config-row span { flex: 1; }
+    .dashboard-config-row b, .dashboard-config-row small { display: block; }
+    .dashboard-config-row small { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .permission-grid th, .permission-grid td { padding: 9px; border-bottom: 1px solid #edf0f3; font-size: 10px; text-align: left; }
+    .permission-grid th:not(:first-child), .permission-grid td:not(:first-child) { text-align: center; }
+    .stage-editor-row { display: grid; grid-template-columns: 26px 1fr 130px auto; gap: 9px; align-items: center; padding: 10px; border-bottom: 1px solid #edf0f3; }
+    .stage-editor-row b { font-size: 11px; }
+    .stage-editor-row small { color: var(--muted); font-size: 9px; }
+    .rule-card { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: white; }
+    .rule-card + .rule-card { margin-top: 8px; }
+    .rule-card h3 { margin: 0 0 5px; font-size: 12px; }
+    .rule-card p { margin: 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .integration-grid { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); gap: 10px; }
+    .integration-card { padding: 12px; border: 1px solid var(--line); border-radius: 9px; }
+    .integration-card h3 { margin: 0 0 4px; font-size: 12px; }
+    .integration-card p { min-height: 27px; margin: 0 0 9px; color: var(--muted); font-size: 9px; line-height: 1.45; }
+
+    .dashboard-editing .dashboard-widget { outline: 2px dashed #8ea9ee; outline-offset: 2px; position: relative; }
+    .dashboard-editing .dashboard-widget::after { content:"↕ можно перемещать"; position:absolute; top:5px; right:6px; padding:3px 5px; border-radius:5px; color:#244db8; background:#eaf0ff; font-size:8px; }
+
     @media (max-width: 1120px) {
       .app { grid-template-columns: 72px 1fr; }
       .brand { justify-content: center; padding: 0; }
@@ -384,8 +533,9 @@
       .head-metrics .metric:nth-child(2) { display: none; }
       .prototype-note { left: 82px; }
       .kpi-grid { grid-template-columns: repeat(2, minmax(180px, 1fr)); }
-      .dashboard-grid, .dashboard-grid.equal, .requisition-layout { grid-template-columns: 1fr; }
+      .dashboard-grid, .dashboard-grid.equal, .requisition-layout, .vacancy-lower-grid { grid-template-columns: 1fr; }
       .split-view { grid-template-columns: 390px minmax(420px, 1fr); }
+      .calendar-shell, .settings-shell { grid-template-columns: 190px minmax(700px, 1fr); }
     }
   </style>
 </head>
@@ -402,9 +552,9 @@
         <button class="nav-item" data-page="requisitions"><span class="nav-icon">◇</span><span>Заявки</span><span class="nav-badge">3</span></button>
         <div class="nav-label">Инструменты</div>
         <button class="nav-item" data-page="search"><span class="nav-icon">⌕</span><span>Поиск</span></button>
-        <button class="nav-item" data-placeholder="Календарь"><span class="nav-icon">□</span><span>Календарь</span></button>
+        <button class="nav-item" data-page="calendar"><span class="nav-icon">□</span><span>Календарь</span></button>
         <button class="nav-item" data-page="analytics"><span class="nav-icon">↗</span><span>Аналитика</span></button>
-        <button class="nav-item" data-placeholder="Настройки"><span class="nav-icon">⚙</span><span>Настройки</span></button>
+        <button class="nav-item" data-page="settings"><span class="nav-icon">⚙</span><span>Настройки</span></button>
       </nav>
       <div class="sidebar-bottom">
         <div class="user-mini"><div class="avatar sm">ЕК</div><div><span>Елена Крылова</span><small id="sidebar-role">Рекрутер</small></div></div>
@@ -418,6 +568,7 @@
           <label class="control-label">Роль
             <select id="role-select">
               <option value="recruiter">Рекрутер</option>
+              <option value="lead">Руководитель рекрутмента</option>
               <option value="manager">Нанимающий менеджер</option>
             </select>
           </label>
@@ -454,7 +605,7 @@
             <div class="metric"><strong id="vacancy-progress">78%</strong><span>близость к закрытию</span></div>
             <div class="metric warn"><strong id="vacancy-deadline">8 дней</strong><span>до плановой даты</span></div>
           </div>
-          <div class="head-actions"><button class="button">Сведения</button><button class="button primary recruiter-only">+ Кандидат</button><button class="button">•••</button></div>
+          <div class="head-actions"><button class="button" id="vacancy-details-button">Сведения</button><button class="button primary recruiter-only" id="add-candidate-button">+ Кандидат</button><button class="button" id="vacancy-more-button">•••</button></div>
         </section>
 
         <div class="pause-banner" id="pause-banner" hidden><strong>Вакансия на паузе.</strong><span>SLA и новые ИИ-действия остановлены. Ручная работа и назначение встреч доступны с предупреждением.</span><button class="button recruiter-only">Возобновить</button></div>
@@ -481,8 +632,8 @@
                 <div class="candidate-badges" id="candidate-badges"></div>
               </div>
               <div class="candidate-actions">
-                <button class="button">Написать</button>
-                <button class="button">Назначить встречу</button>
+                <button class="button" id="message-button">Написать</button>
+                <button class="button" id="meeting-button">Назначить встречу</button>
                 <button class="button primary recruiter-only" id="move-button">Переместить</button>
                 <div class="manager-hint manager-only" hidden>Этап меняет рекрутер. Вы можете оставить фидбек или назначить встречу.</div>
               </div>
@@ -498,8 +649,16 @@
           </article>
         </section>
 
+        <section class="vacancy-lower" id="vacancy-lower">
+          <div class="vacancy-lower-grid">
+            <div class="panel dashboard-widget"><div class="panel-head"><h2>Публикации и входящий поток</h2><button class="button" id="publications-button">Управлять</button></div><div class="panel-body"><div class="mini-stat"><b>hh.ru</b><span class="pill blue">опубликована</span><small>186 откликов · синхронизация 4 минуты назад</small></div><div class="mini-stat"><b>Авито Работа</b><span class="pill blue">опубликована</span><small>74 отклика · автодобавление включено</small></div><div class="mini-stat"><b>Getmatch</b><span class="pill">черновик</span><small>Публикация ещё не отправлена</small></div></div></div>
+            <div class="panel dashboard-widget"><div class="panel-head"><h2>SLA и прогресс</h2><button class="button" id="sla-details-button">Подробнее</button></div><div class="panel-body"><div class="mini-stat"><b>Срок вакансии</b><span>40 календарных дней</span><small>Правило: Разработка → Senior → приоритет 1</small></div><div class="mini-stat"><b>Прошло</b><span>32 дня</span><small>Паузы: 2 дня не включены в расчёт</small></div><div class="mini-stat"><b>Риск</b><span class="pill orange">средний</span><small>До оффера дошли 10 кандидатов</small></div></div></div>
+            <div class="panel dashboard-widget"><div class="panel-head"><h2>Активные автоматизации</h2><button class="button" id="vacancy-automations-button">Настроить</button></div><div class="panel-body"><div class="mini-stat"><b>ИИ-скрининг</b><span class="pill blue">включён</span><small>Порог 7,5 · ручная отмена разрешена</small></div><div class="mini-stat"><b>Напоминание о фидбеке</b><span class="pill blue">включено</span><small>Через 24 часа после интервью</small></div><div class="mini-stat"><b>Автоотказ</b><span class="pill orange">с задержкой</span><small>Письмо через 2 часа, отменяется ручным решением</small></div></div></div>
+          </div>
+        </section>
+
         <section class="state-view" id="empty-view" hidden>
-          <div class="state-card"><div class="state-icon">◎</div><h2>На вакансии пока нет кандидатов</h2><p>Добавьте человека вручную, разберите новые отклики или запустите поиск по базе. Кандидат будет добавлен на вакансию и появится на начальном этапе.</p><div class="state-actions"><button class="button recruiter-only">Найти в базе</button><button class="button primary recruiter-only">Добавить кандидата</button><span class="manager-only" hidden>Добавлять кандидатов может рекрутер.</span></div></div>
+          <div class="state-card"><div class="state-icon">◎</div><h2>На вакансии пока нет кандидатов</h2><p>Добавьте человека вручную, разберите новые отклики или запустите поиск по базе. Кандидат будет добавлен на вакансию и появится на начальном этапе.</p><div class="state-actions"><button class="button recruiter-only" data-page-jump="search">Найти в базе</button><button class="button primary recruiter-only" id="empty-add-candidate">Добавить кандидата</button><span class="manager-only" hidden>Добавлять кандидатов может рекрутер.</span></div></div>
         </section>
 
         <section class="skeleton-view" id="loading-view" hidden aria-label="Загрузка">
@@ -517,26 +676,29 @@
       </main>
 
       <main class="app-page" id="page-overview" hidden>
-        <header class="page-head"><div><h1>Обзор</h1><p>Добрый день, Елена. Вот что требует внимания сегодня.</p></div><div class="page-actions"><button class="button">Настроить дашборд</button><button class="button primary" data-page-jump="tasks">Открыть мои задачи</button></div></header>
-        <section class="kpi-grid">
+        <header class="page-head"><div><h1>Обзор</h1><p id="overview-subtitle">Добрый день, Елена. Вот что требует внимания сегодня.</p></div><div class="page-actions"><button class="button" id="overview-configure-button">Настроить дашборд</button><button class="button primary" data-page-jump="tasks">Открыть мои задачи</button></div></header>
+        <div id="overview-personal">
+        <section class="kpi-grid dashboard-widget" id="overview-kpis">
           <button class="kpi-card metric-button" data-page-jump="vacancy"><span class="kpi-label">Вакансии в работе</span><strong>18</strong><small class="up">2 близки к закрытию</small></button>
           <button class="kpi-card metric-button" data-page-jump="tasks"><span class="kpi-label">Задачи на сегодня</span><strong>7</strong><small class="down">3 просрочены</small></button>
           <button class="kpi-card metric-button" data-page-jump="requisitions"><span class="kpi-label">Ждут моего решения</span><strong>3</strong><small>заявки и согласования</small></button>
-          <button class="kpi-card metric-button" data-placeholder="Календарь"><span class="kpi-label">Встречи сегодня</span><strong>5</strong><small>ближайшая в 11:30</small></button>
+          <button class="kpi-card metric-button" data-page-jump="calendar"><span class="kpi-label">Встречи сегодня</span><strong>5</strong><small>ближайшая в 11:30</small></button>
         </section>
-        <section class="dashboard-grid">
+        <section class="dashboard-grid dashboard-widget" id="overview-vacancies">
           <div class="panel"><div class="panel-head"><h2>Вакансии, требующие внимания</h2><small>по SLA и состоянию воронки</small><button class="button" data-page-jump="vacancy">Все вакансии</button></div><table class="data-table"><thead><tr><th>Вакансия</th><th>Рекрутер</th><th>Прогресс</th><th>SLA</th><th>Кандидаты</th></tr></thead><tbody>
             <tr class="clickable" data-open-vacancy="android"><td><span class="table-title">Senior Android-разработчик</span><span class="table-sub">Mobile · Senior · приоритет 1</span></td><td>Елена Крылова</td><td><div class="progress-track"><span style="width:78%"></span></div><span class="table-sub">78%</span></td><td><span class="pill orange">8 дней</span></td><td>90</td></tr>
             <tr class="clickable" data-open-vacancy="designer"><td><span class="table-title">Senior Product Designer</span><span class="table-sub">Core Product · Senior · приоритет 2</span></td><td>Антон Беляев</td><td><div class="progress-track"><span style="width:62%"></span></div><span class="table-sub">62%</span></td><td><span class="pill blue">19 дней</span></td><td>100</td></tr>
             <tr class="clickable"><td><span class="table-title">Data Analyst</span><span class="table-sub">BI · Middle · приоритет 2</span></td><td>Мария Фролова</td><td><div class="progress-track"><span style="width:34%"></span></div><span class="table-sub">34%</span></td><td><span class="pill red">−2 дня</span></td><td>37</td></tr>
             <tr class="clickable"><td><span class="table-title">Руководитель клиентского сервиса</span><span class="table-sub">Operations · Lead · приоритет 1</span></td><td>Елена Крылова</td><td><div class="progress-track"><span style="width:49%"></span></div><span class="table-sub">49%</span></td><td><span class="pill orange">5 дней</span></td><td>28</td></tr>
           </tbody></table></div>
-          <div class="panel"><div class="panel-head"><h2>План дня</h2><small>7 задач</small></div><div class="task-list" id="overview-tasks"></div><div class="panel-body"><button class="button" data-page-jump="tasks">Все мои задачи</button></div></div>
+          <div class="panel" id="overview-plan"><div class="panel-head"><h2>План дня</h2><small>7 задач</small></div><div class="task-list" id="overview-tasks"></div><div class="panel-body"><button class="button" data-page-jump="tasks">Все мои задачи</button></div></div>
         </section>
-        <section class="dashboard-grid equal" style="margin-top:12px">
-          <div class="panel"><div class="panel-head"><h2>Новые кандидаты за 6 недель</h2><small>все доступные вакансии</small></div><div class="panel-body"><div class="bar-chart"><div class="bar" style="height:44%"><span>41</span></div><div class="bar" style="height:61%"><span>58</span></div><div class="bar" style="height:53%"><span>50</span></div><div class="bar" style="height:76%"><span>72</span></div><div class="bar" style="height:67%"><span>63</span></div><div class="bar" style="height:92%"><span>87</span></div></div><div class="chart-labels"><span>27 июл</span><span>3 авг</span><span>10 авг</span><span>17 авг</span><span>24 авг</span><span>31 авг</span></div></div></div>
-          <div class="panel"><div class="panel-head"><h2>Ближайшие встречи</h2><small>сегодня</small></div><div class="task-list"><div class="task-row"><span class="info-icon">11:30</span><div><span class="task-title">HR-интервью · Алина Воронцова</span><span class="task-context">Senior Android-разработчик · Телемост</span></div><span class="task-date">через 48 мин.</span></div><div class="task-row"><span class="info-icon">13:00</span><div><span class="task-title">Портфолио · Марина Орлова</span><span class="task-context">Senior Product Designer · Контур Толк</span></div><span class="task-date">через 2 ч.</span></div><div class="task-row"><span class="info-icon">16:30</span><div><span class="task-title">Финал · Пётр Волков</span><span class="task-context">Data Analyst · офис</span></div><span class="task-date">сегодня</span></div></div></div>
+        <section class="dashboard-grid equal dashboard-widget" style="margin-top:12px" id="overview-bottom">
+          <div class="panel" id="overview-trend"><div class="panel-head"><h2>Новые кандидаты за 6 недель</h2><small>все доступные вакансии</small></div><div class="panel-body"><div class="bar-chart"><div class="bar" style="height:44%"><span>41</span></div><div class="bar" style="height:61%"><span>58</span></div><div class="bar" style="height:53%"><span>50</span></div><div class="bar" style="height:76%"><span>72</span></div><div class="bar" style="height:67%"><span>63</span></div><div class="bar" style="height:92%"><span>87</span></div></div><div class="chart-labels"><span>27 июл</span><span>3 авг</span><span>10 авг</span><span>17 авг</span><span>24 авг</span><span>31 авг</span></div></div></div>
+          <div class="panel" id="overview-meetings"><div class="panel-head"><h2>Ближайшие встречи</h2><small>сегодня</small></div><div class="task-list"><div class="task-row"><span class="info-icon">11:30</span><div><span class="task-title">HR-интервью · Алина Воронцова</span><span class="task-context">Senior Android-разработчик · Телемост</span></div><span class="task-date">через 48 мин.</span></div><div class="task-row"><span class="info-icon">13:00</span><div><span class="task-title">Портфолио · Марина Орлова</span><span class="task-context">Senior Product Designer · Контур Толк</span></div><span class="task-date">через 2 ч.</span></div><div class="task-row"><span class="info-icon">16:30</span><div><span class="task-title">Финал · Пётр Волков</span><span class="task-context">Data Analyst · офис</span></div><span class="task-date">сегодня</span></div></div></div>
         </section>
+        </div>
+        <div id="overview-lead" hidden></div>
       </main>
 
       <main class="app-page" id="page-tasks" hidden>
@@ -546,13 +708,13 @@
       </main>
 
       <main class="app-page" id="page-candidates" hidden>
-        <header class="page-head"><div><h1>Кандидаты</h1><p>Единая база профилей и всех доступных процессов.</p></div><div class="page-actions"><button class="button" data-page-jump="search">Расширенный поиск</button><button class="button primary recruiter-only">+ Добавить кандидата</button></div></header>
+        <header class="page-head"><div><h1>Кандидаты</h1><p>Единая база профилей и всех доступных процессов.</p></div><div class="page-actions"><button class="button" data-page-jump="search">Расширенный поиск</button><button class="button primary recruiter-only" id="global-add-candidate">+ Добавить кандидата</button></div></header>
         <div class="filter-row"><input id="global-candidate-filter" placeholder="Имя, роль, компания, навык"><select><option>Все процессы</option><option>Есть активные вакансии</option><option>Без активных вакансий</option></select><select><option>Любое согласие</option><option>Согласие дано</option><option>Согласие запрошено</option><option>Согласие отозвано</option></select></div>
         <section class="split-view"><div class="split-list"><div class="panel-head"><h2>Найдено <span id="global-candidate-count">190</span></h2><small>в пределах ваших прав</small></div><div id="global-candidate-list"></div></div><div class="split-detail" id="global-candidate-detail"></div></section>
       </main>
 
       <main class="app-page" id="page-requisitions" hidden>
-        <header class="page-head"><div><h1>Заявки на вакансии</h1><p>Потребности, версии данных и цепочки согласования.</p></div><div class="page-actions"><button class="button primary">+ Создать заявку</button></div></header>
+        <header class="page-head"><div><h1>Заявки на вакансии</h1><p>Потребности, версии данных и цепочки согласования.</p></div><div class="page-actions"><button class="button primary" id="create-requisition-button">+ Создать заявку</button></div></header>
         <div class="filter-row"><div class="segmented"><button class="active">Все доступные</button><button>Мои</button><button>Требуют моего решения</button></div><select><option>Все статусы</option><option>Черновик</option><option>На согласовании</option><option>Согласована</option></select></div>
         <section class="requisition-layout"><div class="panel"><table class="data-table"><thead><tr><th>Заявка</th><th>Автор</th><th>Ставки</th><th>Статус</th><th>Следующий шаг</th></tr></thead><tbody id="requisition-table"></tbody></table></div><aside class="panel"><div class="panel-head"><h2 id="req-detail-title">Senior iOS-разработчик</h2></div><div class="panel-body" id="requisition-detail"></div></aside></section>
       </main>
@@ -563,15 +725,28 @@
         <section class="panel" style="margin-top:12px"><div class="panel-head"><h2>Результаты</h2><small id="search-summary">Запустите поиск</small><select id="search-sort"><option>По соответствию</option><option>Сначала новые</option><option>Недавно обновлённые</option></select></div><div id="search-results"><div class="state-card" style="margin:34px auto;box-shadow:none"><div class="state-icon">⌕</div><h2>Соберите запрос</h2><p>Можно добавлять любое количество строк и искать одновременно внутри ATS и во внешних источниках.</p></div></div></section>
       </main>
 
+      <main class="app-page" id="page-calendar" hidden>
+        <header class="page-head"><div><h1>Календарь</h1><p>Интервью, внутренние встречи и свободные слоты в одном окне.</p></div><div class="page-actions"><button class="button" id="calendar-share-button">Настроить доступность</button><button class="button primary" id="new-calendar-event">+ Назначить встречу</button></div></header>
+        <section class="calendar-shell">
+          <aside class="calendar-sidebar"><div class="panel-head"><h2>Сентябрь 2026</h2></div><div class="mini-calendar" id="mini-calendar"></div><h3>Календари</h3><label><input type="checkbox" class="calendar-source" value="interview" checked> Интервью</label><label><input type="checkbox" class="calendar-source" value="internal" checked> Внутренние встречи</label><label><input type="checkbox" class="calendar-source" value="hold" checked> Резерв слота</label><div class="settings-note">Занятость коллег показывается без названий встреч. Пользователь может открыть календарь полностью.</div></aside>
+          <div class="calendar-main"><div class="calendar-toolbar"><button class="button" id="calendar-prev">←</button><button class="button" id="calendar-today">Сегодня</button><button class="button" id="calendar-next">→</button><strong id="calendar-period">31 августа — 6 сентября</strong><div class="segmented" id="calendar-views"><button class="active" data-calendar-view="week">Неделя</button><button data-calendar-view="month">Месяц</button></div></div><div id="calendar-body"></div></div>
+        </section>
+      </main>
+
+      <main class="app-page" id="page-settings" hidden>
+        <header class="page-head"><div><h1>Настройки</h1><p>Управление компанией, доступами и процессами найма.</p></div><div class="page-actions"><button class="button" id="settings-history-button">Журнал изменений прав</button></div></header>
+        <section class="settings-shell"><nav class="settings-nav" id="settings-nav"></nav><div class="settings-content" id="settings-content"></div></section>
+      </main>
+
       <main class="app-page" id="page-analytics" hidden>
-        <header class="page-head"><div><h1>Аналитика</h1><p>Показатели найма с объяснимым расчётом и детализацией.</p></div><div class="page-actions"><button class="button">✦ Собрать отчёт с ИИ</button><button class="button primary">Настроить дашборд</button></div></header>
+        <header class="page-head"><div><h1>Аналитика</h1><p>Показатели найма с объяснимым расчётом и детализацией.</p></div><div class="page-actions"><button class="button" id="analytics-ai-button">✦ Собрать отчёт с ИИ</button><button class="button primary" id="analytics-configure-button">Настроить дашборд</button></div></header>
         <div class="filter-row"><select><option>Последние 90 дней</option><option>Текущий квартал</option><option>Текущий год</option></select><select><option>Все подразделения</option><option>Разработка</option><option>Продукт</option></select><select><option>Все рекрутеры</option><option>Елена Крылова</option><option>Антон Беляев</option></select><div class="segmented"><button class="active">Медиана</button><button>Среднее</button><button>P75</button><button>P90</button></div></div>
-        <section class="kpi-grid"><button class="kpi-card metric-button" data-metric="Time to hire"><span class="kpi-label">Time to hire · медиана</span><strong>31 день</strong><small class="up">−4 дня к прошлому периоду</small></button><button class="kpi-card metric-button" data-metric="Соблюдение SLA"><span class="kpi-label">Вакансии в SLA</span><strong>82%</strong><small class="up">+6 п.п.</small></button><button class="kpi-card metric-button" data-metric="Конверсия в выход"><span class="kpi-label">Конверсия в выход</span><strong>2,8%</strong><small>из 1 142 кандидатов</small></button><button class="kpi-card metric-button" data-metric="ИИ-покрытие"><span class="kpi-label">ИИ-покрытие</span><strong>91%</strong><small>1 039 резюме оценено</small></button></section>
+        <section class="kpi-grid dashboard-widget" id="analytics-kpis"><button class="kpi-card metric-button" data-metric="Time to hire"><span class="kpi-label">Time to hire · медиана</span><strong>31 день</strong><small class="up">−4 дня к прошлому периоду</small></button><button class="kpi-card metric-button" data-metric="Соблюдение SLA"><span class="kpi-label">Вакансии в SLA</span><strong>82%</strong><small class="up">+6 п.п.</small></button><button class="kpi-card metric-button" data-metric="Конверсия в выход"><span class="kpi-label">Конверсия в выход</span><strong>2,8%</strong><small>из 1 142 кандидатов</small></button><button class="kpi-card metric-button" data-metric="ИИ-покрытие"><span class="kpi-label">ИИ-покрытие</span><strong>91%</strong><small>1 039 резюме оценено</small></button></section>
         <section class="analytics-grid">
-          <div class="panel wide"><div class="panel-head"><h2>Time to hire по подразделениям</h2><small>медиана · календарные дни</small></div><div class="panel-body"><div class="bar-chart"><div class="bar" style="height:72%"><span>34</span></div><div class="bar" style="height:91%"><span>43</span></div><div class="bar" style="height:55%"><span>26</span></div><div class="bar" style="height:66%"><span>31</span></div><div class="bar" style="height:47%"><span>22</span></div></div><div class="chart-labels"><span>Разработка</span><span>Продукт</span><span>Продажи</span><span>Операции</span><span>Маркетинг</span></div></div></div>
-          <div class="panel narrow"><div class="panel-head"><h2>Текущая воронка</h2><small>активные процессы</small></div><div class="panel-body"><div class="funnel"><div class="funnel-step" style="width:100%">Новые · 418</div><div class="funnel-step" style="width:83%">Ревью · 287</div><div class="funnel-step" style="width:67%">Контакт · 196</div><div class="funnel-step" style="width:48%">Интервью · 102</div><div class="funnel-step" style="width:29%">Оффер · 31</div><div class="funnel-step" style="width:17%">Выход · 12</div></div></div></div>
-          <div class="panel wide"><div class="panel-head"><h2>Эффективность источников</h2><small>нанятые и скорость</small></div><table class="data-table"><thead><tr><th>Источник</th><th>Кандидаты</th><th>Интервью</th><th>Выходы</th><th>Конверсия</th><th>Медиана</th></tr></thead><tbody><tr><td>База ATS</td><td>312</td><td>71</td><td>8</td><td>2,6%</td><td>24 дня</td></tr><tr><td>hh.ru</td><td>604</td><td>83</td><td>9</td><td>1,5%</td><td>35 дней</td></tr><tr><td>Авито Работа</td><td>146</td><td>31</td><td>4</td><td>2,7%</td><td>29 дней</td></tr><tr><td>Getmatch</td><td>80</td><td>22</td><td>5</td><td>6,3%</td><td>27 дней</td></tr></tbody></table></div>
-          <div class="panel narrow"><div class="panel-head"><h2>Качество процесса</h2><small>ответы за период</small></div><div class="panel-body"><div class="kpi-card" style="min-height:0;margin-bottom:8px"><span class="kpi-label">NPS нанимающих</span><strong style="font-size:22px">+61</strong><small>покрытие 68% · 34 ответа</small></div><div class="kpi-card" style="min-height:0"><span class="kpi-label">Candidate experience</span><strong style="font-size:22px">4,6 / 5</strong><small>покрытие 42% · 118 ответов</small></div></div></div>
+          <div class="panel wide dashboard-widget" id="analytics-time"><div class="panel-head"><h2>Time to hire по подразделениям</h2><small>медиана · календарные дни</small></div><div class="panel-body" id="analytics-time-body"><div class="bar-chart"><div class="bar" style="height:72%"><span>34</span></div><div class="bar" style="height:91%"><span>43</span></div><div class="bar" style="height:55%"><span>26</span></div><div class="bar" style="height:66%"><span>31</span></div><div class="bar" style="height:47%"><span>22</span></div></div><div class="chart-labels"><span>Разработка</span><span>Продукт</span><span>Продажи</span><span>Операции</span><span>Маркетинг</span></div></div></div>
+          <div class="panel narrow dashboard-widget" id="analytics-funnel"><div class="panel-head"><h2>Текущая воронка</h2><small>активные процессы</small></div><div class="panel-body"><div class="funnel"><div class="funnel-step" style="width:100%">Новые · 418</div><div class="funnel-step" style="width:83%">Ревью · 287</div><div class="funnel-step" style="width:67%">Контакт · 196</div><div class="funnel-step" style="width:48%">Интервью · 102</div><div class="funnel-step" style="width:29%">Оффер · 31</div><div class="funnel-step" style="width:17%">Выход · 12</div></div></div></div>
+          <div class="panel wide dashboard-widget" id="analytics-sources"><div class="panel-head"><h2>Эффективность источников</h2><small>нанятые и скорость</small></div><table class="data-table"><thead><tr><th>Источник</th><th>Кандидаты</th><th>Интервью</th><th>Выходы</th><th>Конверсия</th><th>Медиана</th></tr></thead><tbody><tr><td>База ATS</td><td>312</td><td>71</td><td>8</td><td>2,6%</td><td>24 дня</td></tr><tr><td>hh.ru</td><td>604</td><td>83</td><td>9</td><td>1,5%</td><td>35 дней</td></tr><tr><td>Авито Работа</td><td>146</td><td>31</td><td>4</td><td>2,7%</td><td>29 дней</td></tr><tr><td>Getmatch</td><td>80</td><td>22</td><td>5</td><td>6,3%</td><td>27 дней</td></tr></tbody></table></div>
+          <div class="panel narrow dashboard-widget" id="analytics-quality"><div class="panel-head"><h2>Качество процесса</h2><small>ответы за период</small></div><div class="panel-body"><div class="kpi-card" style="min-height:0;margin-bottom:8px"><span class="kpi-label">NPS нанимающих</span><strong style="font-size:22px">+61</strong><small>покрытие 68% · 34 ответа</small></div><div class="kpi-card" style="min-height:0"><span class="kpi-label">Candidate experience</span><strong style="font-size:22px">4,6 / 5</strong><small>покрытие 42% · 118 ответов</small></div></div></div>
         </section>
       </main>
     </div>
@@ -588,6 +763,25 @@
       <div class="modal-foot"><button class="button" id="modal-cancel">Отмена</button></div>
     </section>
   </div>
+
+  <div class="modal-backdrop" id="action-modal" hidden>
+    <section class="modal wide" id="action-modal-box" role="dialog" aria-modal="true" aria-labelledby="action-modal-title">
+      <div class="modal-head"><div><h2 id="action-modal-title">Действие</h2><p id="action-modal-subtitle"></p></div><button class="icon-button" id="action-modal-close" aria-label="Закрыть">×</button></div>
+      <div class="modal-body" id="action-modal-body"></div>
+      <div class="modal-foot"><button class="button" id="action-modal-cancel">Отмена</button><button class="button primary" id="action-modal-submit">Сохранить</button></div>
+    </section>
+  </div>
+
+  <aside class="detail-drawer" id="detail-drawer" hidden>
+    <div class="drawer-head"><div><h2 id="detail-drawer-title">Сведения</h2><p id="detail-drawer-subtitle"></p></div><button class="icon-button" id="detail-drawer-close" aria-label="Закрыть">×</button></div>
+    <nav class="drawer-tabs" id="detail-drawer-tabs"></nav><div class="drawer-body" id="detail-drawer-body"></div>
+  </aside>
+
+  <aside class="assistant-panel" id="assistant-panel" hidden>
+    <div class="assistant-head"><div><b>✦ ИИ-ассистент</b><small>Помогает настроить текущий экран</small></div><button class="icon-button" id="assistant-close" aria-label="Закрыть">×</button></div>
+    <div class="assistant-messages" id="assistant-messages"><div class="assistant-message bot">Здравствуйте! Я вижу текущий раздел и могу подготовить изменение. Ничего не применю без вашего подтверждения.</div><div class="assistant-suggestions"><button>Покажи рисковые вакансии</button><button>Добавь виджет SLA</button><button>Отключи автоотказ</button></div></div>
+    <div class="assistant-compose"><textarea id="assistant-input" rows="2" placeholder="Например: добавь на дашборд просроченные вакансии"></textarea><button class="button primary" id="assistant-send">Отправить</button></div>
+  </aside>
 
   <aside class="drawer" id="metric-drawer" hidden><div class="drawer-head"><div><h2 id="metric-drawer-title">Детализация метрики</h2><p>Определение, покрытие и доступные объекты</p></div><button class="icon-button" id="metric-drawer-close" aria-label="Закрыть">×</button></div><div id="metric-drawer-body"></div></aside>
   <div class="toast" id="toast" hidden></div>
@@ -808,7 +1002,7 @@
               <div class="info-item"><span class="info-icon">□</span><div><strong>${c.stage.includes('интервью') || c.stage === 'Портфолио' ? c.stage : 'Следующее интервью'}</strong><small>${c.id.charCodeAt(c.id.length - 1) % 2 ? 'Яндекс Телемост' : 'Контур Толк'} · Елена Крылова</small></div><time>${c.id.endsWith('0') ? 'сегодня' : 'завтра'}<br>${10 + c.years % 7}:30</time></div>
               <div class="info-item"><span class="info-icon">✓</span><div><strong>${c.feedbackCount ? 'Собрать фидбек интервьюеров' : 'Связаться с кандидатом'}</strong><small>Ответственный: Елена Крылова</small></div><time>до ${3 + c.years % 5} сен.</time></div>
             </div>
-            <button class="button ghost" style="margin-top:8px">+ Создать задачу</button>
+            <button class="button ghost" id="candidate-task-button" style="margin-top:8px">+ Создать задачу</button>
           </section>
           <section class="card-section">
             <div class="section-title"><h3>Последняя активность</h3></div>
@@ -864,8 +1058,8 @@
     function feedbackTemplate() {
       const c = currentCandidate;
       return `<div class="stack"><section class="card-section"><div class="section-title"><h3>Формы на текущем этапе</h3><small>не блокируют переход</small></div><div class="feedback-grid">
-        <div class="feedback-card"><h3>${c.stage}</h3><p>Обязательность: нет · заполняет любой участник с правом.</p><button class="button primary">Заполнить форму</button></div>
-        <div class="feedback-card"><h3>Мотивация и ожидания</h3><p>Назначено вам · срок не задан.</p><button class="button">Продолжить черновик</button></div>
+        <div class="feedback-card"><h3>${c.stage}</h3><p>Обязательность: нет · заполняет любой участник с правом.</p><button class="button primary" data-feedback-form="stage">Заполнить форму</button></div>
+        <div class="feedback-card"><h3>Мотивация и ожидания</h3><p>Назначено вам · срок не задан.</p><button class="button" data-feedback-form="motivation">Продолжить черновик</button></div>
       </div></section><section class="card-section"><div class="section-title"><h3>Отправленный фидбек</h3><small>${c.feedbackCount} ответа</small></div>${c.feedbackCount ? `<div class="feedback-grid"><div class="feedback-card"><h3>${c.stage} · Илья Сергеев</h3><p>${c.id.endsWith('1') ? 'Есть сомнения по глубине практического опыта, рекомендую дополнительный вопрос.' : `Сильная база: ${vacancyDefinitions[c.vacancyId].skill}. Есть конкретные примеры и самостоятельные решения.`}</p><span class="rating">${c.scoreNumber > 8 ? '★★★★★' : '★★★★☆'}</span></div><div class="feedback-card"><h3>Скрининг · Елена Крылова</h3><p>Мотивация на продуктовую роль, условия и сроки выхода обсуждены.</p><span class="pill blue">${c.scoreNumber >= 7 ? 'Рекомендую дальше' : 'Нужна дополнительная проверка'}</span></div></div>` : `<div class="state-card" style="box-shadow:none;padding:20px"><h2 style="font-size:14px">Фидбеков пока нет</h2><p style="font-size:10px">Форма добровольна и не блокирует переход кандидата.</p></div>`}</section></div>`;
     }
 
@@ -880,13 +1074,21 @@
         showToast(value ? 'Комментарий сохранён в контексте текущего этапа' : 'Сначала напишите комментарий');
         if (value) el('comment-text').value = '';
       });
+      const candidateTaskButton = el('candidate-task-button');
+      if (candidateTaskButton) candidateTaskButton.addEventListener('click', () => openTaskForm(currentCandidate));
+      el('tab-content').querySelectorAll('[data-feedback-form]').forEach(button => button.addEventListener('click', () => openFeedbackForm(button.dataset.feedbackForm)));
     }
 
     function applyRoleVisibility() {
       const manager = roleSelect.value === 'manager';
+      const lead = roleSelect.value === 'lead';
       document.querySelectorAll('.recruiter-only').forEach(item => item.hidden = manager);
       document.querySelectorAll('.manager-only').forEach(item => item.hidden = !manager);
-      el('sidebar-role').textContent = manager ? 'Нанимающий менеджер' : 'Рекрутер';
+      el('sidebar-role').textContent = manager ? 'Нанимающий менеджер' : lead ? 'Руководитель рекрутмента' : 'Рекрутер';
+      el('overview-personal').hidden = lead;
+      el('overview-lead').hidden = !lead;
+      el('overview-subtitle').textContent = lead ? 'Команда рекрутмента: прогресс, SLA и точки, требующие вашего решения.' : manager ? 'Ваши вакансии, решения и ближайшие интервью.' : 'Добрый день, Елена. Вот что требует внимания сегодня.';
+      if (lead && currentPage === 'overview') renderLeadOverview();
     }
 
     function applyVacancyState() {
@@ -906,6 +1108,7 @@
       el('vacancy-head').hidden = noAccess;
       el('pipeline-wrap').hidden = noAccess;
       el('pause-banner').hidden = noAccess || vacancySelect.value !== 'paused';
+      el('vacancy-lower').hidden = noAccess || view !== 'normal';
     }
 
     function showToast(message) {
@@ -939,6 +1142,172 @@
       { logic:'НЕ', field:'Компания', operator:'равно', value:'текущий работодатель' }
     ];
 
+    const leadVacancies = [
+      ['Senior Android-разработчик','Елена Крылова','12.08','В работе',78,'Senior',2,'Mobile','1','8 дней',90],
+      ['Senior Product Designer','Антон Беляев','18.08','В работе',62,'Senior',1,'Core Product','2','19 дней',100],
+      ['Data Analyst','Мария Фролова','20.07','Риск SLA',34,'Middle',1,'BI','2','−2 дня',37],
+      ['Руководитель клиентского сервиса','Елена Крылова','01.08','В работе',49,'Lead',1,'Operations','1','5 дней',28],
+      ['Senior iOS-разработчик','—','03.09','На распределении',0,'Senior',2,'Mobile','1','не запущен',0],
+      ['Backend-разработчик Go','Ирина Лебедева','22.08','В работе',71,'Senior',3,'Platform','1','12 дней',64],
+      ['Product Marketing Manager','Антон Беляев','10.08','На паузе',46,'Middle+',1,'Marketing','2','заморожен',52],
+      ['UX Researcher','Мария Фролова','28.08','В работе',23,'Middle',1,'Core Product','3','31 день',41]
+    ];
+    const calendarEvents = [
+      {id:1,day:0,start:10,duration:1,type:'interview',title:'HR-интервью · Алина Воронцова',place:'Яндекс Телемост',color:'blue'},
+      {id:2,day:0,start:13,duration:1.5,type:'interview',title:'Портфолио · Марина Орлова',place:'Контур Толк',color:'violet'},
+      {id:3,day:1,start:11,duration:1,type:'internal',title:'Синк команды рекрутмента',place:'Переговорная 3',color:'green'},
+      {id:4,day:1,start:15,duration:1,type:'interview',title:'Техническое · Михаил Петров',place:'Яндекс Телемост',color:'blue'},
+      {id:5,day:2,start:9,duration:2,type:'hold',title:'Доступные слоты кандидатов',place:'резерв',color:'gray'},
+      {id:6,day:2,start:14,duration:1,type:'interview',title:'Финал · Пётр Волков',place:'Контур Толк',color:'violet'},
+      {id:7,day:3,start:12,duration:1,type:'interview',title:'HR-интервью · Анна Ким',place:'Телемост',color:'blue'},
+      {id:8,day:4,start:16,duration:1,type:'internal',title:'Разбор вакансий с риском SLA',place:'онлайн',color:'green'}
+    ];
+    const tenantUsers = [
+      {name:'Елена Крылова',email:'elena@company.ru',role:'Рекрутер',team:'Mobile hiring',status:'Активен'},
+      {name:'Ирина Николаева',email:'irina@company.ru',role:'Руководитель рекрутмента',team:'Recruitment',status:'Активен'},
+      {name:'Антон Беляев',email:'anton@company.ru',role:'Рекрутер',team:'Product hiring',status:'Активен'},
+      {name:'Андрей Ковалёв',email:'andrey@company.ru',role:'Нанимающий менеджер',team:'Mobile',status:'Активен'},
+      {name:'Ольга Романова',email:'olga@company.ru',role:'Нанимающий менеджер',team:'Marketing',status:'Приглашён'}
+    ];
+    let calendarView = 'week';
+    let settingsSection = 'users';
+    let actionSubmit = null;
+
+    function openActionModal(title, subtitle, body, submitLabel = 'Сохранить', onSubmit = null) {
+      el('action-modal-title').textContent = title;
+      el('action-modal-subtitle').textContent = subtitle || '';
+      el('action-modal-body').innerHTML = body;
+      el('action-modal-submit').textContent = submitLabel;
+      el('action-modal-submit').hidden = submitLabel === '';
+      actionSubmit = onSubmit;
+      el('action-modal').hidden = false;
+    }
+    function closeActionModal() { el('action-modal').hidden = true; actionSubmit = null; }
+    function openDetailDrawer(title, subtitle, tabs) {
+      el('detail-drawer-title').textContent = title;
+      el('detail-drawer-subtitle').textContent = subtitle || '';
+      el('detail-drawer').hidden = false;
+      const render = key => {
+        el('detail-drawer-tabs').innerHTML = tabs.map((tab,index) => `<button class="${tab.key===key?'active':''}" data-drawer-tab="${tab.key}">${tab.label}</button>`).join('');
+        el('detail-drawer-body').innerHTML = tabs.find(tab => tab.key === key).body;
+        el('detail-drawer-tabs').querySelectorAll('[data-drawer-tab]').forEach(button => button.addEventListener('click', () => render(button.dataset.drawerTab)));
+      };
+      render(tabs[0].key);
+    }
+
+    function renderLeadOverview() {
+      const rows = leadVacancies.map((v,index) => `<tr class="clickable lead-row" data-lead-row="${index}" data-open-vacancy="${index===0?'android':index===1?'designer':''}"><td><span class="table-title">${v[0]}</span><span class="table-sub">поиск с ${v[2]}</span></td><td>${v[1]}</td><td><span class="pill ${v[3].includes('Риск')?'red':v[3].includes('пауз')||v[3].includes('распредел')?'orange':'blue'}">${v[3]}</span></td><td><div class="progress-track"><span style="width:${v[4]}%"></span></div><span class="table-sub">${v[4]}%</span></td><td>${v[5]}</td><td>${v[6]}</td><td>${v[7]}</td><td>${v[8]}</td><td>${v[9]}</td><td>${v[10]}</td></tr>`).join('');
+      el('overview-lead').innerHTML = `<section class="kpi-grid"><button class="kpi-card metric-button"><span class="kpi-label">Вакансии команды</span><strong>27</strong><small>23 в работе · 2 на паузе</small></button><button class="kpi-card metric-button"><span class="kpi-label">Риск нарушения SLA</span><strong>5</strong><small class="down">2 уже просрочены</small></button><button class="kpi-card metric-button"><span class="kpi-label">Требуют распределения</span><strong>3</strong><small>5 открытых ставок</small></button><button class="kpi-card metric-button"><span class="kpi-label">Выходы в сентябре</span><strong>12</strong><small class="up">план выполнен на 74%</small></button></section><section class="panel" style="margin-top:12px"><div class="panel-head"><h2>Все открытые вакансии</h2><small>Данные команды · 27 вакансий</small><button class="button" id="lead-columns-button">Столбцы</button></div><div class="lead-filters"><input id="lead-search" placeholder="Вакансия или рекрутер"><select id="lead-department"><option value="">Все подразделения</option><option>Mobile</option><option>Core Product</option><option>BI</option><option>Operations</option></select><select id="lead-status"><option value="">Все статусы</option><option>В работе</option><option>Риск SLA</option><option>На паузе</option><option>На распределении</option></select><select><option>Любой приоритет</option><option>1</option><option>2</option><option>3</option></select></div><div class="lead-table-wrap"><table class="data-table lead-table"><thead><tr><th>Вакансия</th><th>Рекрутер</th><th>Статус</th><th>Близость</th><th>Грейд</th><th>Ставки</th><th>Департамент</th><th>Приоритет</th><th>SLA</th><th>Кандидаты</th></tr></thead><tbody id="lead-table-body">${rows}</tbody></table></div></section>`;
+      const filter = () => { const q=el('lead-search').value.toLowerCase(), d=el('lead-department').value, s=el('lead-status').value; el('lead-table-body').querySelectorAll('tr').forEach((row,i)=>{const v=leadVacancies[i];row.hidden=!( (!q||`${v[0]} ${v[1]}`.toLowerCase().includes(q)) && (!d||v[7]===d) && (!s||v[3]===s));}); };
+      ['lead-search','lead-department','lead-status'].forEach(id => el(id).addEventListener(id==='lead-search'?'input':'change',filter));
+      el('lead-table-body').querySelectorAll('[data-open-vacancy]').forEach(row => row.addEventListener('click',()=>{if(row.dataset.openVacancy){activateVacancy(row.dataset.openVacancy);showPage('vacancy');}}));
+      el('lead-columns-button').addEventListener('click', openOverviewBuilder);
+    }
+
+    function dashboardBuilder(title, selector, onApply) {
+      const widgets = [...document.querySelectorAll(selector)];
+      openActionModal(title,'Выберите блоки и сразу проверьте, как изменится страница.',`<div class="dashboard-config-list">${widgets.map((w,i)=>`<label class="dashboard-config-row"><span><b>${w.querySelector('h2')?.textContent || w.querySelector('.kpi-label')?.textContent || `Блок ${i+1}`}</b><small>${w.hidden?'сейчас скрыт':'сейчас виден'}</small></span><input type="checkbox" data-widget-index="${i}" ${w.hidden?'':'checked'}></label>`).join('')}</div><div class="settings-note">В продукте сюда также войдут выбор метрики, вид визуализации, размер и порядок блоков.</div>`,'Применить',()=>{widgets.forEach((w,i)=>w.hidden=!el('action-modal-body').querySelector(`[data-widget-index="${i}"]`).checked);onApply?.();showToast('Дашборд обновлён. Настройка сохранена только для вас.');});
+    }
+    function openOverviewBuilder() { dashboardBuilder('Настроить обзор','#overview-personal .dashboard-widget'); }
+    function openAnalyticsBuilder() { dashboardBuilder('Конструктор аналитики','#page-analytics .dashboard-widget',()=>el('page-analytics').classList.add('dashboard-editing')); }
+
+    function openTaskForm(candidate = null) {
+      openActionModal('Создать задачу',candidate?`По кандидату ${candidate.name}`:'Рекрутинговая задача',`<div class="form-grid"><label class="form-field full"><span>Название</span><input id="task-title-input" value="${candidate?`Связаться с ${candidate.name}`:''}" placeholder="Что нужно сделать"></label><label class="form-field"><span>Тип</span><select id="task-type-input"><option>Связаться</option><option>Получить фидбек</option><option>Добавить X кандидатов</option><option>Назначить X интервью</option><option>Другое</option></select></label><label class="form-field"><span>Ответственный</span><select><option>Я — Елена Крылова</option><option>Антон Беляев</option><option>Мария Фролова</option></select></label><label class="form-field"><span>Срок</span><input type="date" value="2026-09-04"></label><label class="form-field"><span>Приоритет</span><select id="task-priority-input"><option>Обычный</option><option>Высокий</option><option>Критический</option></select></label><label class="form-field full"><span>Связать с объектом</span><select><option>${candidate?candidate.name:'Senior Android-разработчик'}</option><option>Senior Product Designer</option><option>Без связи</option></select></label></div>`,'Создать задачу',()=>{const title=el('task-title-input').value.trim();if(!title){showToast('Укажите название задачи');return false;}recruitmentTasks.unshift({id:Date.now(),title,context:candidate?`${vacancyDefinitions[candidate.vacancyId].name} · кандидат`:'Senior Android-разработчик · вакансия',priority:el('task-priority-input').value,due:'4 сентября',progress:'—',done:false});renderTasks();showToast('Задача создана и появилась в разделе «Мои задачи».');});
+    }
+
+    function openFeedbackForm(kind) {
+      openActionModal(kind==='motivation'?'Мотивация и ожидания':'Фидбек по этапу',`${currentCandidate.name} · ${currentCandidate.stage}`,`<div class="form-grid"><label class="form-field"><span>Рекомендация</span><select><option>Продолжить процесс</option><option>Нужна дополнительная проверка</option><option>Отказать</option></select></label><label class="form-field"><span>Оценка</span><select><option>5 — отлично</option><option>4 — хорошо</option><option>3 — нейтрально</option><option>2 — слабо</option><option>1 — неудовлетворительно</option></select></label><label class="form-field full"><span>Комментарий</span><textarea id="feedback-comment" rows="5" placeholder="Наблюдения, аргументы и вопросы для следующего интервью"></textarea></label><label class="form-field"><span>Техническая глубина</span><input type="range" min="1" max="5" value="4"></label><label class="form-field"><span>Коммуникация</span><input type="range" min="1" max="5" value="5"></label></div><div class="settings-note">Форма не блокирует перевод кандидата. Видимость определяется правами участников вакансии.</div>`,'Отправить фидбек',()=>{currentCandidate.feedbackCount++;showToast('Фидбек сохранён в карточке кандидата и учтён в аналитике.');renderTab();});
+    }
+
+    function openMessageForm() {
+      openActionModal('Написать кандидату',`${currentCandidate.name} · все каналы в единой истории`,`<div class="form-grid"><label class="form-field"><span>Канал</span><select id="message-channel"><option>Диалог hh.ru</option><option>Telegram</option><option>WhatsApp</option><option>MAX</option><option>Почта</option></select></label><label class="form-field"><span>Шаблон</span><select><option>Приглашение на интервью</option><option>Уточнение деталей</option><option>Без шаблона</option></select></label><label class="form-field full"><span>Сообщение</span><textarea rows="7">${currentCandidate.name.split(' ')[0]}, здравствуйте! Хотим пригласить вас на следующий этап по вакансии «${vacancyDefinitions[currentVacancyId].name}».</textarea></label><label class="form-field full"><span>Отправка</span><select><option>Сейчас</option><option>Запланировать</option></select></label></div>`,'Отправить',()=>showToast('Сообщение отправлено и сохранено в истории кандидата.'));
+    }
+
+    function openMeetingForm(candidate = currentCandidate) {
+      openActionModal('Назначить встречу',candidate?`${candidate.name} · ${vacancyDefinitions[candidate.vacancyId].name}`:'Новая встреча',`<div class="form-grid"><label class="form-field"><span>Тип</span><select><option>HR-интервью</option><option>Техническое интервью</option><option>Финальное интервью</option><option>Внутренняя встреча</option></select></label><label class="form-field"><span>Видеосвязь</span><select id="meeting-provider"><option>Яндекс Телемост</option><option>Контур Толк</option><option>Zoom</option><option>Без видеосвязи</option></select></label><label class="form-field"><span>Дата</span><input id="meeting-date" type="date" value="2026-09-04"></label><label class="form-field"><span>Время и длительность</span><div style="display:flex;gap:6px"><input type="time" value="14:00"><select><option>60 минут</option><option>30 минут</option><option>90 минут</option></select></div></label><label class="form-field full"><span>Участники</span><input value="${candidate?candidate.name+', ':''}Елена Крылова, Илья Сергеев"></label><label class="form-field full"><span>Как выбрать время</span><select><option>Назначить выбранный слот</option><option>Отправить кандидату доступные слоты</option><option>Попросить чат-бота согласовать слот</option></select></label><label class="form-field full"><span><input type="checkbox" checked> Подключить ИИ-протоколиста</span></label></div>`,'Назначить',()=>{calendarEvents.push({id:Date.now(),day:4,start:14,duration:1,type:'interview',title:`HR-интервью · ${candidate?.name||'Новая встреча'}`,place:el('meeting-provider').value,color:'blue'});renderCalendar();showToast('Встреча создана, участники получат приглашение.');});
+    }
+
+    function openVacancyDetails(tab='info') {
+      const v=vacancyDefinitions[currentVacancyId];
+      const tabs=[
+        {key:'info',label:'Сведения',body:`<section class="drawer-section"><h3>Параметры вакансии</h3><div class="fields"><div class="field"><label>Подразделение</label><strong>${v.department}</strong></div><div class="field"><label>Грейд</label><strong>${v.grade}</strong></div><div class="field"><label>Приоритет</label><strong>${v.priority}</strong></div><div class="field"><label>Количество ставок</label><strong>${v.hired}</strong></div><div class="field"><label>Локация</label><strong>${v.location}</strong></div><div class="field"><label>Воронка</label><strong>${v.funnel}</strong></div></div><h3>Описание</h3><p class="summary-text">Ищем специалиста в продуктовую команду. Ожидаем самостоятельную работу, участие в продуктовых решениях и развитие практик команды.</p><button class="button">Редактировать сведения</button></section>`},
+        {key:'team',label:'Команда',body:`<section class="drawer-section"><h3>Участники вакансии</h3><div class="mini-stat"><b>Елена Крылова</b><span class="pill blue">основной рекрутер</span><small>Все права работы с кандидатами</small></div><div class="mini-stat"><b>Илья Сергеев</b><span>Нанимающий менеджер</span><small>Фидбек, встречи; зарплата скрыта на этой вакансии</small></div><button class="button primary">+ Добавить участника</button></section>`},
+        {key:'sla',label:'SLA',body:`<section class="drawer-section"><h3>Срок закрытия</h3><div class="kpi-card"><span class="kpi-label">Осталось</span><strong>${v.deadline}</strong><small>40 календарных дней · паузы исключаются</small></div><div class="mini-stat"><b>Применённое правило</b><span>${v.department} → ${v.grade} → приоритет ${v.priority}</span><small>Администратор может пересчитать срок по новым правилам</small></div></section>`},
+        {key:'publications',label:'Публикации',body:`<section class="drawer-section"><h3>Работные сайты</h3><div class="mini-stat"><b>hh.ru</b><span class="pill blue">опубликована</span><small>Автодобавление откликов включено</small></div><div class="mini-stat"><b>Авито Работа</b><span class="pill blue">опубликована</span><small>Снятие при закрытии подтверждает рекрутер</small></div><button class="button">Изменить публикации</button></section>`},
+        {key:'automation',label:'Автоматизации',body:`<section class="drawer-section"><h3>Правила вакансии</h3><div class="automation-rule"><div><b>ИИ-скрининг</b><small>Оценивать новые отклики · порог 7,5</small></div><label class="toggle"><input type="checkbox" checked><span></span></label></div><div class="automation-rule"><div><b>Автоотказ</b><small>Письмо через 2 часа; ручное решение отменяет отправку</small></div><label class="toggle"><input type="checkbox" checked><span></span></label></div><div class="automation-rule"><div><b>Напоминание о фидбеке</b><small>Через 24 часа после встречи</small></div><label class="toggle"><input type="checkbox" checked><span></span></label></div></section>`}
+      ];
+      openDetailDrawer(v.name,`${v.department} · ${v.grade}`,tabs.sort((a,b)=>a.key===tab?-1:b.key===tab?1:0));
+    }
+
+    function openAddCandidate() {
+      openActionModal('Добавить кандидата',vacancyDefinitions[currentVacancyId].name,`<div class="form-grid"><label class="form-field full"><span>ФИО</span><input id="new-candidate-name" placeholder="Имя и фамилия"></label><label class="form-field"><span>Источник</span><select><option>Добавлен вручную</option><option>hh.ru</option><option>Авито Работа</option><option>LinkedIn</option></select></label><label class="form-field"><span>Этап</span><select id="new-candidate-stage">${vacancyDefinitions[currentVacancyId].stages.filter(s=>!s.legacy).map(s=>`<option value="${s.id}" ${s.id==='Новый кандидат'?'selected':''}>${s.label}</option>`).join('')}</select></label><label class="form-field full"><span>Резюме</span><input type="file" accept=".pdf,.doc,.docx"></label><div class="settings-note full">При совпадении ID источника и ФИО с контактами ATS предложит объединить профили.</div></div>`,'Добавить на вакансию',()=>{const name=el('new-candidate-name').value.trim();if(!name){showToast('Укажите имя кандидата');return false;}const stage=el('new-candidate-stage').value;const c=makeCandidate(vacancyDefinitions[currentVacancyId],0,{id:stage,label:stage},0,9);c.id=`manual-${Date.now()}`;c.name=name;c.stage=stage;c.initials=name.split(' ').map(x=>x[0]).slice(0,2).join('');c.badges[0]=stage;candidatePools[currentVacancyId].unshift(c);activateVacancy(currentVacancyId);currentCandidate=c;renderCandidateList();showToast('Кандидат добавлен на вакансию. Резюме отправлено на разбор.');});
+    }
+
+    function openRequisitionWorkspace(req = selectedRequisition) {
+      const tabs=[
+        {key:'request',label:'Заявка',body:`<section class="drawer-section"><div class="section-title"><h3>Потребность</h3><span class="pill ${req.status==='Согласована'?'blue':'orange'}">${req.status}</span></div><div class="fields"><div class="field"><label>Подразделение</label><strong>${req.department}</strong></div><div class="field"><label>Количество ставок</label><strong>${req.positions}</strong></div><div class="field"><label>Автор</label><strong>${req.author}</strong></div><div class="field salary-field"><label>Бюджет</label><strong>${req.budget}</strong></div><div class="field"><label>Грейд</label><strong>Senior</strong></div><div class="field"><label>Приоритет</label><strong>1</strong></div></div><h3>Задачи</h3><p class="summary-text">Развивать ключевое направление продукта, участвовать в планировании и отвечать за качество решений.</p><h3>Требования</h3><p class="summary-text">От пяти лет релевантного опыта, самостоятельность, умение работать с продуктовой командой.</p><button class="button">Редактировать доступные поля</button></section>`},
+        {key:'dialog',label:'ИИ-диалог',body:`<section class="drawer-section"><h3>Как была собрана заявка</h3><div class="assistant-message bot">Расскажите, зачем команде нужен новый сотрудник и какие задачи он возьмёт?</div><div class="assistant-message user">Нужен старший специалист в команду ${req.department}; текущая команда не успевает развивать новое направление.</div><div class="assistant-message bot">Какие требования обязательны, а чему можно научить уже в команде?</div><div class="assistant-message user">Обязателен профильный опыт от пяти лет. Домену продукта можно научить.</div><div class="settings-note">Диалог сохранён целиком. На его основе сформированы поля заявки и текст публикации.</div></section>`},
+        {key:'approval',label:'Согласование',body:`<section class="drawer-section"><h3>Цепочка согласования</h3><div class="approval-step"><span class="step-mark">✓</span><div><b>Руководитель подразделения</b><small>Согласовано · 31 августа</small></div></div><div class="approval-step"><span class="step-mark current">2</span><div><b>C&B и бюджет</b><small>SLA 2 дня · может заполнить закрытые поля</small></div></div><div class="approval-step"><span class="step-mark wait">3</span><div><b>HR-директор</b><small>Начнётся после предыдущего этапа</small></div></div><label class="form-field"><span>Комментарий согласующего</span><textarea rows="4" placeholder="Можно согласовать, вернуть или согласовать с изменениями"></textarea></label></section>`},
+        {key:'versions',label:'Версии',body:`<section class="drawer-section"><h3>История изменений</h3><div class="mini-stat"><b>Версия 4 · текущая</b><span>2 сентября, 16:42</span><small>C&B уточнил бюджет и внутренний грейд</small></div><div class="mini-stat"><b>Версия 3</b><span>1 сентября, 11:20</span><small>Автор добавил задачи роли</small></div><div class="mini-stat"><b>Версия 1</b><span>31 августа, 09:14</span><small>Создана из ИИ-диалога</small></div></section>`}
+      ];
+      openDetailDrawer(req.title,`Заявка #${1020+req.id} · ${req.author}`,tabs);
+    }
+
+    function openRequisitionCreation() {
+      openActionModal('Создать заявку','Можно начать с ИИ-диалога или перейти к обычной форме.',`<div class="choice-grid"><button class="choice-card selected" id="req-ai-choice"><b>✦ Диалог с ИИ</b><span>Ассистент задаст вопросы, соберёт поля и подготовит публикацию.</span></button><button class="choice-card" id="req-form-choice"><b>Структурированная форма</b><span>Заполнить настроенные поля самостоятельно.</span></button></div><section class="card-section" style="margin-top:12px"><div class="section-title"><h3>Использовать предыдущую заявку</h3><small>ускорит заполнение</small></div><select style="width:100%"><option>Начать с нуля</option><option>Senior Android-разработчик · 3 месяца назад</option><option>Senior iOS-разработчик · 8 месяцев назад</option></select></section><div class="assistant-message bot" style="margin-top:12px">Начнём. Какую потребность в команде должна закрыть новая вакансия?</div><textarea rows="4" style="width:100%;margin-top:8px" placeholder="Опишите своими словами"></textarea>`,'Продолжить',()=>showToast('Черновик заявки создан. Диалог можно продолжить в любое время.'));
+    }
+
+    function renderCalendar() {
+      if (!el('calendar-body')) return;
+      const allowed=[...document.querySelectorAll('.calendar-source:checked')].map(x=>x.value);
+      const events=calendarEvents.filter(event=>allowed.includes(event.type));
+      el('mini-calendar').innerHTML=['Пн','Вт','Ср','Чт','Пт','Сб','Вс',...Array.from({length:35},(_,i)=>i<2?'':i-1)].map((d,i)=>`<span class="${d===3?'today':''}">${d}</span>`).join('');
+      if(calendarView==='month') {
+        el('calendar-period').textContent='Сентябрь 2026';
+        el('calendar-body').innerHTML=`<div class="month-grid">${['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье',...Array.from({length:35},(_,i)=>i<2?'':i-1)].map((d,i)=>`<div class="month-cell ${i<7?'head':''}"><b>${d}</b>${i>=7&&events.filter(e=>e.day===(i-7)%7).slice(0,2).map(e=>`<button class="month-event" data-calendar-event="${e.id}">${String(e.start).padStart(2,'0')}:00 · ${e.title}</button>`).join('')}</div>`).join('')}</div>`;
+      } else {
+        el('calendar-period').textContent='31 августа — 6 сентября';
+        const days=['Пн, 31','Вт, 1','Ср, 2','Чт, 3','Пт, 4'];
+        el('calendar-body').innerHTML=`<div class="week-grid"><div class="week-corner"></div>${days.map(d=>`<div class="week-day-head">${d}</div>`).join('')}${Array.from({length:10},(_,hourIndex)=>{const hour=9+hourIndex;return `<div class="week-time">${hour}:00</div>${days.map((_,day)=>`<div class="week-slot">${events.filter(e=>e.day===day&&Math.floor(e.start)===hour).map(e=>`<button class="calendar-event ${e.color}" style="height:${Math.max(34,e.duration*42)}px" data-calendar-event="${e.id}"><b>${String(e.start).padStart(2,'0')}:00</b><span>${e.title}</span><small>${e.place}</small></button>`).join('')}</div>`).join('')}`;}).join('')}</div>`;
+      }
+      el('calendar-body').querySelectorAll('[data-calendar-event]').forEach(button=>button.addEventListener('click',()=>openCalendarEvent(Number(button.dataset.calendarEvent))));
+    }
+    function openCalendarEvent(id) {
+      const event=calendarEvents.find(item=>item.id===id);
+      openDetailDrawer(event.title,`${String(event.start).padStart(2,'0')}:00 · ${event.place}`,[{key:'info',label:'Встреча',body:`<section class="drawer-section"><h3>Участники</h3><div class="mini-stat"><b>Елена Крылова</b><span>организатор</span><small>Рекрутер</small></div><div class="mini-stat"><b>Кандидат и 2 интервьюера</b><span>подтверждено 2 из 3</span><small>Часовой пояс кандидата: Москва</small></div><h3>Действия</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="button">Перенести</button><button class="button">Отменить</button><button class="button primary">Открыть ${event.place}</button></div><div class="settings-note">ИИ-протоколист подключится автоматически и сохранит транскрипт, запись и саммари в карточке кандидата.</div></section>`}]);
+    }
+
+    const settingsSections=[['users','Пользователи'],['roles','Роли и права'],['teams','Команды'],['funnels','Воронки'],['automations','Автоматизации'],['requests','Заявки'],['forms','Формы фидбека'],['sla','SLA и календари'],['integrations','Интеграции'],['ai','ИИ и данные']];
+    function renderSettingsNav(){el('settings-nav').innerHTML=settingsSections.map(([key,label])=>`<button class="${settingsSection===key?'active':''}" data-settings-section="${key}">${label}<span>›</span></button>`).join('');el('settings-nav').querySelectorAll('[data-settings-section]').forEach(button=>button.addEventListener('click',()=>{settingsSection=button.dataset.settingsSection;renderSettingsNav();renderSettings();}));}
+    function renderSettings(){
+      if(!el('settings-content'))return;
+      const renderers={
+        users:()=>`<div class="settings-title"><div><h2>Пользователи</h2><p>Приглашение, деактивация и принадлежность к командам.</p></div><button class="button primary" id="invite-user-button">+ Добавить пользователя</button></div><table class="data-table"><thead><tr><th>Пользователь</th><th>Роль</th><th>Команда</th><th>Статус</th><th></th></tr></thead><tbody>${tenantUsers.map((u,i)=>`<tr><td><span class="table-title">${u.name}</span><span class="table-sub">${u.email}</span></td><td>${u.role}</td><td>${u.team}</td><td><span class="pill ${u.status==='Активен'?'blue':'orange'}">${u.status}</span></td><td><button class="button" data-edit-user="${i}">${u.status==='Активен'?'Настроить':'Повторить приглашение'}</button></td></tr>`).join('')}</tbody></table>`,
+        roles:()=>`<div class="settings-title"><div><h2>Роли и права</h2><p>Права роли суммируются с командными и правами на конкретной вакансии.</p></div><button class="button primary" id="add-role-button">+ Своя роль</button></div><div class="filter-row"><select id="permission-role"><option>Рекрутер</option><option>Руководитель рекрутмента</option><option>Нанимающий менеджер</option><option>Администратор</option></select><span class="settings-note">Изменения прав попадают в журнал аудита.</span></div><div class="permission-grid"><b>Разрешение</b><b>Нет</b><b>Свои</b><b>Команда</b><b>Все</b>${['Видеть вакансии','Добавлять кандидатов','Перемещать по этапам','Видеть зарплатные ожидания','Настраивать воронки','Управлять автоматизациями','Расклеивать дубли'].map((p,i)=>`<span>${p}</span>${['Нет','Свои','Команда','Все'].map((x,j)=>`<label><input type="radio" name="perm-${i}" ${j===(i>3?0:i===3?1:2)?'checked':''}></label>`).join('')}`).join('')}</div><div class="settings-note">Запрет зарплаты на конкретной вакансии имеет приоритет над разрешением роли.</div>`,
+        teams:()=>`<div class="settings-title"><div><h2>Команды и иерархия</h2><p>Команда необязательна; руководитель может видеть работу подчинённых.</p></div><button class="button primary">+ Создать команду</button></div><div class="choice-grid"><div class="choice-card selected"><b>Recruitment · Ирина Николаева</b><span>Mobile hiring — Елена Крылова · 2 рекрутера<br>Product hiring — Антон Беляев · 3 рекрутера</span></div><div class="choice-card"><b>Нанимающие менеджеры</b><span>Product — 8 человек<br>Technology — 11 человек</span></div></div>`,
+        funnels:()=>`<div class="settings-title"><div><h2>Шаблоны воронок</h2><p>На вакансии применяется один опубликованный шаблон.</p></div><button class="button primary" id="add-stage-button">+ Этап</button></div><div class="filter-row"><select><option>Mobile hiring v4</option><option>Product Design v3</option><option>Базовая воронка</option></select><span class="pill blue">опубликован</span></div><div class="stage-editor">${['Отклик','Новый кандидат','ИИ-скрининг','Ревью','Контакт','AI чат-бот','HR-интервью','Техническое интервью','Оффер','Ожидание выхода','Выход','Отказ'].map((s,i)=>`<div><span class="drag">⋮⋮</span><b>${i+1}. ${s}</b><small>${['системный этап','ручной или автоматический вход'][i%2]}</small><button class="icon-button">•••</button></div>`).join('')}</div><div class="settings-note">Удалённый этап закрывается для новых входов, но остаётся видимым, пока на нём есть кандидаты.</div>`,
+        automations:()=>`<div class="settings-title"><div><h2>Автоматизации</h2><p>Политика действий, задержек и ручного приоритета.</p></div><button class="button primary" id="add-automation-button">+ Создать правило</button></div>${[['ИИ-скрининг новых откликов','Если оценка ≥ 7,5 → Ревью; иначе → Отказ','checked'],['Отправка отказа','Через 2 часа после решения; ручное изменение отменяет письмо','checked'],['Напоминание о фидбеке','Создать задачу через 24 часа после интервью','checked'],['Опрос Candidate Experience','После закрытия процесса кандидата','']].map(r=>`<div class="automation-rule"><div><b>${r[0]}</b><small>${r[1]}</small></div><label class="toggle"><input type="checkbox" ${r[2]}><span></span></label><button class="button">Настроить</button></div>`).join('')}`,
+        requests:()=>`<div class="settings-title"><div><h2>Заявки и согласования</h2><p>Шаблоны полей и обязательные последовательные цепочки.</p></div><button class="button primary">+ Шаблон заявки</button></div><div class="choice-grid"><div class="choice-card selected"><b>Стандартная заявка</b><span>18 полей · 7 обязательных<br>Цепочка: руководитель → C&B → HRD</span></div><div class="choice-card"><b>Массовый найм</b><span>12 полей · 5 обязательных<br>Цепочка: руководитель → HRD</span></div></div>`,
+        forms:()=>`<div class="settings-title"><div><h2>Формы обратной связи</h2><p>Конструктор форм для интервью, NPS и Candidate Experience.</p></div><button class="button primary">+ Создать форму</button></div><table class="data-table"><tbody><tr><td><b>Техническое интервью</b><span class="table-sub">8 полей · необязательная</span></td><td>Все технические этапы</td><td><button class="button">Открыть конструктор</button></td></tr><tr><td><b>NPS нанимающего менеджера</b><span class="table-sub">5 полей</span></td><td>После закрытия вакансии</td><td><button class="button">Открыть конструктор</button></td></tr><tr><td><b>Candidate Experience</b><span class="table-sub">7 полей</span></td><td>Ручная или автоматическая отправка</td><td><button class="button">Открыть конструктор</button></td></tr></tbody></table>`,
+        sla:()=>`<div class="settings-title"><div><h2>SLA и рабочие календари</h2><p>Дерево атрибутов и правила расчёта сроков.</p></div><button class="button primary">+ Правило SLA</button></div><div class="choice-grid"><div class="choice-card selected"><b>ИТ → Senior → приоритет 1</b><span>40 календарных дней<br>Применяется автоматически</span></div><div class="choice-card"><b>Продажи → любой грейд</b><span>30 рабочих дней<br>Календарь: Россия 2026</span></div></div><label class="automation-rule"><div><b>Пересчитывать работающие вакансии</b><small>Только администратор, с предпросмотром изменений</small></div><span class="toggle"><input type="checkbox"><span></span></span></label>`,
+        integrations:()=>`<div class="settings-title"><div><h2>Интеграции</h2><p>Подключённые каналы и источники кандидатов.</p></div><button class="button primary">+ Подключить</button></div>${[['hh.ru','Публикации, отклики, диалоги','Подключено'],['Авито Работа','Публикации, отклики, диалоги','Подключено'],['Яндекс Календарь','Занятость и встречи','Подключено'],['Telegram','Переписка с кандидатами','Настроить'],['WhatsApp','Переписка с кандидатами','Настроить'],['Exchange','Почта · будущая интеграция','Запланировано']].map(x=>`<div class="integration-row"><span class="info-icon">${x[0][0]}</span><div><b>${x[0]}</b><small>${x[1]}</small></div><span class="pill ${x[2]==='Подключено'?'blue':''}">${x[2]}</span><button class="button">${x[2]==='Подключено'?'Управлять':'Открыть'}</button></div>`).join('')}`,
+        ai:()=>`<div class="settings-title"><div><h2>ИИ и данные</h2><p>Кор-функции ATS: скрининг, интервью, протоколист и ассистент настроек.</p></div></div>${[['ИИ-скрининг резюме','Данные и логика Джуна встроены в ATS',true],['ИИ-интервью','Текст, голос и видео внутри ATS',true],['ИИ-протоколист','Саммари, транскрипт и запись встречи',true],['ИИ-ассистент настроек','Всегда показывает предпросмотр до применения',true]].map(x=>`<div class="automation-rule"><div><b>${x[0]}</b><small>${x[1]}</small></div><label class="toggle"><input type="checkbox" checked><span></span></label><button class="button">Политика доступа</button></div>`).join('')}<div class="settings-note">Система не додумывает отсутствующие данные о кандидате. Ручное решение пользователя всегда приоритетнее ИИ-действия.</div>`
+      };
+      el('settings-content').innerHTML=renderers[settingsSection]();
+      el('invite-user-button')?.addEventListener('click',()=>openActionModal('Добавить пользователя','Приглашение в компанию',`<div class="form-grid"><label class="form-field"><span>Имя</span><input id="invite-name"></label><label class="form-field"><span>Почта</span><input type="email"></label><label class="form-field"><span>Роль</span><select><option>Рекрутер</option><option>Руководитель рекрутмента</option><option>Нанимающий менеджер</option><option>Администратор</option></select></label><label class="form-field"><span>Команда</span><select><option>Без команды</option><option>Mobile hiring</option><option>Product hiring</option></select></label></div>`,'Отправить приглашение',()=>showToast('Приглашение отправлено. Пользователь появится со статусом «Приглашён».')));
+      el('add-role-button')?.addEventListener('click',()=>openActionModal('Создать роль','Права новой роли можно настроить независимо.',`<div class="form-grid"><label class="form-field full"><span>Название роли</span><input placeholder="Например, координатор интервью"></label><label class="form-field full"><span>Начать с набора прав</span><select><option>Без прав</option><option>Как у рекрутера</option><option>Как у нанимающего менеджера</option></select></label></div>`,'Создать роль',()=>showToast('Новая роль добавлена. Теперь настройте её права.')));
+    }
+
+    function toggleAssistant(prefill='') { el('assistant-panel').hidden=!el('assistant-panel').hidden;if(!el('assistant-panel').hidden&&prefill){el('assistant-input').value=prefill;sendAssistantMessage();} }
+    function sendAssistantMessage(text=null) {
+      const input=el('assistant-input');const prompt=(text||input.value).trim();if(!prompt)return;input.value='';
+      el('assistant-messages').insertAdjacentHTML('beforeend',`<div class="assistant-message user">${prompt.replace(/</g,'&lt;')}</div><div class="assistant-message bot">Я подготовил изменение для раздела «${document.querySelector('.nav-item.active span:nth-child(2)')?.textContent||'ATS'}».</div><div class="change-preview"><b>Предпросмотр</b><span>Было: стандартная настройка</span><strong>Станет: ${prompt.replace(/</g,'&lt;')}</strong><small>Затронут только текущий объект. Можно отменить.</small><div><button class="button" data-ai-cancel>Отмена</button><button class="button primary" data-ai-approve>Применить</button></div></div>`);
+      const container=el('assistant-messages');container.scrollTop=container.scrollHeight;
+      const previews=container.querySelectorAll('.change-preview');const preview=previews[previews.length-1];
+      preview.querySelector('[data-ai-cancel]').addEventListener('click',()=>{preview.innerHTML='<span>Изменение отменено.</span>';});
+      preview.querySelector('[data-ai-approve]').addEventListener('click',()=>{preview.innerHTML='<b>✓ Изменение применено</b><span>Действие записано в историю.</span>';showToast('ИИ-ассистент применил подтверждённое изменение.');if(prompt.toLowerCase().includes('sla')&&currentPage==='analytics')el('analytics-quality').hidden=false;});
+    }
+
     function showPage(page, updateHash = true) {
       currentPage = page;
       if (page === 'vacancy') activateVacancy(currentVacancyId, false);
@@ -952,6 +1321,8 @@
       if (page === 'candidates') renderGlobalCandidates();
       if (page === 'requisitions') renderRequisitions();
       if (page === 'search') renderQueryBuilder();
+      if (page === 'calendar') renderCalendar();
+      if (page === 'settings') { renderSettingsNav(); renderSettings(); }
       applyRoleVisibility();
       if (updateHash) history.replaceState(null, '', `#${page}${page === 'vacancy' ? `/${currentVacancyId}` : ''}`);
     }
@@ -1015,9 +1386,11 @@
       el('requisition-table').querySelectorAll('[data-requisition]').forEach(row => row.addEventListener('click', () => { selectedRequisition = requisitions.find(req => req.id === Number(row.dataset.requisition)); renderRequisitions(); }));
       const req = selectedRequisition;
       el('req-detail-title').textContent = req.title;
-      el('requisition-detail').innerHTML = `<div class="fields"><div class="field"><label>Подразделение</label><strong>${req.department}</strong></div><div class="field"><label>Количество ставок</label><strong>${req.positions}</strong></div><div class="field"><label>Автор</label><strong>${req.author}</strong></div><div class="field"><label>Бюджет</label><strong>${req.budget}</strong></div></div><h3 style="font-size:12px;margin:18px 0 8px">Маршрут согласования</h3><div class="approval-step"><span class="step-mark">✓</span><div><b>Руководитель подразделения</b><small>Согласовано · Алексей Орлов</small></div><span class="task-date">31 авг.</span></div><div class="approval-step"><span class="step-mark ${req.step <= 1 ? 'current' : ''}">${req.step > 1 ? '✓' : '2'}</span><div><b>C&B и бюджет</b><small>${req.step > 1 ? 'Согласовано с изменениями' : 'Ожидает решения · SLA 2 дня'}</small></div><span class="task-date ${req.status.includes('моего') ? 'late' : ''}">${req.step > 1 ? '1 сен.' : 'сейчас'}</span></div><div class="approval-step"><span class="step-mark ${req.step === 2 ? 'current' : req.step > 2 ? '' : 'wait'}">${req.step > 2 ? '✓' : '3'}</span><div><b>HR-директор</b><small>${req.step > 2 ? 'Согласовано' : 'Ожидает предыдущий этап'}</small></div><span class="task-date">—</span></div><div style="display:flex;gap:8px;margin-top:14px">${req.status.includes('моего') ? '<button class="button primary" id="approve-req">Согласовать</button><button class="button">Вернуть с комментарием</button>' : '<button class="button">Открыть полную заявку</button>'}</div>`;
+      el('requisition-detail').innerHTML = `<div class="fields"><div class="field"><label>Подразделение</label><strong>${req.department}</strong></div><div class="field"><label>Количество ставок</label><strong>${req.positions}</strong></div><div class="field"><label>Автор</label><strong>${req.author}</strong></div><div class="field"><label>Бюджет</label><strong>${req.budget}</strong></div></div><h3 style="font-size:12px;margin:18px 0 8px">Маршрут согласования</h3><div class="approval-step"><span class="step-mark">✓</span><div><b>Руководитель подразделения</b><small>Согласовано · Алексей Орлов</small></div><span class="task-date">31 авг.</span></div><div class="approval-step"><span class="step-mark ${req.step <= 1 ? 'current' : ''}">${req.step > 1 ? '✓' : '2'}</span><div><b>C&B и бюджет</b><small>${req.step > 1 ? 'Согласовано с изменениями' : 'Ожидает решения · SLA 2 дня'}</small></div><span class="task-date ${req.status.includes('моего') ? 'late' : ''}">${req.step > 1 ? '1 сен.' : 'сейчас'}</span></div><div class="approval-step"><span class="step-mark ${req.step === 2 ? 'current' : req.step > 2 ? '' : 'wait'}">${req.step > 2 ? '✓' : '3'}</span><div><b>HR-директор</b><small>${req.step > 2 ? 'Согласовано' : 'Ожидает предыдущий этап'}</small></div><span class="task-date">—</span></div><div style="display:flex;gap:8px;margin-top:14px">${req.status.includes('моего') ? '<button class="button primary" id="approve-req">Согласовать</button><button class="button" id="return-requisition">Вернуть с комментарием</button>' : ''}<button class="button" id="open-full-requisition">Открыть полную заявку</button></div>`;
       const approve = el('approve-req');
       if (approve) approve.addEventListener('click', () => { req.status = 'На согласовании'; req.next = 'HR-директор'; req.step = 2; showToast('Решение сохранено. Заявка перешла следующему согласующему.'); renderRequisitions(); });
+      el('open-full-requisition').addEventListener('click', () => openRequisitionWorkspace(req));
+      el('return-requisition')?.addEventListener('click', () => openActionModal('Вернуть заявку с комментарием',req.title,'<label class="form-field"><span>Что нужно исправить</span><textarea rows="6" placeholder="Комментарий увидит автор заявки"></textarea></label>','Вернуть автору',()=>{req.status='Возвращена';req.next='Исправить комментарии';renderRequisitions();showToast('Заявка возвращена автору. Версия и комментарий сохранены.');}));
     }
 
     function renderQueryBuilder() {
@@ -1080,13 +1453,42 @@
       showToast(`Кандидат перемещён: ${previous} → ${target}. В прототипе это действие можно отменить перезагрузкой страницы.`);
     }
     el('retry-button').addEventListener('click', () => { viewSelect.value = 'loading'; applyViewState(); window.setTimeout(() => { viewSelect.value = 'normal'; applyViewState(); showToast('Данные обновлены'); }, 850); });
-    el('assistant-button').addEventListener('click', () => showToast('Здесь откроется ИИ-ассистент настроек с предпросмотром изменений. Его отдельный экран спроектируем позже.'));
+    el('assistant-button').addEventListener('click', () => toggleAssistant());
+    el('assistant-close').addEventListener('click', () => el('assistant-panel').hidden = true);
+    el('assistant-send').addEventListener('click', () => sendAssistantMessage());
+    el('assistant-input').addEventListener('keydown', event => { if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAssistantMessage();} });
+    el('assistant-messages').querySelectorAll('.assistant-suggestions button').forEach(button=>button.addEventListener('click',()=>sendAssistantMessage(button.textContent)));
+    el('action-modal-close').addEventListener('click', closeActionModal);
+    el('action-modal-cancel').addEventListener('click', closeActionModal);
+    el('action-modal').addEventListener('click', event => { if(event.target===el('action-modal'))closeActionModal(); });
+    el('action-modal-submit').addEventListener('click',()=>{const result=actionSubmit?.();if(result!==false)closeActionModal();});
+    el('detail-drawer-close').addEventListener('click',()=>el('detail-drawer').hidden=true);
+    el('vacancy-details-button').addEventListener('click',()=>openVacancyDetails('info'));
+    el('add-candidate-button').addEventListener('click',openAddCandidate);
+    el('empty-add-candidate').addEventListener('click',openAddCandidate);
+    el('global-add-candidate').addEventListener('click',openAddCandidate);
+    el('message-button').addEventListener('click',openMessageForm);
+    el('meeting-button').addEventListener('click',()=>openMeetingForm(currentCandidate));
+    el('vacancy-more-button').addEventListener('click',()=>openActionModal('Действия с вакансией',vacancyDefinitions[currentVacancyId].name,`<div class="choice-grid"><button class="choice-card selected"><b>Поставить на паузу</b><span>Заморозить SLA и выбрать судьбу текущих автоматизаций.</span></button><button class="choice-card"><b>Изменить участников</b><span>Последнего рекрутера можно только заменить.</span></button><button class="choice-card"><b>Сменить шаблон воронки</b><span>Архивные этапы сохранят кандидатов.</span></button><button class="choice-card"><b>Отменить вакансию</b><span>Позже её можно вернуть в работу.</span></button></div>`,'Продолжить',()=>showToast('Для выбранного действия откроется подтверждение и предпросмотр последствий.')));
+    el('publications-button').addEventListener('click',()=>openVacancyDetails('publications'));
+    el('sla-details-button').addEventListener('click',()=>openVacancyDetails('sla'));
+    el('vacancy-automations-button').addEventListener('click',()=>openVacancyDetails('automation'));
+    el('overview-configure-button').addEventListener('click',openOverviewBuilder);
+    el('analytics-configure-button').addEventListener('click',openAnalyticsBuilder);
+    el('analytics-ai-button').addEventListener('click',()=>{el('assistant-panel').hidden=false;el('assistant-input').value='Собери отчёт по причинам нарушения SLA и добавь его на этот дашборд';sendAssistantMessage();});
+    el('create-requisition-button').addEventListener('click',openRequisitionCreation);
+    el('new-calendar-event').addEventListener('click',()=>openMeetingForm(null));
+    el('calendar-share-button').addEventListener('click',()=>openActionModal('Доступность календаря','Выберите объём данных для участников подбора.',`<div class="choice-grid"><label class="choice-card selected"><b><input type="radio" name="calendar-access" checked> Только занятость</b><span>Коллеги видят свободен/занят без названий встреч.</span></label><label class="choice-card"><b><input type="radio" name="calendar-access"> Полный календарь</b><span>Показывать названия и детали событий участникам с доступом.</span></label></div>`,'Сохранить',()=>showToast('Настройки доступности календаря сохранены.')));
+    el('calendar-views').querySelectorAll('[data-calendar-view]').forEach(button=>button.addEventListener('click',()=>{calendarView=button.dataset.calendarView;el('calendar-views').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===button));renderCalendar();}));
+    document.querySelectorAll('.calendar-source').forEach(input=>input.addEventListener('change',renderCalendar));
+    ['calendar-prev','calendar-today','calendar-next'].forEach(id=>el(id).addEventListener('click',()=>showToast('Период календаря переключён. В демо оставлены события текущей недели.')));
+    el('settings-history-button').addEventListener('click',()=>openDetailDrawer('Журнал изменений прав','Неизменяемая история администраторских действий',[{key:'log',label:'События',body:'<section class="drawer-section"><div class="mini-stat"><b>Ирина Николаева изменила роль</b><span>сегодня, 10:42</span><small>Антон Беляев: доступ к зарплатам «нет» → «свои вакансии»</small></div><div class="mini-stat"><b>Администратор добавил пользователя</b><span>вчера, 17:06</span><small>Ольга Романова · Нанимающий менеджер</small></div><div class="mini-stat"><b>Ирина Николаева изменила право</b><span>31 августа, 12:10</span><small>Роль «Рекрутер»: расклейка дублей отключена</small></div></section>'}]));
     document.querySelectorAll('.nav-item[data-page]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.page)));
     document.querySelectorAll('[data-page-jump]').forEach(button => button.addEventListener('click', () => showPage(button.dataset.pageJump)));
     document.querySelectorAll('[data-open-vacancy]').forEach(row => row.addEventListener('click', () => { activateVacancy(row.dataset.openVacancy); showPage('vacancy'); }));
     document.querySelectorAll('[data-placeholder]').forEach(button => button.addEventListener('click', () => showToast(`Раздел «${button.dataset.placeholder}» будет добавлен в следующую итерацию прототипа.`)));
     el('task-segments').querySelectorAll('[data-task-filter]').forEach(button => button.addEventListener('click', () => { taskFilter = button.dataset.taskFilter; el('task-segments').querySelectorAll('button').forEach(item => item.classList.toggle('active', item === button)); renderTasks(); }));
-    el('new-task-button').addEventListener('click', () => { recruitmentTasks.unshift({ id:Date.now(), title:'Новая задача без срока', context:'Самостоятельная задача', priority:'Обычный', due:'без срока', progress:'—', done:false }); renderTasks(); showToast('Создана новая задача. В полном экране откроется форма редактирования.'); });
+    el('new-task-button').addEventListener('click', () => openTaskForm());
     el('global-candidate-filter').addEventListener('input', renderGlobalCandidates);
     el('add-query-row').addEventListener('click', () => { queryRows.push({logic:'И',field:'Должность и навыки',operator:'содержит',value:''}); renderQueryBuilder(); });
     el('run-search').addEventListener('click', renderSearchResults);
@@ -1097,13 +1499,15 @@
     el('global-search').addEventListener('focus', () => { if (currentPage !== 'search') el('global-search').title = 'Введите запрос и нажмите Enter, чтобы открыть расширенный поиск'; });
     window.addEventListener('hashchange', () => {
       const parts = location.hash.replace('#','').split('/');
-      const page = ['overview','tasks','vacancy','candidates','requisitions','search','analytics'].includes(parts[0]) ? parts[0] : 'vacancy';
+      const page = ['overview','tasks','vacancy','candidates','requisitions','search','calendar','analytics','settings'].includes(parts[0]) ? parts[0] : 'vacancy';
       if (page === 'vacancy' && vacancyDefinitions[parts[1]] && parts[1] !== currentVacancyId) activateVacancy(parts[1]);
       showPage(page, false);
     });
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape' && !el('move-modal').hidden) closeMoveModal();
+      else if (event.key === 'Escape' && !el('action-modal').hidden) closeActionModal();
+      else if (event.key === 'Escape' && !el('detail-drawer').hidden) el('detail-drawer').hidden=true;
       if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName)) return;
       if (currentPage !== 'vacancy') return;
       const visible = filteredCandidates();
@@ -1114,7 +1518,7 @@
     });
 
     const initialParts = location.hash.replace('#','').split('/');
-    const initialPage = ['overview','tasks','vacancy','candidates','requisitions','search','analytics'].includes(initialParts[0]) ? initialParts[0] : 'vacancy';
+    const initialPage = ['overview','tasks','vacancy','candidates','requisitions','search','calendar','analytics','settings'].includes(initialParts[0]) ? initialParts[0] : 'vacancy';
     activateVacancy(vacancyDefinitions[initialParts[1]] ? initialParts[1] : 'android');
     applyRoleVisibility();
     applyVacancyState();
