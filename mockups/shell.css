@@ -1,0 +1,561 @@
+/* ─────────────────────────────────────────────────────────────
+   Каркас приложения Хантфлоу: шапка, сайдбар, «острова», элементы.
+   Все размеры сняты с боевого приложения, а не подобраны на глаз.
+   Требует tokens.css — подключать первым.
+   ───────────────────────────────────────────────────────────── */
+
+*,*::before,*::after{box-sizing:border-box}
+
+/* display:flex у компонента перебивает атрибут hidden — возвращаем ему силу */
+[hidden]{display:none !important}
+
+html,body{height:100%}
+body{
+  margin:0;
+  background:var(--hf-color-pagetemplate-background);
+  color:var(--hf-color-text-main);
+  font-family:var(--hf-font-family-body);
+  font-size:var(--hf-font-size-s);
+  line-height:22px;
+  font-weight:var(--hf-font-weight-regular);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Фокус виден всегда и одинаково: у Хантфлоу это кольцо, а не смена цвета текста */
+:where(a,button,input,select,textarea,[tabindex]):focus-visible{
+  outline:var(--hf-border-s) solid var(--hf-color-base-cyan-500);
+  outline-offset:1px;
+}
+
+/* ── Каркас ─────────────────────────────────────────────────── */
+/* Высота фиксирована по экрану: прокручиваются колонки внутри, а не страница —
+   так же, как в боевом приложении */
+.hf-app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+
+.hf-header{
+  position:sticky;top:0;z-index:40;
+  display:flex;align-items:center;
+  height:var(--header-height);
+  background:var(--hf-color-base-main-900);
+  color:var(--hf-color-text-invert);
+  font-weight:var(--hf-font-weight-medium);
+}
+.hf-logo-wrap{width:258px;padding:0 15px;flex:none}
+.hf-logo{display:flex;align-items:center;height:var(--header-height)}
+.hf-logo img{width:152px;height:36px;display:block}
+
+.hf-header-right{flex:1;display:flex;align-items:center;min-width:0}
+.hf-header-title{
+  flex:1;min-width:0;display:flex;align-items:center;gap:var(--hf-spacing-s);
+  padding-inline:var(--hf-spacing-s);
+  font-size:var(--hf-font-size-s);color:var(--hf-color-text-invert);
+}
+.hf-header-item{
+  width:64px;height:var(--header-height);flex:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.hf-header-item.is-auto{width:auto;padding-inline:var(--hf-spacing-l)}
+.hf-icon-btn{
+  width:40px;height:40px;border:0;padding:0;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:var(--hf-radius-s);
+  background:var(--hf-color-base-white-alpha-0);
+  color:var(--hf-color-text-invert);
+  cursor:pointer;
+  transition:background .12s ease;
+}
+.hf-icon-btn:hover{background:var(--hf-color-base-white-alpha-200)}
+.hf-icon-btn:active{background:var(--hf-color-base-white-alpha-300)}
+.hf-icon-btn svg{width:20px;height:20px;fill:currentColor}
+
+.hf-header-sep{
+  width:1px;height:24px;flex:none;
+  background:var(--hf-color-base-white-alpha-300);
+}
+.hf-account{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  height:40px;padding:0 var(--hf-spacing-m);
+  border:0;border-radius:var(--hf-radius-s);
+  background:var(--hf-color-base-white-alpha-0);
+  color:var(--hf-color-text-invert);
+  font:inherit;font-size:var(--hf-font-size-s);font-weight:var(--hf-font-weight-medium);
+  cursor:pointer;white-space:nowrap;
+  transition:background .12s ease;
+}
+.hf-account:hover{background:var(--hf-color-base-white-alpha-200)}
+.hf-account svg{width:20px;height:20px;fill:currentColor;flex:none}
+
+/* ── Полотно: сайдбар + основная колонка ────────────────────── */
+.hf-canvas{
+  flex:1;min-height:0;
+  display:flex;gap:var(--layout-offset);
+  padding:var(--layout-offset);
+}
+
+.hf-sidebar{
+  position:relative;flex:none;
+  width:var(--sidebar-width);
+  background:var(--sidebar-background);
+  border-radius:var(--hf-radius-l);
+  color:var(--sidebar-text-color);
+  overflow:hidden;
+}
+/* На экране поиска сайдбар пуст: место под него занято, а списка вакансий
+   нет — фон в этом случае не рисуется, иначе висит чёрная плашка */
+.hf-sidebar--empty{background:none}
+
+.hf-sidebar-scroll{
+  height:100%;overflow-y:auto;overflow-x:hidden;
+  padding:0 14px 90px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--hf-color-base-white-alpha-300) transparent;
+}
+.hf-sidebar-scroll::-webkit-scrollbar{width:6px}
+.hf-sidebar-scroll::-webkit-scrollbar-thumb{
+  background:var(--hf-color-base-white-alpha-300);border-radius:var(--hf-radius-10xl);
+}
+.hf-sidebar-inner{margin-top:var(--hf-spacing-l)}
+
+.hf-nav{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--hf-spacing-xs)}
+.hf-nav-link{
+  display:flex;align-items:center;
+  height:40px;padding:8px 12px;
+  border-radius:var(--hf-radius-s);
+  color:var(--sidebar-text-color);
+  font-size:var(--hf-font-size-s);line-height:24px;
+  text-decoration:none;cursor:pointer;
+  transition:background .12s ease;
+}
+.hf-nav-link svg{width:20px;height:20px;margin-right:var(--hf-spacing-m);flex:none;fill:currentColor}
+.hf-nav-link:hover{background:var(--sidebar-text-background-hover);color:var(--sidebar-text-color)}
+.hf-nav-link.is-active{background:var(--sidebar-text-background-active)}
+.hf-nav-link.is-disabled{opacity:.5;cursor:default}
+.hf-nav-link .hf-nav-title{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+.hf-sidebar-divider{
+  height:1px;border:0;margin:var(--hf-spacing-l) var(--hf-spacing-m) 13px;
+  background:var(--sidebar-divider-color);
+}
+.hf-sidebar-group-title{
+  display:flex;align-items:center;
+  height:40px;padding:8px 12px;
+  color:var(--sidebar-text-color);
+  font-size:var(--hf-font-size-s);line-height:24px;
+  cursor:pointer;border-radius:var(--hf-radius-s);
+  transition:background .12s ease;
+}
+.hf-sidebar-group-title:hover{background:var(--sidebar-text-background-hover)}
+.hf-sidebar-group-title svg{width:20px;height:20px;fill:currentColor;flex:none}
+.hf-sidebar-group-title > svg:first-child{margin-right:var(--hf-spacing-m)}
+
+/* Вакансия в сайдбаре: две строки — название и подпись клиента */
+.hf-vacancy-link{
+  display:block;padding:6px 12px;border-radius:var(--hf-radius-s);
+  color:var(--sidebar-text-color);text-decoration:none;cursor:pointer;
+  transition:background .12s ease;
+}
+.hf-vacancy-link:hover{background:var(--sidebar-text-background-hover)}
+.hf-vacancy-link.is-active{background:var(--sidebar-text-background-active)}
+.hf-vacancy-name{
+  font-size:var(--hf-font-size-xxs);line-height:20px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.hf-vacancy-org{
+  font-size:var(--hf-font-size-3xs);line-height:18px;
+  color:var(--sidebar-header-text-color);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* Голубая круглая кнопка создания, поверх сайдбара слева внизу */
+.hf-fab{
+  position:absolute;left:16px;bottom:16px;z-index:5;
+  width:60px;height:60px;border:0;border-radius:var(--hf-radius-10xl);
+  background:var(--plus-button-background);
+  color:var(--hf-color-base-main-900);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(5,5,5,.24);
+  transition:background .12s ease;
+}
+.hf-fab:hover{background:var(--hf-color-base-cyan-400)}
+.hf-fab:active{background:var(--hf-color-base-cyan-600)}
+.hf-fab svg{width:28px;height:28px;fill:currentColor}
+
+/* Полоса перетаскивания ширины сайдбара */
+.hf-resizer{
+  width:var(--layout-offset);flex:none;cursor:col-resize;
+  align-self:stretch;margin-inline:calc(var(--layout-offset) * -1) 0;
+}
+
+/* ── Основная колонка и «острова» ───────────────────────────── */
+.hf-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--layout-offset)}
+
+.hf-island{
+  background:var(--hf-color-island-background);
+  border-radius:var(--hf-radius-l);
+}
+.hf-island.is-fill{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+
+.hf-tabflow{display:flex;align-items:center;gap:var(--layout-offset);height:52px;flex:none}
+.hf-tabflow .hf-island{height:52px;display:flex;align-items:center}
+.hf-tabflow-lead{flex:none;padding-inline:var(--hf-spacing-xxl)}
+.hf-tabflow-scroll{
+  flex:1;min-width:0;display:flex;align-items:center;
+  overflow-x:auto;scrollbar-width:none;
+}
+.hf-tabflow-scroll::-webkit-scrollbar{display:none}
+
+
+/* ── Кнопки ─────────────────────────────────────────────────── */
+.hf-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--hf-spacing-xs);
+  height:var(--hf-size-button-height-m);
+  padding:5px 11px;
+  border:0;border-radius:var(--hf-radius-s);
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;
+  font-weight:var(--hf-font-weight-regular);
+  cursor:pointer;white-space:nowrap;text-decoration:none;
+  transition:background .12s ease,border-color .12s ease;
+}
+.hf-btn svg{width:20px;height:20px;fill:currentColor;flex:none}
+
+.hf-btn--primary{background:var(--hf-color-button-primary-default);color:var(--hf-color-text-invert)}
+.hf-btn--primary:hover{background:var(--hf-color-button-primary-hover);color:var(--hf-color-text-invert)}
+.hf-btn--primary:active{background:var(--hf-color-button-primary-active)}
+
+.hf-btn--secondary{
+  background:var(--hf-color-button-secondary-fill-default);
+  color:var(--hf-color-text-main);
+  box-shadow:inset 0 0 0 var(--hf-border-xs) var(--hf-color-button-secondary-border-default);
+}
+.hf-btn--secondary:hover{background:var(--hf-color-button-secondary-fill-hover);color:var(--hf-color-text-main)}
+.hf-btn--secondary:active{background:var(--hf-color-button-secondary-fill-active)}
+
+.hf-btn--accent{background:var(--hf-color-button-accent-default);color:var(--hf-color-text-invert)}
+.hf-btn--accent:hover{background:var(--hf-color-button-accent-hover);color:var(--hf-color-text-invert)}
+.hf-btn--accent:active{background:var(--hf-color-button-accent-active)}
+
+.hf-btn--ghost{background:var(--hf-color-button-transparent-secondary-fill-default);color:var(--hf-color-text-main)}
+.hf-btn--ghost:hover{background:var(--hf-color-button-transparent-secondary-fill-hover);color:var(--hf-color-text-main)}
+.hf-btn--ghost:active{background:var(--hf-color-button-transparent-secondary-fill-active)}
+
+.hf-btn--danger{background:var(--hf-color-button-danger-default);color:var(--hf-color-text-invert)}
+.hf-btn--danger:hover{background:var(--hf-color-button-danger-hover);color:var(--hf-color-text-invert)}
+
+.hf-btn:disabled{background:var(--hf-color-button-disable-default);color:var(--hf-color-text-light);cursor:default;box-shadow:none}
+
+.hf-btn--s{height:var(--hf-size-button-height-s);padding:5px 11px;font-size:var(--hf-font-size-xxs);line-height:20px}
+.hf-btn--l{height:var(--hf-size-button-height-l);padding:7px 15px}
+.hf-btn--xl{height:var(--hf-size-button-height-xl);padding:11px 23px;font-size:var(--hf-font-size-s)}
+.hf-btn--square{width:var(--hf-size-button-height-m);padding:0}
+.hf-btn--square.hf-btn--l{width:var(--hf-size-button-height-l)}
+
+/* ── Поля ───────────────────────────────────────────────────── */
+.hf-input,.hf-select{
+  width:100%;height:var(--hf-size-button-height-l);
+  padding:8px 15px;
+  border:var(--hf-border-xs) solid var(--hf-color-input-border-default);
+  border-radius:var(--hf-radius-input-default,var(--hf-radius-s));
+  background:var(--hf-color-input-background-default);
+  color:var(--hf-color-text-main);
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:22px;
+}
+.hf-input::placeholder{color:var(--hf-color-input-text-placeholder)}
+.hf-input:focus,.hf-select:focus{
+  outline:none;
+  border-color:var(--hf-color-input-border-focus);
+  box-shadow:0 0 0 var(--hf-border-m) var(--hf-color-input-border-focus-visible);
+}
+.hf-select{
+  appearance:none;cursor:pointer;padding-right:38px;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%23696969'%3E%3Cpath d='M5.6 7.6 10 12l4.4-4.4 1.1 1.1-5.5 5.5-5.5-5.5z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;
+}
+
+/* ── Бейджи и счётчики ──────────────────────────────────────── */
+.hf-badge{
+  display:inline-flex;align-items:center;gap:var(--hf-spacing-xs);
+  height:var(--hf-size-badge-s,20px);
+  padding:0 var(--hf-spacing-s);
+  border-radius:var(--hf-radius-xs);
+  font-size:var(--hf-font-size-4xs);line-height:14px;
+  font-weight:var(--hf-font-weight-medium);
+  background:var(--hf-color-badge-background-grey);
+  color:var(--hf-color-badge-text-grey);
+  white-space:nowrap;
+}
+.hf-badge--cyan{background:var(--hf-color-badge-background-cyan);color:var(--hf-color-badge-text-cyan)}
+.hf-badge--green{background:var(--hf-color-badge-background-green);color:var(--hf-color-badge-text-green)}
+.hf-badge--orange{background:var(--hf-color-badge-background-orange);color:var(--hf-color-badge-text-orange)}
+.hf-badge--red{background:var(--hf-color-badge-background-red);color:var(--hf-color-badge-text-red)}
+
+/* ── Ссылки, аватары, разделители ───────────────────────────── */
+.hf-link{color:var(--hf-color-link-default);text-decoration:none}
+.hf-link:hover{color:var(--hf-color-link-hover);text-decoration:none}
+
+.hf-avatar{
+  width:var(--hf-size-avatar-s);height:var(--hf-size-avatar-s);flex:none;
+  border-radius:var(--hf-radius-10xl);
+  background:var(--hf-color-base-main-100);
+  color:var(--hf-color-text-semilight);
+  display:flex;align-items:center;justify-content:center;
+  font-size:var(--hf-font-size-3xs);font-weight:var(--hf-font-weight-medium);
+  overflow:hidden;
+}
+.hf-avatar--m{width:var(--hf-size-avatar-m);height:var(--hf-size-avatar-m);font-size:var(--hf-font-size-xxs)}
+.hf-avatar--xl{width:var(--hf-size-avatar-xl);height:var(--hf-size-avatar-xl);font-size:var(--hf-font-size-l)}
+
+.hf-divider{height:1px;border:0;margin:0;background:var(--hf-color-divider-default)}
+
+.hf-muted{color:var(--hf-color-text-semilight)}
+.hf-num{font-variant-numeric:tabular-nums}
+
+/* ── Заголовки ──────────────────────────────────────────────── */
+.hf-h1{margin:0;font-size:var(--hf-font-size-text-h1);line-height:var(--hf-font-line-height-text-h1);font-weight:var(--hf-font-weight-medium)}
+.hf-h2{margin:0;font-size:var(--hf-font-size-text-h2);line-height:var(--hf-font-line-height-text-h2);font-weight:var(--hf-font-weight-medium)}
+.hf-h3{margin:0;font-size:var(--hf-font-size-text-h3);line-height:var(--hf-font-line-height-text-h3);font-weight:var(--hf-font-weight-medium)}
+.hf-h4{margin:0;font-size:var(--hf-font-size-text-h4);line-height:var(--hf-font-line-height-text-h4);font-weight:var(--hf-font-weight-medium)}
+
+/* ── Выпадающие меню и модалки ──────────────────────────────── */
+.hf-menu{
+  position:absolute;z-index:60;min-width:240px;
+  padding:var(--hf-spacing-s);
+  background:var(--hf-color-base-white-900);
+  border-radius:var(--hf-radius-m);
+  box-shadow:var(--hf-shadow-dropdown);
+}
+.hf-menu-item{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);
+  width:100%;height:40px;padding:0 var(--hf-spacing-m);
+  border:0;border-radius:var(--hf-radius-s);
+  background:none;color:var(--hf-color-text-main);
+  font-family:inherit;font-size:var(--hf-font-size-xs);
+  text-align:left;text-decoration:none;cursor:pointer;
+  transition:background .12s ease;
+}
+.hf-menu-item:hover{background:var(--hf-color-base-main-100);color:var(--hf-color-text-main)}
+.hf-menu-item svg{width:20px;height:20px;fill:currentColor;flex:none;color:var(--hf-color-text-semilight)}
+
+.hf-overlay{
+  position:fixed;inset:0;z-index:80;
+  display:none;align-items:center;justify-content:center;
+  padding:var(--hf-spacing-4xl);
+  background:var(--hf-color-base-main-alpha-500);
+}
+.hf-overlay.is-open{display:flex}
+.hf-modal{
+  width:var(--hf-size-popup-width-default);max-width:100%;max-height:100%;
+  display:flex;flex-direction:column;
+  padding:var(--hf-spacing-xl) var(--hf-spacing-xxl);
+  background:var(--hf-color-base-white-900);
+  border-radius:var(--hf-radius-l);
+  box-shadow:0 8px 48px var(--hf-color-base-main-alpha-400);
+}
+.hf-modal--l{width:var(--hf-size-popup-width-large)}
+.hf-modal-head{
+  display:flex;align-items:center;gap:var(--hf-spacing-l);
+  padding-bottom:var(--hf-spacing-xl);
+}
+.hf-modal-head .hf-h2{flex:1;min-width:0}
+.hf-modal-body{flex:1;min-height:var(--hf-size-popup-content-min-height,72px);overflow-y:auto}
+.hf-modal-foot{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);
+  padding-top:var(--hf-spacing-xxl);
+}
+
+/* Иконки-символы подключаются инлайном в каждом файле */
+.hf-sprite{display:none}
+
+/* ── Панель поиска: подменяет левую часть шапки ────────────────
+   Заголовок экрана и лупа уступают место строке запроса, а шестерёнка
+   и аккаунт остаются: поиск не отдельный режим приложения, а состояние
+   шапки. Предмет поиска выбирают тут же — экранов у него два. */
+.hf-searchbar{
+  flex:1;min-width:0;display:flex;align-items:center;gap:var(--hf-spacing-m);
+  padding-inline:var(--hf-spacing-l);
+}
+.hf-search-icon{flex:none;display:flex;color:var(--hf-color-text-invert)}
+.hf-search-icon svg{width:20px;height:20px;fill:currentColor}
+.hf-search-scope{
+  display:flex;align-items:center;gap:var(--hf-spacing-xs);flex:none;
+  height:40px;padding:0;border:0;background:none;color:var(--hf-color-text-invert);
+  font-family:inherit;font-size:var(--hf-font-size-3xs);font-weight:var(--hf-font-weight-medium);
+  text-transform:uppercase;letter-spacing:.04em;cursor:pointer;
+}
+.hf-search-scope:hover{color:var(--hf-color-base-cyan-500)}
+.hf-search-scope:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:2px;border-radius:4px}
+.hf-search-scope svg{width:16px;height:16px;fill:currentColor}
+.hf-search-input{
+  flex:1;min-width:0;height:40px;padding:0;
+  border:0;background:none;color:var(--hf-color-text-invert);
+  font-family:inherit;font-size:var(--hf-font-size-s);
+}
+.hf-search-input::placeholder{color:var(--hf-color-base-main-600)}
+.hf-search-input:focus{outline:none}
+
+/* ── Меню: заголовки и широкий вариант настроек ──────────────── */
+.hf-menu-title{
+  padding:var(--hf-spacing-s) var(--hf-spacing-m) var(--hf-spacing-xs);
+  color:var(--hf-color-text-semilight);
+  font-size:var(--hf-font-size-3xs);line-height:18px;
+  font-weight:var(--hf-font-weight-medium);
+  text-transform:uppercase;letter-spacing:.04em;
+}
+.hf-menu--wide{display:flex;gap:var(--hf-spacing-xxl);padding:var(--hf-spacing-l)}
+.hf-menu-col{flex:1;min-width:0}
+
+/* ── Поля форм в модалках ───────────────────────────────────── */
+.hf-field{margin-bottom:var(--hf-spacing-l)}
+.hf-label{
+  display:block;margin-bottom:var(--hf-spacing-xs);
+  font-size:var(--hf-font-size-xs);line-height:20px;
+  font-weight:var(--hf-font-weight-medium);
+}
+.hf-textarea{height:auto;min-height:120px;padding:12px 15px;resize:vertical;line-height:24px}
+/* Подсказка под полем. В форме заявки это не украшение: её текст
+   пишет администратор в настройках формы, и он часть контракта поля */
+.hf-hint{
+  margin:var(--hf-spacing-xs) 0 0;
+  font-size:var(--hf-font-size-3xs);line-height:20px;
+  color:var(--hf-color-text-semilight);
+}
+.hf-hint a{color:inherit;text-decoration:underline}
+.hf-richtext{
+  border:var(--hf-border-xs) solid var(--hf-color-input-border-default);
+  border-radius:var(--hf-radius-s);overflow:hidden;
+}
+.hf-richtext-bar{
+  display:flex;flex-wrap:wrap;gap:var(--hf-spacing-xs);
+  padding:var(--hf-spacing-s) var(--hf-spacing-m);
+  border-bottom:var(--hf-border-xs) solid var(--hf-color-divider-default);
+  background:var(--hf-color-base-main-50);
+  color:var(--hf-color-text-semilight);
+}
+.hf-richtext-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:28px;height:28px;flex:none;
+  border:0;border-radius:var(--hf-radius-xs);background:none;
+  cursor:pointer;color:inherit;
+}
+.hf-richtext-btn svg{width:20px;height:20px;fill:none;stroke:currentColor}
+.hf-richtext-btn:hover{background:var(--hf-color-base-main-100);color:var(--hf-color-text-main)}
+.hf-richtext-area{min-height:96px;padding:12px 15px;font-size:var(--hf-font-size-xs);line-height:24px}
+.hf-richtext-area:focus{outline:none}
+.hf-richtext-area p{margin:0 0 var(--hf-spacing-m)}
+.hf-richtext-area p:last-child{margin-bottom:0}
+.hf-richtext-foot{
+  padding:var(--hf-spacing-m) var(--hf-spacing-l);
+  border-top:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+
+/* ── Модалка: две колонки с разделителем, как в оригинале ────── */
+.hf-modal-head-actions{display:flex;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-s)}
+.hf-modal-cols{
+  display:grid;grid-template-columns:272px 1fr;gap:var(--hf-spacing-3xl);
+  padding:var(--hf-spacing-xxl) 0;
+  border-top:var(--hf-border-xs) solid var(--hf-color-divider-default);
+  border-bottom:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.hf-modal-cols .hf-modal-col:first-child{
+  padding-right:var(--hf-spacing-3xl);
+  border-right:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.hf-modal{width:764px}
+.hf-modal-head{align-items:flex-start}
+.hf-icon-btn--dark{color:var(--hf-color-text-semilight)}
+.hf-icon-btn--dark:hover{background:var(--hf-color-base-main-100);color:var(--hf-color-text-main)}
+
+/* ── Первый шаг заявки: узкая модалка с двумя вариантами ────── */
+.hf-modal--narrow{width:var(--hf-size-popup-width-default)}
+.hf-modal--narrow .hf-modal-body{min-height:0}
+.hf-radios{display:grid;gap:var(--hf-spacing-s)}
+.hf-radio{display:flex;align-items:center;gap:var(--hf-spacing-s);cursor:pointer;line-height:20px}
+.hf-radio input{width:16px;height:16px;flex:none;margin:0;accent-color:var(--hf-color-text-main)}
+
+/* У заявки колонки распределены наоборот, чем у кандидата и вакансии:
+   широкая слева, узкая справа, и разделителя между ними нет */
+.hf-modal-cols--request{grid-template-columns:442px 226px;gap:72px}
+.hf-modal-cols--request .hf-modal-col:first-child{padding-right:0;border-right:0}
+
+/* Блок согласования в правой колонке заявки: он не поле, а отдельная
+   часть формы — от него зависит, уйдёт заявка людям или нет */
+.hf-modal-block{margin-top:var(--hf-spacing-4xl)}
+.hf-modal-block .hf-label{margin-bottom:var(--hf-spacing-s)}
+
+/* ── Заявки в сайдбаре ────────────────────────────────────────
+   Строка заявки повторяет строку вакансии: заявка занимает место
+   вакансии ещё до того, как вакансия существует. Отличие одно —
+   цветной кружок состояния слева */
+.hf-requests-head{cursor:default}
+.hf-requests-toggle{
+  margin-left:auto;flex:none;
+  font-size:var(--hf-font-size-xs);line-height:20px;
+  color:var(--hf-color-base-main-500);
+}
+.hf-request{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);width:100%;
+  padding:var(--hf-spacing-s) var(--hf-spacing-m);
+  border:0;background:none;font:inherit;text-align:left;cursor:pointer;
+  border-radius:var(--hf-radius-s);color:var(--hf-color-base-white-900);
+}
+.hf-request:hover{background:rgba(255,255,255,.08)}
+.hf-request:focus-visible{outline:2px solid var(--hf-color-base-white-900);outline-offset:-2px}
+.hf-request-dot{width:8px;height:8px;flex:none;border-radius:50%}
+.hf-request-dot.is-pending{background:#ff9500}
+.hf-request-dot.is-hr{background:#00b84e}
+.hf-request-dot.is-rejected{background:var(--hf-color-base-red-500)}
+.hf-request-text{display:flex;flex-direction:column;min-width:0}
+.hf-request-title{
+  font-size:var(--hf-font-size-xs);line-height:20px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.hf-request-note{
+  font-size:var(--hf-font-size-3xs);line-height:18px;
+  color:var(--hf-color-base-main-500);
+}
+.hf-request--group .hf-request-title{font-weight:var(--hf-font-weight-medium)}
+
+/* ── Карточка поданной заявки ─────────────────────────────────
+   Заявку не редактируют, а читают: поля показаны строками,
+   а не полями ввода */
+.hf-fact{margin:0 0 var(--hf-spacing-l);line-height:22px}
+.hf-fact b{font-weight:var(--hf-font-weight-medium)}
+
+/* Лента решений: не поля, а история. Цвет несёт смысл */
+.hf-trail{
+  margin-top:var(--hf-spacing-xl);padding-top:var(--hf-spacing-xl);
+  border-top:var(--hf-border-xs) solid var(--hf-color-divider-default);
+  display:grid;gap:var(--hf-spacing-xl);
+}
+.hf-trail-title{
+  margin:0;font-size:var(--hf-font-size-4xs);line-height:16px;
+  text-transform:uppercase;letter-spacing:.04em;
+  color:var(--hf-color-text-semilight);
+}
+.hf-trail-who{margin:var(--hf-spacing-xs) 0 0;font-weight:var(--hf-font-weight-medium);line-height:22px}
+.hf-trail-note{margin:var(--hf-spacing-xs) 0 0;font-size:var(--hf-font-size-xs);line-height:22px}
+.hf-trail-step.is-pending .hf-trail-title,
+.hf-trail-step.is-pending .hf-trail-who{color:#c97a00}
+.hf-trail-step.is-ok .hf-trail-title,
+.hf-trail-step.is-ok .hf-trail-who,
+.hf-trail-step.is-ok .hf-trail-note{color:#1a8c46}
+.hf-trail-step.is-no .hf-trail-title,
+.hf-trail-step.is-no .hf-trail-who,
+.hf-trail-step.is-no .hf-trail-note{color:var(--hf-color-base-red-500)}
+
+/* Опасное действие отжимается к правому краю подвала */
+.hf-push{margin-left:auto}
+
+/* Карточка заявки в очереди согласований. Этим же виджетом
+   выбирают прошлую заявку, когда копируют её текст */
+.hf-request-card{display:grid;gap:var(--hf-spacing-m);justify-items:start}
+.hf-request-card-title{
+  font-size:var(--hf-font-size-m);line-height:26px;
+  font-weight:var(--hf-font-weight-medium);
+}
+.hf-request-card-meta{display:grid;grid-template-columns:auto 1fr;gap:var(--hf-spacing-xs) var(--hf-spacing-s);margin:0}
+.hf-request-card-meta dt{font-weight:var(--hf-font-weight-medium)}
+.hf-request-card-meta dd{margin:0}

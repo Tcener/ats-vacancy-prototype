@@ -1,0 +1,61 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/dashboard.md
+     В Хантфлоу у него нет своего адреса: это первая вкладка на /applicants,
+     рядом с этапами. Здесь разведён отдельным файлом — содержимое общего
+     с «Всеми кандидатами» только полоса вкладок. -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Картина дня — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="screens.css">
+<link rel="stylesheet" href="dashboard-portfolio.css?v=20260907-6">
+<script src="icons.js" defer></script>
+<script src="shell.js?v=20260907-6" defer></script>
+<script src="dashboard.js" defer></script>
+<script src="dashboard-portfolio.js?v=20260907-6" defer></script>
+<script src="dashboard-day.js?v=20260907-6" defer></script>
+</head>
+<body>
+
+<div class="hf-app" data-od-id="app-dashboard">
+
+  <header class="hf-header" id="hf-header" data-od-id="app-header"></header>
+
+  <div class="hf-canvas">
+
+    <aside class="hf-sidebar" id="hf-sidebar" data-od-id="app-sidebar"></aside>
+
+    <main class="hf-main">
+
+      <!-- Та же полоса вкладок, что у «Всех кандидатов»: ракета — эта
+           страница, дальше идут этапы и уводят на список кандидатов -->
+      <div class="hf-tabflow" data-od-id="stage-tabs">
+        <div class="hf-island hf-tabflow-lead">
+          <a class="ap-tab is-active" href="dashboard.html" aria-label="Картина дня"><span class="ap-tab-in"><svg style="width:21px;height:21px;fill:currentColor"><use href="#rocket"></use></svg></span></a>
+        </div>
+        <div class="hf-island ap-tabflow-scroll">
+          <div class="ap-tabs-row" id="stage-tabs-row"></div>
+        </div>
+        <div class="hf-island" style="width:52px;height:52px">
+          <button class="hf-icon-btn" style="width:52px;height:52px;color:var(--hf-color-text-main);border-radius:16px" type="button" aria-label="Настройка списка">
+            <svg style="width:24px;height:24px"><use href="#options-2-24"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="kd-sheet" data-od-id="dashboard-sheet">
+        <div id="dashboard-screen"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

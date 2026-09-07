@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/calendar.md
+     Один-единственный вид — сетка месяца. Ни недели, ни дня, ни списка
+     в Хантфлоу нет; то, что не влезло в ячейку, показывает карточка дня. -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Календарь — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="screens.css">
+<script src="icons.js" defer></script>
+<script src="shell.js" defer></script>
+<script src="calendar.js" defer></script>
+</head>
+<body>
+
+<div class="hf-app" data-od-id="app-calendar">
+
+  <header class="hf-header" id="hf-header" data-od-id="app-header"></header>
+
+  <div class="hf-canvas">
+
+    <!-- Сайдбар со списком вакансий на календаре остаётся на месте -->
+    <aside class="hf-sidebar" id="hf-sidebar" data-od-id="app-sidebar"></aside>
+
+    <main class="hf-main">
+      <div class="cl-screen" id="calendar-screen"></div>
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

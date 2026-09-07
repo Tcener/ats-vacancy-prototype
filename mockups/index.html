@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Макеты ATS — обзор экранов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;padding:40px;
+  background:var(--hf-color-pagetemplate-background);
+  color:var(--hf-color-text-main);
+  font-family:var(--hf-font-family-body);font-size:var(--hf-font-size-xs);line-height:24px;
+  -webkit-font-smoothing:antialiased;
+}
+h1{margin:0 0 8px;font-size:30px;line-height:40px;font-weight:500}
+.lede{margin:0 0 40px;max-width:70ch;color:var(--hf-color-text-secondary)}
+h2{
+  margin:48px 0 16px;font-size:20px;line-height:28px;font-weight:500;
+  padding-bottom:8px;border-bottom:1px solid var(--hf-color-divider-default);
+}
+h2:first-of-type{margin-top:0}
+.board{display:flex;flex-wrap:wrap;gap:32px}
+.frame{width:480px}
+.frame-head{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.frame-title{font-weight:500}
+.frame-note{color:var(--hf-color-text-semilight);font-size:var(--hf-font-size-xxs)}
+.frame-view{
+  position:relative;width:480px;height:300px;overflow:hidden;
+  border-radius:12px;background:#fff;
+  box-shadow:0 1px 3px rgba(5,5,5,.1),0 8px 24px rgba(5,5,5,.06);
+}
+.frame-view iframe{
+  position:absolute;top:0;left:0;
+  width:1440px;height:900px;border:0;
+  transform:scale(.3333);transform-origin:0 0;
+}
+/* Прозрачный слой поверх: клик открывает экран целиком,
+   а не проваливается в уменьшенную копию */
+.frame-view a{position:absolute;inset:0;z-index:2}
+.frame-view a:focus-visible{outline:3px solid var(--hf-color-base-cyan-500);outline-offset:2px}
+.legend{margin-top:48px;color:var(--hf-color-text-secondary);max-width:70ch}
+.legend code{
+  padding:2px 6px;border-radius:4px;
+  background:var(--hf-color-base-main-200);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<h1>Макеты ATS</h1>
+<p class="lede">Экраны перенесены с референсного Хантфлоу: размеры, цвета и шрифты сняты
+со стилей боевого приложения, а не подобраны на глаз. Данные вымышленные. Клик по кадру
+открывает экран в полный размер.</p>
+
+<h2>Картина дня</h2>
+<div class="board" id="board-dashboard"></div>
+
+<h2>Кандидаты</h2>
+<div class="board" id="board-applicants"></div>
+
+<h2>Поиск</h2>
+<div class="board" id="board-search"></div>
+
+<h2>Календарь</h2>
+<div class="board" id="board-calendar"></div>
+
+<h2>Вакансия</h2>
+<div class="board" id="board-vacancy"></div>
+
+<h2>Сведения о вакансии</h2>
+<div class="board" id="board-vacancy-info"></div>
+
+<h2>Заявка на подбор</h2>
+<div class="board" id="board-request"></div>
+
+<h2>Согласование заявки: страница вне приложения</h2>
+<div class="board" id="board-approval"></div>
+
+<h2>Настройки: корень</h2>
+<div class="board" id="board-settings-home"></div>
+
+<h2>Настройки: Шаблоны, оценка и анкеты</h2>
+<div class="board" id="board-settings-templates"></div>
+
+<h2>Настройки: Организация</h2>
+<div class="board" id="board-settings-org"></div>
+
+<h2>Настройки: Воронка</h2>
+<div class="board" id="board-settings"></div>
+
+<h2>Настройки: Рекрутеры и заказчики</h2>
+<div class="board" id="board-settings-users"></div>
+
+<h2>Настройки: Бизнес-процесс</h2>
+<div class="board" id="board-settings-business"></div>
+
+<h2>Настройки: Сбор откликов</h2>
+<div class="board" id="board-settings-response"></div>
+
+<h2>Настройки: API и вебхуки</h2>
+<div class="board" id="board-settings-api"></div>
+
+<h2>Настройки: Темы оформления</h2>
+<div class="board" id="board-settings-themes"></div>
+
+<h2>Настройки: «Мой Хантфлоу» — пять личных разделов</h2>
+<div class="board" id="board-settings-my"></div>
+
+<p class="legend">Каждый кадр — это тот же самый файл экрана, открытый по своему адресу.
+Состояние задаётся хешем: <code>applicants.html#c5</code> открывает конкретного кандидата,
+<code>applicants.html#new-candidate</code> — модалку создания. Поэтому доска показывает
+разные состояния, не заводя копий файла.</p>
+
+<script>
+const FRAMES = {
+  'board-dashboard': [
+    ['Картина дня · Собессо', 'план дня, задачи, встречи и портфель на всю ширину', 'dashboard.html'],
+    ['Мои задачи · Собессо', 'личная очередь, сроки, завершение и количественные цели', 'dashboard.html#m=tasks'],
+    ['Встречи сегодня · Собессо', 'пять интервью, время, участники и видеосвязь', 'dashboard.html#m=meetings'],
+    ['Столбцы портфеля · адаптация', 'видимость и порядок столбцов', 'dashboard.html#m=columns'],
+    ['Картина дня · оригинал', 'исходный экран Хантфлоу для сравнения', 'dashboard.html#view=reference'],
+    ['Разрез по вакансиям', 'группы — подразделения, а не люди', 'dashboard.html#view=reference&g=vacancies'],
+    ['Выбор разреза', 'разрезов ровно два', 'dashboard.html#view=reference&m=cut'],
+    ['Фильтр рекрутеров', 'токены API стоят в списке людей', 'dashboard.html#view=reference&m=filter'],
+    ['Фильтр подразделений', 'поиск и «Скрыть архивные»', 'dashboard.html#view=reference&g=vacancies&m=filter'],
+  ],
+  'board-applicants': [
+    ['Все кандидаты', 'список и карточка', 'applicants.html'],
+    ['Кандидат на этапе интервью', 'выбран другой кандидат', 'applicants.html#c5'],
+    ['Новый кандидат', 'модалка создания', 'applicants.html#new-candidate'],
+  ],
+  'board-search': [
+    ['Поиск кандидатов', 'запроса нет — выдачи тоже', 'search.html'],
+    ['Найденные кандидаты', 'строка выдачи — резюме, а не участие в подборе', 'search.html#q=%D0%B0%D0%BD%D0%B0%D0%BB%D0%B8%D1%82%D0%B8%D0%BA'],
+    ['Кандидат из выдачи', 'та же карточка, что в списке всех кандидатов', 'search.html#q=%D0%B0%D0%BD%D0%B0%D0%BB%D0%B8%D1%82%D0%B8%D0%BA&c=c1'],
+    ['Область поиска', 'как соединять слова и где искать', 'search.html#m=scope'],
+    ['Фильтры', 'кто добавил, когда, откуда, статус ПД', 'search.html#m=filters'],
+    ['Статусы ПД', 'согласие на хранение — состояние кандидата', 'search.html#m=filters&mm=pd'],
+    ['Метки', 'плоский список с цветами', 'search.html#m=tags'],
+    ['Этап подбора', 'набор этапов плюс «был» или «сейчас»', 'search.html#m=vacancies&mm=stages'],
+    ['Доп. инфо не настроено', 'вместо фильтра — предложение его завести', 'search.html#m=extra'],
+    ['Настройка списков кандидатов', 'девять полей строки и охват этапов', 'search.html#q=%D0%B0%D0%BD%D0%B0%D0%BB%D0%B8%D1%82%D0%B8%D0%BA&settings=1'],
+    ['Закрытые вакансии', 'не раздел, а поиск с фильтром', 'search.html#s=vacancies&state=closed'],
+    ['Вакансии на паузе', 'иконка вместо бейджа, название серое', 'search.html#s=vacancies&state=hold'],
+    ['Фильтры вакансий', 'подразделение и период работы', 'search.html#s=vacancies&state=closed&m=vacfilters'],
+    ['Сортировка выдачи', 'четыре порядка, по умолчанию по соответствию', 'search.html#s=vacancies&state=closed&m=sort'],
+  ],
+  'board-calendar': [
+    ['Месяц с событиями', 'единственный вид календаря — сетки недели и дня нет', 'calendar.html'],
+    ['Пустой месяц', 'заголовков дней недели нет вовсе, только числа', 'calendar.html#y=2026&m=11'],
+    ['Карточка события', 'приглашены сотрудники, кандидат — по ссылке', 'calendar.html#e=2026-09-05:1'],
+    ['День целиком', '«Еще 2» — единственный способ увидеть весь день', 'calendar.html#more=2026-09-03'],
+    ['Отменённое событие', 'из сетки не исчезает, а зачёркивается', 'calendar.html#e=2026-09-25:0'],
+    ['Календари', 'под шестернёй — источники, свой пока один', 'calendar.html#menu=sources'],
+  ],
+  'board-vacancy': [
+    ['Вакансия — в работе', 'широкий список', 'vacancy.html#v=fullstack-node'],
+    ['Вакансия — этап «Новые»', 'список и карточка', 'vacancy.html#v=fullstack-node&stage=%D0%9D%D0%BE%D0%B2%D1%8B%D0%B5'],
+    ['Новая вакансия', 'модалка создания', 'vacancy.html#new-vacancy'],
+  ],
+  'board-vacancy-info': [
+    ['Сведения о вакансии', 'ответственные, даты, статистика', 'vacancy-info.html#v=fullstack-node'],
+    ['Публикация на джоб-сайтах', 'семь площадок, карьерный сайт в общем ряду', 'vacancy-info.html#v=fullstack-node&d=publish'],
+    ['Площадка не подключена', 'вместо формы — реклама', 'vacancy-info.html#v=fullstack-node&d=publish&promo=6'],
+    ['Прикрепить опубликованную', 'без подключений выбирать не из чего', 'vacancy-info.html#v=fullstack-node&d=attach'],
+  ],
+  'board-request': [
+    ['Заявка: с чего начать', 'новая или текст из прошлой', 'applicants.html#new-request'],
+    ['Форма заявки', 'поля задаются в настройках формы', 'applicants.html#new-request-form'],
+    ['Форма с согласованием', 'согласующих вписывают почтой', 'applicants.html#new-request-approval'],
+    ['Заявки в сайдбаре', 'три состояния, экрана у заявки нет', 'applicants.html'],
+    ['Заявок нет', 'пока не завели или уже стали вакансиями', 'applicants.html#requests=none'],
+    ['Очередь согласований', 'карточка со ссылкой на решение', 'applicants.html#request-queue'],
+    ['Заявка на согласовании', 'ждёт решения, править нельзя', 'applicants.html#request-pending'],
+    ['Заявка передана в HR', 'согласована, можно брать в работу', 'applicants.html#request-hr'],
+    ['Заявка отклонена', 'только отправить повторно, без правок', 'applicants.html#request-rejected'],
+  ],
+  'board-approval': [
+    ['Согласование по ссылке', 'без входа в систему', 'request-approval.html'],
+    ['Подтверждение решения', 'второй клик — вся защита', 'request-approval.html#confirm'],
+    ['Согласовано', 'итог, передумать нельзя', 'request-approval.html#approved'],
+    ['Отклонено', 'комментарий уходит заказчику', 'request-approval.html#rejected'],
+  ],
+  'board-settings-home': [
+    ['Все разделы настроек', 'единственный переход между разделами', 'settings.html#s=home'],
+  ],
+  'board-settings-templates': [
+    ['Шаблоны писем', 'подпись, общие и личные шаблоны', 'settings.html#s=templates&t=mail'],
+    ['Редактор письма', 'переменные, видимость, автор', 'settings.html#s=templates&t=mail&d=mail-template'],
+    ['SMS', 'нужен договор с оператором', 'settings.html#s=templates&t=sms'],
+    ['Анкеты на младшем тарифе', 'вместо настроек — реклама', 'settings.html#s=templates&t=surveys&v=locked'],
+    ['Анкеты кандидатам', 'список анкет и тестовых заданий', 'settings.html#s=templates&t=surveys'],
+    ['Конструктор анкеты', 'два названия, варианты ответа', 'settings.html#s=templates&t=surveys&d=survey-q'],
+    ['Формы обратной связи', 'список форм', 'settings.html#s=templates&t=feedback'],
+    ['Конструктор формы', 'вопрос и шесть его типов', 'settings.html#s=templates&t=feedback&d=survey'],
+    ['Оценка рекрутмента выключена', 'рубильник на всю организацию', 'settings.html#s=templates&t=rating'],
+    ['Оценка рекрутмента включена', 'письмо заказчику уходит', 'settings.html#s=templates&t=rating&v=on'],
+    ['Форма оценки', 'первое поле системное', 'settings.html#s=templates&t=rating&d=rating-form'],
+  ],
+  'board-settings-org': [
+    ['О компании', 'название, часовой пояс, домены', 'settings.html#s=org&t=company'],
+    ['Оргструктура', 'подразделения — обычный справочник', 'settings.html#s=org&t=structure'],
+    ['Безопасность', 'двухфакторка и суточные лимиты', 'settings.html#s=org&t=security'],
+    ['Безопасность на младшем тарифе', 'вместо настроек — реклама', 'settings.html#s=org&t=security&v=locked'],
+    ['Редактор лимита', 'сначала «есть», потом число', 'settings.html#s=org&t=security&d=limit'],
+    ['Уведомления', 'личные, а не общекомпанейские', 'settings.html#s=org&t=notifications'],
+    ['Интеграции', 'одна карточка', 'settings.html#s=org&t=integrations'],
+  ],
+  'board-settings': [
+    ['Этапы подбора', 'список этапов, этап найма заперт', 'settings.html#s=funnel&t=stages'],
+    ['Наборы этапов', 'воронки под разные вакансии', 'settings.html#s=funnel&t=groups'],
+    ['Время на этапе', 'ограничение SLA по этапам', 'settings.html#s=funnel&t=time'],
+    ['Причины отказа', 'справочник с папками', 'settings.html#s=funnel&t=reasons'],
+  ],
+  'board-settings-users': [
+    ['Рекрутеры', 'список и занятые рабочие места', 'settings.html#s=users&t=recruiters'],
+    ['Заказчики', 'тот же список, но без мест', 'settings.html#s=users&t=managers'],
+    ['Приглашение рекрутера', 'роль и десять прав', 'settings.html#s=users&t=recruiters&d=invite-recruiter'],
+    ['Отправленные приглашения', 'строка без действий', 'settings.html#s=users&t=recruiters&v=invites'],
+  ],
+  'board-settings-business': [
+    ['Заявки на подбор', 'две формы, у второй согласование', 'settings.html#s=business&t=requests'],
+    ['Доп. поля кандидата', 'системные и добавленные поля', 'settings.html#s=business&t=applicant-fields'],
+    ['Источники резюме', 'справочник с системными строками', 'settings.html#s=business&t=sources'],
+    ['Метки', 'справочник с цветом', 'settings.html#s=business&t=tags'],
+  ],
+  'board-settings-response': [
+    ['Карьерный сайт', 'раздел без подвкладок', 'settings.html#s=response'],
+    ['Сайт ещё не включён', 'реклама, адрес и одна кнопка', 'settings.html#s=response&mode=off'],
+  ],
+  'board-settings-api': [
+    ['API и вебхуки', 'два списка: токены и вебхуки', 'settings.html#s=api'],
+    ['Новый токен', 'спрашивают только название', 'settings.html#s=api&d=api-token'],
+    ['Ссылка на токен', 'ключ не показывают, дают ссылку на 3 дня', 'settings.html#s=api&d=api-token-link'],
+    ['Получение токена', 'страница вне приложения', 'token-request.html'],
+    ['Токены выданы', 'access и refresh, один раз', 'token-request.html#issued'],
+    ['Ссылка уже использована', 'повторно не открыть', 'token-request.html#used'],
+    ['Карточка вебхука', 'адрес, ключ, события, адресаты', 'settings.html#s=api&d=api-hook'],
+    ['События вебхука', 'семь семейств, подписка на семейство', 'settings.html#s=api&d=api-hook&events=1'],
+  ],
+  'board-settings-themes': [
+    ['Темы оформления', 'десять тем, настройка на всю компанию', 'settings.html#s=themes'],
+  ],
+  'board-settings-my': [
+    ['Профиль', 'две разных почты, сессии в браузерах', 'settings.html#s=profile'],
+    ['Почта и календарь', 'много почт, календарь один', 'settings.html#s=connections'],
+    ['Волшебная кнопка', 'третий путь резюме в базу', 'settings.html#s=magic'],
+    ['Джоб-сайты', 'аккаунты личные, публикация — общая', 'settings.html#s=social'],
+    ['Интеграции', 'вопреки названию — только видеосвязь', 'settings.html#s=integrations'],
+  ],
+};
+
+for (const [id, items] of Object.entries(FRAMES)) {
+  document.getElementById(id).innerHTML = items.map(([title, note, href]) => `
+    <div class="frame">
+      <div class="frame-head">
+        <span class="frame-title">${title}</span>
+        <span class="frame-note">${note}</span>
+      </div>
+      <div class="frame-view">
+        <a href="${href}" aria-label="Открыть: ${title}"></a>
+        <iframe src="${href}" title="${title}" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+      </div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>

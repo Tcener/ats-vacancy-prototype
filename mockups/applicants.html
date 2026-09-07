@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/applicants.md
+     Заявка на подбор заводится отсюда же, модалкой: docs/reference/screens/request.md -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Все кандидаты — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<script src="icons.js" defer></script>
+<script src="shell.js" defer></script>
+<link rel="stylesheet" href="screens.css">
+</head>
+<body>
+
+<div class="hf-app" data-od-id="app-applicants">
+
+  <header class="hf-header" id="hf-header" data-od-id="app-header"></header>
+
+  <div class="hf-canvas">
+
+    <aside class="hf-sidebar" id="hf-sidebar" data-od-id="app-sidebar"></aside>
+
+    <!-- ── Основная область ─────────────────────────────────── -->
+    <main class="hf-main">
+
+      <div class="hf-tabflow" data-od-id="stage-tabs">
+        <div class="hf-island hf-tabflow-lead">
+          <a class="ap-tab" href="dashboard.html" aria-label="Картина дня"><span class="ap-tab-in"><svg style="width:21px;height:21px;fill:currentColor"><use href="#rocket"></use></svg></span></a>
+        </div>
+        <div class="hf-island ap-tabflow-scroll">
+          <div class="ap-tabs-row" id="stage-tabs-row"></div>
+        </div>
+        <div class="hf-island" style="width:52px;height:52px">
+          <button class="hf-icon-btn" style="width:52px;height:52px;color:var(--hf-color-text-main);border-radius:16px" type="button" aria-label="Настройка списка">
+            <svg style="width:24px;height:24px"><use href="#options-2-24"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="ap-columns">
+        <div class="ap-list" id="candidate-list" data-od-id="candidate-list"></div>
+        <div class="ap-detail" data-od-id="candidate-detail">
+          <div class="ap-detail-inner" id="candidate-detail"></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script src="candidate.js" defer></script>
+<script src="applicants.js" defer></script>
+</body>
+</html>

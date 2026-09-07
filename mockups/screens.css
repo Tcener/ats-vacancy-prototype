@@ -1,0 +1,1922 @@
+/* ─────────────────────────────────────────────────────────────
+   Экраны: список кандидатов, панель кандидата, полоса этапов.
+   Общие для applicants.html и vacancy.html — устроены одинаково,
+   потому что в Хантфлоу это буквально одни и те же компоненты.
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Экран «Все кандидаты»: список слева, карточка справа ────── */
+.ap-columns{flex:1;min-height:0;display:flex;gap:var(--layout-offset)}
+
+/* Колонка списка: остров 326px, карточки 310px */
+.ap-list{
+  flex:none;width:326px;
+  background:var(--hf-color-island-background);
+  border-radius:var(--hf-radius-l);
+  padding:var(--hf-spacing-s);
+  overflow-y:auto;
+}
+.ap-card{
+  position:relative;display:block;
+  width:310px;min-height:120px;padding:16px;
+  border-radius:var(--hf-radius-m);
+  text-decoration:none;color:inherit;cursor:pointer;
+  transition:background .12s ease;
+}
+.ap-card:hover{background:var(--hf-color-base-main-alpha-100)}
+.ap-card.is-active{background:rgba(0,0,0,.07)}
+.ap-card-photo{
+  position:absolute;left:16px;top:16px;
+  width:56px;height:56px;border-radius:var(--hf-radius-10xl);
+  overflow:hidden;background:var(--hf-color-base-main-100);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--hf-color-text-light);font-size:var(--hf-font-size-xxs);font-weight:var(--hf-font-weight-medium);
+}
+.ap-card-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.ap-card-body{display:block;margin-left:69px}
+.ap-card-body > span{display:block}
+/* тег обнимает текст, а не тянется на всю ширину карточки */
+.ap-card-body > span.ap-card-tag{display:inline-block}
+.ap-card-name{
+  font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ap-card-info{
+  font-size:var(--hf-font-size-xxs);line-height:20px;color:rgba(0,0,0,.6);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.ap-card-tag{
+  display:inline-block;margin-top:2px;padding:0 8px;
+  border:1px solid var(--hf-color-base-green-500);border-radius:var(--hf-radius-xs);
+  color:var(--hf-color-base-green-500);
+  font-size:var(--hf-font-size-xxs);line-height:20px;
+}
+
+/* Карточка кандидата справа */
+.ap-detail{
+  flex:1;min-width:0;
+  background:var(--hf-color-island-background);
+  border-radius:var(--hf-radius-l);
+  overflow-y:auto;
+}
+.ap-detail-inner{padding:var(--hf-spacing-xxl);max-width:817px}
+
+.ap-banner{
+  display:flex;align-items:center;justify-content:center;gap:var(--hf-spacing-l);
+  height:52px;margin-bottom:var(--hf-spacing-l);
+  padding:0 var(--hf-spacing-l);
+  border-radius:var(--hf-radius-m);
+  background:#F5A623;color:var(--hf-color-text-invert);
+  font-size:var(--hf-font-size-s);font-weight:var(--hf-font-weight-medium);
+}
+.ap-banner .hf-btn{font-weight:var(--hf-font-weight-medium)}
+
+.ap-actions{display:flex;flex-wrap:wrap;gap:var(--hf-spacing-s);padding-bottom:var(--hf-spacing-l)}
+/* Кнопки Хантфлоу: белые с бледной рамкой #ebebeb, а не серые заливки */
+.ap-btn{
+  display:inline-flex;align-items:center;gap:var(--hf-spacing-s);
+  height:36px;padding:0 12px;
+  border:1px solid #ebebeb;border-radius:var(--hf-radius-s);
+  background:var(--hf-color-base-white-900);color:var(--hf-color-text-main);
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;
+  cursor:pointer;white-space:nowrap;
+  transition:background .12s ease,border-color .12s ease;
+}
+.ap-btn:hover{background:var(--hf-color-base-main-100);border-color:var(--hf-color-base-main-300)}
+.ap-btn:active{background:var(--hf-color-base-main-200)}
+.ap-btn svg{width:20px;height:20px;fill:currentColor;flex:none;color:var(--hf-color-text-semilight)}
+.ap-btn--s{height:32px;font-size:var(--hf-font-size-xxs);line-height:20px;font-weight:var(--hf-font-weight-medium)}
+
+.ap-head{display:flex;gap:32px;padding-bottom:var(--hf-spacing-xl)}
+.ap-head-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--hf-spacing-l)}
+.ap-name{margin:0;font-size:30px;line-height:40px;font-weight:var(--hf-font-weight-medium)}
+.ap-position{font-size:var(--hf-font-size-s);line-height:24px}
+.ap-photo{flex:none;width:200px;height:200px;border-radius:var(--hf-radius-l);overflow:hidden;background:var(--hf-color-base-main-100)}
+.ap-photo img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* Контакты: подпись — точечная выноска — значение */
+.ap-contacts{display:grid;grid-template-columns:97px 1fr;row-gap:var(--hf-spacing-s);margin:0}
+.ap-contacts dt{
+  color:rgba(5,5,5,.53);font-size:var(--hf-font-size-xs);line-height:24px;
+  padding-right:var(--hf-spacing-xxl);
+  background-image:radial-gradient(circle,rgba(5,5,5,.28) 1px,transparent 1px);
+  background-position:left bottom 6px;background-size:4px 4px;background-repeat:repeat-x;
+}
+.ap-contacts dt span{background:var(--hf-color-island-background);padding-right:var(--hf-spacing-xs)}
+.ap-contacts dd{margin:0;font-size:var(--hf-font-size-xs);line-height:24px}
+.ap-messengers{display:inline-flex;gap:var(--hf-spacing-xs);margin-left:var(--hf-spacing-s);vertical-align:middle}
+.ap-messengers i{width:20px;height:20px;border-radius:var(--hf-radius-10xl);display:inline-block}
+.ap-tag-add{
+  padding:2px 8px;border-radius:var(--hf-radius-xs);
+  background:var(--hf-color-base-main-100);color:var(--hf-color-text-semilight);
+  font-size:var(--hf-font-size-xxs);cursor:pointer;
+}
+
+/* Блок этапа подбора */
+.ap-stage{
+  border-left:4px solid var(--hf-color-base-green-500);
+  border-radius:var(--hf-radius-l);
+  background:#FFFDEC;
+  margin-bottom:30px;
+}
+.ap-stage-head{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:var(--hf-spacing-l);
+  padding:var(--hf-spacing-xxl) var(--hf-spacing-xxl) 0;
+}
+.ap-stage-name{margin:0;font-size:var(--hf-font-size-2xl);line-height:28px;font-weight:var(--hf-font-weight-medium);color:var(--hf-color-base-green-500)}
+.ap-stage-vacancy{color:var(--hf-color-base-green-500);font-size:var(--hf-font-size-s);line-height:24px}
+.ap-stage-body{padding:var(--hf-spacing-xxl) var(--hf-spacing-xxl) var(--hf-spacing-s)}
+.ap-comment{
+  width:100%;min-height:64px;padding:12px 16px;resize:vertical;
+  border:1px solid var(--hf-color-input-border-default);border-radius:var(--hf-radius-m);
+  background:var(--hf-color-base-white-900);
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;
+}
+.ap-comment::placeholder{color:var(--hf-color-input-text-placeholder)}
+.ap-comment:focus{outline:none;border-color:var(--hf-color-input-border-focus);box-shadow:0 0 0 3px var(--hf-color-input-border-focus-visible)}
+.ap-quick{display:flex;flex-wrap:wrap;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-m)}
+
+.ap-log{padding:0 var(--hf-spacing-xxl) var(--hf-spacing-xxl)}
+.ap-log-filter{margin-bottom:var(--hf-spacing-l)}
+.ap-event{display:flex;gap:var(--hf-spacing-m);padding-bottom:var(--hf-spacing-l)}
+.ap-event-line{position:relative;flex:none;width:44px}
+.ap-event-line::before{
+  content:"";position:absolute;left:21px;top:44px;bottom:-16px;
+  width:1px;background:var(--hf-color-base-main-300);
+}
+.ap-event:last-child .ap-event-line::before{display:none}
+.ap-event-meta{display:flex;align-items:center;gap:var(--hf-spacing-s);font-size:var(--hf-font-size-xxs);line-height:20px}
+.ap-event-author{font-weight:var(--hf-font-weight-medium)}
+.ap-event-date{color:var(--hf-color-text-semilight)}
+.ap-event-text{font-size:var(--hf-font-size-xs);line-height:24px}
+
+/* Вкладки «Личные заметки / Резюме» */
+.ap-subtabs{display:flex;align-items:center;gap:var(--hf-spacing-xxl);padding-bottom:4px;border-bottom:1px solid var(--hf-color-base-main-300);margin-bottom:var(--hf-spacing-xl)}
+.ap-subtab{
+  position:relative;padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-text-semilight);
+  transition:color .12s ease;
+}
+.ap-subtab:hover{color:var(--hf-color-text-main)}
+.ap-subtab.is-active{color:var(--hf-color-text-main)}
+.ap-subtab.is-active::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:2px;background:var(--hf-color-base-main-900)}
+.ap-panel{border:1px solid rgba(0,0,0,.1);border-radius:var(--hf-radius-l)}
+.ap-panel-head{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--hf-spacing-l);
+  padding:var(--hf-spacing-xxl);background:var(--hf-color-base-main-50);
+  border-radius:var(--hf-radius-l) var(--hf-radius-l) 0 0;
+}
+.ap-panel-body{padding:36px 100px var(--hf-spacing-4xl)}
+.ap-resume h4{margin:var(--hf-spacing-xxl) 0 var(--hf-spacing-s);font-size:var(--hf-font-size-xxs);letter-spacing:.04em;color:var(--hf-color-text-semilight)}
+.ap-resume h4:first-child{margin-top:0}
+.ap-resume p{margin:0 0 var(--hf-spacing-m);font-size:var(--hf-font-size-xs);line-height:24px}
+
+/* Полоса вкладок-этапов */
+.ap-tab{position:relative;display:flex;align-items:center;height:52px;text-decoration:none;color:var(--hf-color-text-main);font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium);white-space:nowrap;cursor:pointer;background:none;border:0;font-family:inherit}
+.ap-tab-in{display:flex;align-items:center;gap:var(--hf-spacing-s);height:52px}
+.ap-tab-count{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:2px 6px;border-radius:56px;
+  background:var(--hf-color-base-main-100);color:var(--hf-color-base-main-600);
+  font-size:var(--hf-font-size-3xs);line-height:16px;font-weight:var(--hf-font-weight-medium);
+  font-variant-numeric:tabular-nums;
+}
+.ap-tab:hover{color:var(--hf-color-base-main-750)}
+.ap-tab.is-active{color:var(--hf-color-base-cyan-500)}
+.ap-tab.is-active .ap-tab-count{background:var(--hf-color-base-cyan-500);color:var(--hf-color-base-white-900)}
+.ap-tab.is-active .ap-tab-in::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;border-radius:4px 4px 0 0;background:var(--hf-color-base-cyan-500)}
+.ap-tabs-row{display:flex;align-items:center;gap:32px;padding:0 var(--hf-spacing-xxl);height:52px}
+.ap-tabflow-scroll{flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
+.ap-tabflow-scroll::-webkit-scrollbar{display:none}
+
+/* ── Экран вакансии: широкий список кандидатов ────────────────
+   На вкладке «В работе» список занимает всю ширину: слева блок
+   кандидата 350px, справа — лог последнего действия по нему.     */
+.vc-list{
+  flex:1;min-height:0;overflow-y:auto;
+  background:var(--hf-color-island-background);
+  border-radius:var(--hf-radius-l);
+  padding:var(--hf-spacing-s);
+}
+.vc-row{
+  position:relative;display:flex;gap:0;
+  min-height:100px;border-radius:var(--hf-radius-m);
+  text-decoration:none;color:inherit;cursor:pointer;
+  transition:background .12s ease;
+}
+.vc-row:hover{background:var(--hf-color-base-main-alpha-100)}
+.vc-row.is-unread::before{
+  content:"";position:absolute;left:7px;top:28px;
+  width:6px;height:6px;border-radius:var(--hf-radius-10xl);
+  background:var(--hf-color-base-cyan-500);
+}
+.vc-row-card{flex:none;width:350px;padding:16px;position:relative}
+.vc-row-photo{
+  position:absolute;left:16px;top:16px;
+  width:56px;height:56px;border-radius:var(--hf-radius-10xl);
+  background:var(--hf-color-base-main-100);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--hf-color-text-light);font-size:var(--hf-font-size-xxs);font-weight:var(--hf-font-weight-medium);
+}
+.vc-row-body{display:block;margin-left:69px}
+.vc-row-body > span,
+.vc-row-log > span{display:block}
+.vc-row-body > span.vc-tags{display:flex}
+.vc-row-log > span.vc-log-meta{display:flex}
+.vc-row-name{font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vc-row-info{font-size:var(--hf-font-size-xxs);line-height:20px;color:rgba(0,0,0,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vc-tags{display:flex;gap:var(--hf-spacing-xs);margin-top:var(--hf-spacing-xs)}
+.vc-tag{
+  display:inline-flex;align-items:center;padding:0 8px;
+  border:0;border-radius:var(--hf-radius-xs);
+  font-family:inherit;font-size:var(--hf-font-size-xxs);line-height:20px;
+  background:#6b53d5;color:var(--hf-color-base-white-900);
+}
+.vc-row-log{flex:1;min-width:0;padding:16px 16px 16px 0}
+.vc-log-title{font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.vc-log-text{font-size:var(--hf-font-size-xxs);line-height:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vc-log-text a{color:var(--hf-color-link-default);text-decoration:none}
+.vc-log-text a:hover{color:var(--hf-color-link-hover)}
+.vc-log-meta{font-size:var(--hf-font-size-xxs);line-height:20px;color:#7c7c7c;display:flex;gap:var(--hf-spacing-s)}
+
+/* Значок «AI» в левом островке полосы этапов */
+.vc-ai{
+  width:32px;height:32px;flex:none;border-radius:var(--hf-radius-10xl);
+  background:var(--hf-color-base-main-900);color:var(--hf-color-base-cyan-500);
+  display:flex;align-items:center;justify-content:center;
+  font-size:var(--hf-font-size-3xs);font-weight:var(--hf-font-weight-medium);
+}
+
+/* Заголовок вакансии в шапке приложения */
+.hf-header-title a{color:var(--hf-color-text-invert);text-decoration:underline;text-underline-offset:3px}
+.hf-header-title a:hover{color:var(--hf-color-base-cyan-400)}
+.hf-header-title .sep{color:var(--hf-color-base-white-alpha-600);margin-inline:var(--hf-spacing-s)}
+/* Возврат со сведений о вакансии к её кандидатам: стрелка не подчёркивается */
+.hf-header-title .hf-back{display:inline-flex;align-items:center;gap:var(--hf-spacing-xs);text-decoration:none;font-weight:var(--hf-font-weight-medium)}
+.hf-header-title .hf-back svg{width:20px;height:20px;fill:none;stroke:currentColor}
+.hf-header-title .hf-back span{text-decoration:underline;text-underline-offset:3px}
+
+/* ── Экран «Сведения о вакансии» ──────────────────────────────
+   Отдельный роут: те же шапка и сайдбар, но вместо списка
+   кандидатов — паспорт вакансии. Ширина колонок 449px и отступы
+   между блоками сняты с боевого экрана.                        */
+.vi-sheet{
+  flex:1;min-height:0;overflow-y:auto;
+  background:var(--hf-color-island-background);
+  border-radius:var(--hf-radius-l);
+  padding:var(--hf-spacing-xxl);
+}
+.vi-inner{max-width:1032px}
+
+.vi-title{margin:0;padding-bottom:var(--hf-spacing-xs);font-size:30px;line-height:40px;font-weight:var(--hf-font-weight-medium)}
+.vi-sub{margin:0;padding-top:var(--hf-spacing-xxs);font-size:var(--hf-font-size-xs);line-height:24px}
+/* Ссылка внутри строки: и счётчик найма, и «Информация о вакансии»
+   выглядят у Хантфлоу как ссылка, хотя открывают модалку */
+.vi-link{
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;
+  color:var(--hf-color-link-default);
+}
+.vi-link:hover{color:var(--hf-color-link-hover)}
+.vi-link:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:2px;border-radius:2px}
+
+/* Ряд действий: перенос по строкам, шаг 8px по горизонтали и 10px вниз */
+.vi-actions{display:flex;flex-wrap:wrap;gap:10px var(--hf-spacing-s);margin:var(--hf-spacing-xl) 0 0}
+
+/* Две колонки сведений */
+.vi-cols{display:flex;justify-content:space-between;gap:32px;margin-top:var(--hf-spacing-4xl)}
+.vi-col{flex:1;min-width:0;max-width:449px}
+.vi-block + .vi-block{margin-top:var(--hf-spacing-xxl)}
+.vi-block-title{margin:0;padding-bottom:var(--hf-spacing-m);font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+
+.vi-people{list-style:none;margin:0;padding:0;display:grid;gap:var(--hf-spacing-l)}
+.vi-person{display:flex;align-items:center;gap:var(--hf-spacing-s);min-height:28px;font-size:var(--hf-font-size-xs);line-height:24px}
+.vi-person .hf-avatar{width:28px;height:28px}
+.vi-people .hf-avatar svg,.vi-event-by .hf-avatar svg{fill:currentColor}
+.vi-person-role{color:var(--hf-color-text-semilight)}
+
+/* «Добавить» под каждым списком людей — ссылка с плюсом, а не кнопка */
+.vi-add{
+  display:inline-flex;align-items:center;gap:var(--hf-spacing-xs);
+  margin-top:var(--hf-spacing-m);padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xxs);line-height:20px;
+  color:var(--hf-color-base-cyan-600);
+}
+.vi-add svg{width:16px;height:16px;fill:currentColor}
+.vi-add:hover{color:var(--hf-color-link-hover)}
+.vi-add:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:2px;border-radius:2px}
+
+/* Событие жизненного цикла: что произошло и кто это сделал */
+.vi-event{margin-bottom:10px}
+.vi-event-name{margin:0;font-size:var(--hf-font-size-xs);line-height:24px}
+.vi-event-by{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-xs);
+  font-size:var(--hf-font-size-xxs);line-height:20px;color:var(--hf-color-text-semilight);
+}
+.vi-event-by b{font-weight:var(--hf-font-weight-medium)}
+.vi-event-by .hf-avatar{width:24px;height:24px}
+
+/* Сколько кандидатов было на каждом этапе. Точки между названием
+   и числом — фон-градиент строки; подложка под текстом их разрывает.
+   Так же это сделано в оригинале, разделителя под «Всего» там нет. */
+.vi-stats{list-style:none;margin:0;padding:0;max-width:260px}
+.vi-stat{
+  font-size:var(--hf-font-size-xs);line-height:24px;
+  background-image:linear-gradient(270deg,var(--hf-color-base-main-900) 12.5%,transparent 0);
+  background-repeat:repeat-x;background-position:0 16px;background-size:8px 1px;
+}
+.vi-stat-num{
+  float:right;background:var(--hf-color-island-background);
+  font-variant-numeric:tabular-nums;
+}
+.vi-stat-label{background:var(--hf-color-island-background);padding-right:var(--hf-spacing-xxs)}
+
+/* Две секции во всю ширину под колонками */
+.vi-section{margin-top:var(--hf-spacing-6xl)}
+.vi-section-title{margin:0;padding-bottom:var(--hf-spacing-xs);font-size:20px;line-height:28px;font-weight:var(--hf-font-weight-medium)}
+.vi-section-text{margin:0 0 var(--hf-spacing-s);font-size:var(--hf-font-size-xs);line-height:24px}
+.vi-section-btns{display:flex;flex-wrap:wrap;gap:var(--hf-spacing-s)}
+
+/* Модалки экрана: разделители над подвалом и под шапкой идут
+   во всю ширину окна, поэтому вылезают за его боковые поля */
+.vi-dialog .hf-modal-head,
+.vi-dialog .hf-modal-foot{
+  margin-inline:calc(-1 * var(--hf-spacing-xxl));
+  padding-inline:var(--hf-spacing-xxl);
+}
+.vi-dialog .hf-modal-head{border-bottom:1px solid var(--hf-color-divider-default)}
+.vi-dialog .hf-modal-foot{border-top:1px solid var(--hf-color-divider-default);padding-top:var(--hf-spacing-xl)}
+.vi-dialog .hf-modal-body{padding:var(--hf-spacing-xl) 0}
+
+.vi-dl-title{margin:0 0 var(--hf-spacing-xs);font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.vi-dl{margin:0 0 var(--hf-spacing-xl);padding-left:var(--hf-spacing-xl);font-size:var(--hf-font-size-xs);line-height:24px}
+.vi-dl:last-child{margin-bottom:0}
+
+.vi-request + .vi-request{margin-top:var(--hf-spacing-l)}
+.vi-request-head{margin:0;font-size:var(--hf-font-size-xs);line-height:24px;color:var(--hf-color-link-default)}
+.vi-request-note{margin:0;font-size:var(--hf-font-size-xs);line-height:24px}
+
+/* ── Настройки: раздел «Воронка» ──────────────────────────────
+   У настроек своя раскладка: сайдбара вакансий нет, вместо него
+   белый остров во всю ширину, а внутри — сетка 12 колонок со
+   сдвигом на две. Все размеры сняты с боевого экрана.        */
+.st-cover{
+  flex:1;min-height:0;overflow-y:auto;
+  background:var(--hf-color-island-background);
+  border-radius:var(--hf-radius-l);
+}
+.st-inner{width:min(1068px,100%);margin-left:16.667%;padding-inline:15px}
+
+.st-head{
+  display:flex;flex-direction:column;gap:var(--hf-spacing-l);
+  padding-top:var(--hf-spacing-4xl);
+}
+.st-back{
+  display:flex;align-items:center;gap:var(--hf-spacing-xs);align-self:flex-start;
+  font-size:var(--hf-font-size-s);line-height:24px;
+  color:var(--hf-color-text-light);text-decoration:none;
+}
+.st-back svg{width:18px;height:18px;fill:none;stroke:currentColor}
+.st-back:hover{color:var(--hf-color-text-main)}
+.st-title{margin:0;font-size:28px;line-height:36px;font-weight:var(--hf-font-weight-medium)}
+.st-head::after{content:"";display:block;height:1px;background:var(--hf-color-divider-default)}
+
+/* Меню подразделов слева и содержимое справа */
+.st-body{display:flex;gap:78px;padding:var(--hf-spacing-xxl) 0 100px}
+.st-tabs{list-style:none;margin:0;padding:0;flex:none;width:271px}
+.st-tab{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);
+  margin-left:-20px;padding:15px 11px 15px 20px;
+  border-radius:12px;text-decoration:none;color:inherit;
+}
+.st-tab:hover{background:var(--hf-color-base-main-50,#fafafa)}
+.st-tab.is-active{background:#f7f7f7}
+.st-tab-icon{position:relative;display:flex;flex:none}
+/* Раздел не входит в тариф: красный замок в углу иконки */
+.st-tab-icon.is-locked::before{
+  content:"";position:absolute;left:-4px;top:-3px;
+  width:11px;height:13px;
+  background:url("assets/tariff-lock.svg") no-repeat center/contain;
+}
+.st-tab-icon svg{width:20px;height:20px;fill:none;stroke:currentColor}
+.st-tab-label{font-size:var(--hf-font-size-s);line-height:28px;font-weight:var(--hf-font-weight-medium)}
+
+.st-pane{flex:1;min-width:0;max-width:689px}
+.st-h2{margin:0;font-size:24px;line-height:32px;font-weight:var(--hf-font-weight-medium)}
+.st-h2-row{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--hf-spacing-xl)}
+.st-h2-actions{display:flex;gap:var(--hf-spacing-s);flex:none}
+.st-hint{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;vertical-align:middle;
+  border-radius:50%;background:var(--hf-color-base-main-100);
+  font-size:11px;color:var(--hf-color-text-semilight);
+}
+.st-lead{margin:var(--hf-spacing-xs) 0 0;font-size:var(--hf-font-size-xs);line-height:24px}
+.st-lead b{font-weight:var(--hf-font-weight-medium)}
+
+/* Этапы подбора: список полей с ручкой перетаскивания */
+.st-section{margin-top:0;padding-top:30px;border-top:1px solid var(--hf-color-divider-default)}
+.st-rows{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.st-row-line{position:relative;display:flex;align-items:center;width:689px;max-width:100%}
+.st-drag{
+  position:absolute;left:10px;color:var(--hf-color-base-main-300,#ccc);
+  pointer-events:none;line-height:1;
+}
+.st-input{
+  flex:none;width:660px;max-width:100%;height:40px;
+  padding:0 var(--hf-spacing-l) 0 35px;
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;
+  background:var(--hf-color-base-white-900);
+  border:1px solid rgba(0,0,0,.16);border-radius:var(--hf-radius-s);
+}
+.st-input:focus{outline:none;border-color:var(--hf-color-base-cyan-500)}
+.st-lock{position:absolute;right:45px;display:flex;color:var(--hf-color-text-main)}
+.st-lock svg,.st-row-plain svg{width:8px;height:10px;fill:currentColor}
+.st-remove{
+  flex:none;width:29px;height:30px;
+  display:flex;align-items:center;justify-content:center;
+  border:0;background:none;cursor:pointer;color:var(--hf-color-base-main-300,#ccc);
+}
+.st-remove svg{width:16px;height:16px;fill:currentColor}
+.st-remove:hover{color:var(--hf-color-text-semilight)}
+/* Этап найма подсвечен: он один означает конец работы рекрутера */
+.st-row.is-marked{
+  margin-inline:-10px;padding:10px;
+  background:var(--hf-color-base-yellow-50);border-radius:var(--hf-radius-s);
+}
+.st-note{margin:0;padding:10px 0 0 20px;font-size:var(--hf-font-size-s);line-height:22px}
+/* Ссылка целиком переносится на вторую строку: в шрифте макета
+   подпись не влезает в одну, а одинокое слово в конце читается хуже */
+.st-note a{color:var(--hf-color-link-default);white-space:nowrap}
+.st-row-plain{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  padding-left:20px;font-size:var(--hf-font-size-s);line-height:22px;
+}
+.st-row-plain a{color:var(--hf-color-link-default)}
+.st-add-wide{
+  width:659px;max-width:100%;height:40px;margin-top:10px;
+  border:1px solid rgba(0,0,0,.16);border-radius:var(--hf-radius-s);
+  background:var(--hf-color-base-white-900);cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xs);color:var(--hf-color-text-light);
+}
+.st-add-wide:hover{border-color:rgba(0,0,0,.32);color:var(--hf-color-text-semilight)}
+.st-foot{display:flex;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-xl)}
+
+/* Наборы этапов */
+.st-sets{list-style:none;margin:var(--hf-spacing-m) 0 0;padding:0}
+.st-set{display:flex;align-items:center;gap:var(--hf-spacing-m);height:40px;font-size:var(--hf-font-size-xs)}
+.st-set-mark{
+  width:24px;height:24px;flex:none;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--hf-color-text-main);border-radius:50%;
+  font-size:12px;line-height:1;
+}
+.st-set a{color:inherit;text-decoration:none}
+.st-set a:hover{color:var(--hf-color-link-default)}
+.st-add{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);height:40px;
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xs);color:var(--hf-color-base-cyan-600);
+}
+.st-add svg{width:24px;height:24px;fill:none;stroke:currentColor}
+.st-add:hover{color:var(--hf-color-link-hover)}
+
+/* Время на этапе */
+.st-select{width:100%;margin-top:var(--hf-spacing-xl)}
+.st-limits{list-style:none;margin:var(--hf-spacing-xl) 0 0;padding:0}
+.st-limit{border-top:1px solid var(--hf-color-divider-default)}
+.st-limit-btn{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);width:100%;
+  padding:var(--hf-spacing-l) 0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-s);color:inherit;text-align:left;
+}
+.st-limit-btn svg{width:16px;height:16px;flex:none;fill:currentColor}
+.st-limit-btn:hover{color:var(--hf-color-link-hover)}
+.st-limit-value{margin-left:auto;color:var(--hf-color-text-secondary)}
+
+/* Безопасность: та же строка-лимит, но с числом за селектом */
+.st-select--half{width:442px;max-width:100%}
+.st-security-save{margin:var(--hf-spacing-l) 0 0}
+.st-limit-count{display:flex;align-items:center;gap:var(--hf-spacing-m)}
+.st-limit-count .hf-input{width:200px;flex:none}
+.st-limit-unit{font-size:var(--hf-font-size-xs)}
+
+/* Причины отказа: справочник с папками */
+.st-search{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  height:40px;margin-top:var(--hf-spacing-xl);padding:0 var(--hf-spacing-m);
+  border:1px solid var(--hf-color-base-cyan-500);border-radius:var(--hf-radius-s);
+  color:var(--hf-color-text-semilight);
+}
+.st-search svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor}
+.st-search input{
+  flex:1;min-width:0;border:0;background:none;outline:none;
+  font-family:inherit;font-size:var(--hf-font-size-xs);color:var(--hf-color-text-main);
+}
+.st-bulk{
+  display:flex;gap:var(--hf-spacing-l);
+  padding:var(--hf-spacing-m) 0;
+  font-size:var(--hf-font-size-xs);color:var(--hf-color-text-light);
+}
+.st-tree{list-style:none;margin:0;padding:0;border-top:1px solid var(--hf-color-divider-default)}
+.st-tree--nested{border-top:0;padding-left:var(--hf-spacing-xxl)}
+.st-group-head{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  height:40px;padding:0 var(--hf-spacing-m);
+  background:var(--hf-color-base-main-100);border-radius:var(--hf-radius-s);
+  font-size:var(--hf-font-size-xs);
+}
+.st-group-head svg{width:16px;height:16px;fill:none;stroke:currentColor}
+.st-group-name{font-weight:var(--hf-font-weight-medium)}
+.st-group-count{color:var(--hf-color-text-semilight)}
+.st-group-actions{display:flex;gap:var(--hf-spacing-m);margin-left:auto;color:var(--hf-color-text-semilight)}
+.st-leaf{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  height:42px;font-size:var(--hf-font-size-xs);
+}
+.st-leaf input{width:16px;height:16px;flex:none;accent-color:var(--hf-color-base-cyan-600)}
+
+/* ── Настройки: раздел «Рекрутеры и заказчики» ────────────────
+   Два списка людей одного устройства. Разница одна: у рекрутеров
+   сбоку карточка рабочих мест, у заказчиков её нет — заказчик
+   платного места не занимает.                                 */
+.st-excel{margin:var(--hf-spacing-s) 0 0;text-align:right;font-size:var(--hf-font-size-xs)}
+.st-excel a{
+  display:inline-flex;align-items:center;gap:var(--hf-spacing-xs);
+  color:var(--hf-color-link-default);text-decoration:none;
+}
+.st-excel a:hover{color:var(--hf-color-link-hover)}
+.st-excel svg{width:16px;height:16px;fill:currentColor}
+
+.st-subtabs{
+  display:flex;gap:var(--hf-spacing-xl);margin-top:var(--hf-spacing-xl);
+  border-bottom:1px solid var(--hf-color-divider-default);
+}
+.st-subtab{
+  position:relative;padding:0 0 var(--hf-spacing-m);
+  border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-s);font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-text-light);
+}
+.st-subtab span{font-weight:var(--hf-font-weight-regular)}
+.st-subtab:hover{color:var(--hf-color-text-main)}
+.st-subtab.is-active{color:var(--hf-color-text-main)}
+.st-subtab{text-decoration:none;display:inline-block}
+.st-subtab.is-active::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;
+  background:var(--hf-color-base-main-900);
+}
+
+.st-people-row{display:flex;align-items:flex-start;gap:var(--hf-spacing-xxl);margin-top:var(--hf-spacing-xl)}
+.st-people{list-style:none;margin:0;padding:0;flex:1;min-width:0}
+.st-person{
+  display:flex;align-items:flex-start;gap:var(--hf-spacing-m);
+  padding:var(--hf-spacing-m);margin-left:calc(-1 * var(--hf-spacing-m));
+  border-radius:var(--hf-radius-s);cursor:pointer;
+}
+.st-person:hover{background:var(--hf-color-base-main-50,#fafafa)}
+.st-person-pic{position:relative;flex:none;width:28px;height:28px}
+.st-person-pic .hf-avatar,.st-person-pic svg{width:28px;height:28px}
+.st-crown{position:absolute;left:50%;top:-9px;transform:translateX(-50%);color:#ffba00}
+.st-crown svg{width:14px;height:14px;fill:currentColor}
+.st-person-text{display:flex;flex-direction:column;min-width:0;font-size:var(--hf-font-size-xs);line-height:24px}
+.st-person-text b{font-weight:var(--hf-font-weight-regular)}
+.st-person-mail,.st-person-role{color:var(--hf-color-text-semilight)}
+
+/* Приглашение рекрутера: права и плашка про тариф внутри поля */
+.st-rights{display:flex;flex-direction:column;gap:var(--hf-spacing-xs);margin-top:var(--hf-spacing-s)}
+.st-select-btn{width:100%;text-align:left;cursor:pointer;font-family:inherit}
+.st-premier{
+  margin-top:var(--hf-spacing-m);padding:var(--hf-spacing-l);
+  border-radius:var(--hf-radius-m);background:var(--hf-color-base-main-50,#fafafa);
+}
+.st-premier-title{display:block;margin-top:var(--hf-spacing-m);font-size:var(--hf-font-size-s)}
+.st-premier-text{margin:var(--hf-spacing-xs) 0 0;font-size:var(--hf-font-size-xxs);line-height:20px}
+.st-premier-acts{display:flex;gap:var(--hf-spacing-l);margin:var(--hf-spacing-m) 0 0;font-size:var(--hf-font-size-xxs)}
+
+/* Карточка рабочих мест: рекрутеры платные, заказчики нет */
+.st-seats{
+  flex:none;width:224px;padding:var(--hf-spacing-l);
+  background:var(--hf-color-base-main-100);border-radius:var(--hf-radius-m);
+}
+.st-seats p{margin:0 0 var(--hf-spacing-m);font-size:var(--hf-font-size-xs);line-height:24px}
+
+/* Карточка человека и приглашение — одна и та же форма */
+.st-dialog .hf-modal-head,
+.st-dialog .hf-modal-foot{
+  margin-inline:calc(-1 * var(--hf-spacing-xxl));
+  padding-inline:var(--hf-spacing-xxl);
+}
+.st-dialog .hf-modal-head{border-bottom:1px solid var(--hf-color-divider-default)}
+.st-dialog .hf-modal-foot{border-top:1px solid var(--hf-color-divider-default);padding-top:var(--hf-spacing-xl)}
+/* Ширину держат блоки внутри, а не сам скроллер: иначе Chrome
+   рисует полосу прокрутки по краю ограниченного контейнера */
+.st-dialog .hf-modal-body{padding:var(--hf-spacing-xl) 0}
+.st-dialog .st-dialog-meta,.st-dialog .st-fields,.st-dialog .st-prefs{max-width:456px}
+.st-dialog-pic{
+  flex:none;width:68px;height:68px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--hf-color-base-main-100);
+}
+.st-dialog-pic svg{width:34px;height:34px}
+.st-dialog-name{display:flex;flex-direction:column;align-items:flex-start;gap:var(--hf-spacing-s);flex:1}
+.st-dialog-name b{font-size:var(--hf-font-size-l,20px);line-height:28px;font-weight:var(--hf-font-weight-medium)}
+
+.st-dialog-meta{list-style:none;margin:0 0 var(--hf-spacing-xl);padding:0;display:grid;gap:var(--hf-spacing-s)}
+.st-dialog-meta li{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);
+  font-size:var(--hf-font-size-xs);line-height:24px;
+}
+.st-dialog-meta svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;color:var(--hf-color-text-semilight)}
+
+.st-fields{display:grid;gap:var(--hf-spacing-l);padding-bottom:var(--hf-spacing-xl);border-bottom:1px solid var(--hf-color-divider-default)}
+.st-fields .hf-field{margin:0}
+.st-fields .hf-label{display:block}
+
+.st-prefs{padding-top:var(--hf-spacing-l);border-top:1px solid var(--hf-color-divider-default)}
+.st-fields + .st-prefs{border-top:0}
+.st-prefs-title{
+  margin:var(--hf-spacing-l) 0 var(--hf-spacing-s);
+  font-size:var(--hf-font-size-xs);line-height:24px;font-weight:var(--hf-font-weight-medium);
+}
+.st-prefs-title:first-child{margin-top:0}
+.st-check{
+  display:flex;align-items:flex-start;gap:var(--hf-spacing-m);
+  padding:var(--hf-spacing-xs) 0;font-size:var(--hf-font-size-xs);line-height:22px;cursor:pointer;
+}
+.st-check input{flex:none;width:16px;height:16px;margin-top:3px;accent-color:var(--hf-color-base-cyan-600)}
+.st-prefs-note{
+  margin:var(--hf-spacing-xl) 0 0;padding-top:var(--hf-spacing-l);
+  border-top:1px solid var(--hf-color-divider-default);
+  font-size:var(--hf-font-size-xs);line-height:22px;color:var(--hf-color-text-semilight);
+}
+/* «Удалить» уводится вправо и не выглядит кнопкой: это не основное действие */
+.st-danger{
+  margin-left:auto;padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xs);color:var(--hf-color-text-semilight);
+}
+.st-danger:hover{color:var(--hf-color-base-red-500)}
+/* Щита из боевого спрайта в нашей выборке нет — берём замок
+   и красим им же красным, смысл строки от этого не меняется */
+.st-dialog-meta li.is-warn svg{width:14px;height:16px;fill:currentColor;stroke:none;color:var(--hf-color-base-red-500)}
+
+/* ── Настройки: раздел «Бизнес-процесс» ───────────────────────
+   Здесь два вида списков. Поля формы не переименовываются на месте
+   (строка с кнопкой, открывающей настройку), а справочники правятся
+   прямо в списке — как этапы подбора.                          */
+.st-form{margin-top:var(--hf-spacing-4xl)}
+.st-form-no{
+  margin:0;font-size:11px;line-height:14px;font-weight:var(--hf-font-weight-medium);
+  text-transform:uppercase;color:var(--hf-color-text-semilight);
+}
+.st-form-name{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  margin:var(--hf-spacing-xs) 0 var(--hf-spacing-m);
+  font-size:20px;line-height:28px;font-weight:var(--hf-font-weight-medium);
+}
+.st-form-name svg{width:16px;height:16px;fill:none;stroke:var(--hf-color-text-semilight)}
+.st-form-meta{
+  display:grid;grid-template-columns:auto 1fr;gap:var(--hf-spacing-xs) var(--hf-spacing-s);
+  margin:0;font-size:var(--hf-font-size-xs);line-height:24px;
+}
+.st-form-meta dt{font-weight:var(--hf-font-weight-medium)}
+.st-form-meta dd{margin:0}
+.st-form-actions{display:flex;align-items:center;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-l)}
+.st-form-actions .st-remove{margin-left:auto}
+
+.st-configure{margin-top:var(--hf-spacing-l)}
+.st-fields-list{list-style:none;margin:var(--hf-spacing-l) 0 0;padding:0}
+.st-field{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  min-height:44px;padding:var(--hf-spacing-s) 0;
+  border-top:1px solid var(--hf-color-divider-default);
+}
+.st-field:last-child{border-bottom:1px solid var(--hf-color-divider-default)}
+.st-field-grip{flex:none;width:15px;color:var(--hf-color-base-main-300,#ccc);line-height:1}
+.st-field-btn{
+  display:flex;align-items:center;gap:10px;flex:1;min-width:0;
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-s);color:inherit;text-align:left;
+}
+.st-field-btn svg{width:16px;height:16px;flex:none;fill:currentColor}
+.st-field-btn:hover{color:var(--hf-color-link-hover)}
+.st-label{
+  flex:none;padding:3px 7px;
+  font-size:11px;line-height:14px;font-weight:var(--hf-font-weight-medium);
+  text-transform:uppercase;
+}
+.st-label--req{background:#fcf1f2;color:#9e595f}
+.st-label--api{background:var(--hf-color-base-main-100);color:var(--hf-color-text-semilight)}
+
+.st-hintline{
+  margin:var(--hf-spacing-xl) 0 0;
+  font-size:var(--hf-font-size-xxs);line-height:20px;color:var(--hf-color-text-semilight);
+}
+
+/* Метки: поле, образец цвета, крестик */
+.st-search--plain{border-color:rgba(0,0,0,.16)}
+.st-rows--tags{margin-top:var(--hf-spacing-xl)}
+/* У метки ручки перетаскивания нет — левый отступ обычный */
+.st-input--tag{width:610px;padding-left:var(--hf-spacing-l)}
+.st-swatch{
+  flex:none;width:32px;height:32px;margin-left:var(--hf-spacing-m);
+  border-radius:var(--hf-radius-s);
+}
+.st-input--add{
+  display:block;width:610px;max-width:100%;height:40px;margin-top:10px;
+  padding:0 var(--hf-spacing-l);
+  font-family:inherit;font-size:var(--hf-font-size-xs);
+  background:var(--hf-color-base-white-900);
+  border:1px solid rgba(0,0,0,.16);border-radius:var(--hf-radius-s);
+}
+.st-input--add:focus{outline:none;border-color:var(--hf-color-base-cyan-500)}
+
+/* Модалка настройки заявки: блоки с заголовком и одним контролом */
+.st-block{max-width:456px}
+.st-block--split{margin-top:var(--hf-spacing-xxl);padding-top:var(--hf-spacing-xxl);border-top:1px solid var(--hf-color-divider-default)}
+.st-block-title{
+  margin:var(--hf-spacing-l) 0 var(--hf-spacing-xs);
+  font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium);
+}
+.st-block > .st-block-title:first-child{margin-top:0}
+.st-block-note{margin:0 0 var(--hf-spacing-m);font-size:var(--hf-font-size-xs);line-height:22px}
+.st-block-select{width:100%}
+/* Включённое согласование подсвечено зелёным — это состояние, а не действие */
+.st-toggle-card{
+  display:flex;align-items:flex-start;gap:var(--hf-spacing-m);
+  padding:var(--hf-spacing-l);border-radius:var(--hf-radius-m);
+  background:var(--hf-color-badge-background-green,#eefaf0);
+}
+.st-toggle-card b{display:block;font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.st-toggle-card b + span{display:block;font-size:var(--hf-font-size-xs);line-height:22px}
+.st-toggle{
+  position:relative;flex:none;width:36px;height:20px;margin-top:2px;
+  border-radius:10px;background:var(--hf-color-base-main-200);
+}
+.st-toggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;
+  border-radius:50%;background:var(--hf-color-base-white-900);
+  transition:left .12s ease;
+}
+.st-toggle.is-on{background:#00b84e}
+.st-toggle.is-on::after{left:18px}
+
+/* ── Настройки: раздел «Организация» ──────────────────────────
+   Пять подвкладок, и по устройству они очень разные: форма
+   компании, справочник, рассказ о непокупленном разделе, личные
+   уведомления и одна карточка интеграции. */
+
+/* «О компании»: несколько форм подряд, каждая со своей кнопкой
+   «Сохранить» — сохраняется блок, а не вся страница целиком */
+.st-org{margin-bottom:var(--hf-spacing-4xl)}
+.st-org:last-child{margin-bottom:0}
+.st-h3{
+  margin:0;font-size:var(--hf-font-size-l);line-height:28px;
+  font-weight:var(--hf-font-weight-medium);
+}
+.st-org-input{width:100%;margin-top:var(--hf-spacing-m)}
+.st-org-label{
+  margin:var(--hf-spacing-xl) 0 0;
+  font-size:var(--hf-font-size-xxs);line-height:24px;
+  color:var(--hf-color-text-semilight);
+}
+.st-org-label + .st-org-input{margin-top:var(--hf-spacing-xs)}
+.st-org-url{
+  margin:var(--hf-spacing-xs) 0 0;
+  font-size:var(--hf-font-size-3xs);line-height:18px;
+  color:var(--hf-color-text-semilight);
+}
+.st-org-url b{font-weight:var(--hf-font-weight-medium);color:var(--hf-color-text-main)}
+.st-org-note{margin:var(--hf-spacing-s) 0 0;font-size:var(--hf-font-size-xs);line-height:24px}
+.st-org > .hf-btn{margin-top:var(--hf-spacing-l)}
+.st-domains{list-style:none;margin:var(--hf-spacing-l) 0 0;padding:0}
+.st-input--domain{width:659px;padding-left:var(--hf-spacing-l)}
+.st-domains + .st-add-wide{margin-top:var(--hf-spacing-s)}
+
+/* Строка справочника — общая для «Причин отказа» и «Оргструктуры».
+   Кнопки строки в оригинале проявляются по наведению; клавиатуре
+   их показываем по фокусу, иначе до них не добраться */
+.st-leaf-caret{display:flex;flex:none;width:16px;color:var(--hf-color-text-semilight)}
+.st-leaf-caret svg{width:16px;height:16px;fill:none;stroke:currentColor}
+.st-leaf-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-leaf.is-archived .st-leaf-name{color:var(--hf-color-text-semilight)}
+.st-leaf-actions{
+  display:flex;gap:var(--hf-spacing-xs);margin-left:auto;
+  opacity:0;transition:opacity .12s ease;
+}
+.st-leaf:hover .st-leaf-actions,
+.st-leaf:focus-within .st-leaf-actions{opacity:1}
+.st-leaf-act{
+  display:flex;align-items:center;justify-content:center;
+  width:32px;height:28px;flex:none;
+  border:0;background:none;cursor:pointer;color:var(--hf-color-text-semilight);
+}
+.st-leaf-act svg{width:16px;height:16px;fill:none;stroke:currentColor}
+.st-leaf-act:hover{color:var(--hf-color-text-main)}
+.st-tree--nested{padding-left:var(--hf-spacing-xxl)}
+.st-bulk{align-items:center}
+.st-bulk-add{
+  display:flex;align-items:center;justify-content:center;
+  width:20px;height:20px;padding:0;
+  border:0;background:none;cursor:pointer;color:var(--hf-color-text-main);
+}
+.st-bulk-add svg{width:11px;height:11px;fill:none;stroke:currentColor}
+.st-bulk-end{margin-left:auto}
+
+/* «Безопасность»: раздела на тарифе нет, вместо него рассказ,
+   что в нём будет. Щит — их же декорация, вытащена из фона */
+.st-promo{
+  position:relative;margin-top:var(--hf-spacing-xxl);
+  padding:var(--hf-spacing-4xl) 60px;
+  border-radius:50px;background:var(--hf-color-base-white-900);
+  box-shadow:0 0 50px rgba(0,0,0,.15);
+}
+/* Щит есть только у «Безопасности»; у анкет своя картинка сбоку,
+   у оценки — звёзды, у SMS ничего */
+.st-promo--shield{
+  background-image:url("assets/shield.svg");
+  background-repeat:no-repeat;
+  background-position:right -10px center;
+  background-size:190px auto;
+}
+.st-promo--shield .st-promo-text{max-width:375px}
+.st-promo-body{display:flex;align-items:flex-start;gap:var(--hf-spacing-4xl)}
+.st-promo-text{flex:1;min-width:0;max-width:480px}
+.st-promo-art{flex:none;align-self:center;width:100px;height:auto}
+.st-promo-stars{display:flex;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-xl)}
+.st-promo-stars img{display:block;width:53px;height:53px}
+.st-promo-badge{
+  display:inline-block;padding:2px 20px;
+  border:3px solid #ff8a00;border-radius:100px;
+  font-size:var(--hf-font-size-m);line-height:28px;
+  font-weight:var(--hf-font-weight-medium);color:#ff8a00;
+}
+.st-promo-title{
+  margin:var(--hf-spacing-l) 0 0;max-width:570px;
+  font-size:28px;line-height:38px;font-weight:var(--hf-font-weight-medium);
+}
+.st-promo-lead{margin:var(--hf-spacing-l) 0 0;font-size:var(--hf-font-size-xs);line-height:24px}
+.st-promo-list{list-style:none;margin:var(--hf-spacing-l) 0 0;padding:0}
+.st-promo-list li{
+  position:relative;padding:var(--hf-spacing-s) 0 var(--hf-spacing-s) 34px;
+  font-size:var(--hf-font-size-xs);line-height:24px;
+}
+.st-promo-list li::before{
+  content:"";position:absolute;left:12px;top:14px;
+  width:6px;height:12px;
+  border:solid var(--hf-color-text-main);border-width:0 2px 2px 0;
+  transform:rotate(45deg);
+}
+.st-promo-foot{display:flex;align-items:center;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-xxl)}
+/* На узком окне щит наезжает на текст — убираем, он декоративный */
+@media (max-width:1200px){.st-promo--shield{background-image:none}}
+
+/* «Уведомления»: карточки через разделитель, у первой ещё и частота */
+.st-notify{margin-top:var(--hf-spacing-xxl)}
+.st-notify-card{padding:var(--hf-spacing-xl) 0 var(--hf-spacing-xxl);border-bottom:1px solid var(--hf-color-divider-default)}
+.st-notify-card:last-child{border-bottom:0}
+.st-notify-head{display:flex;align-items:center;gap:var(--hf-spacing-m)}
+.st-notify-head .st-toggle{margin-top:0}
+.st-notify-title{margin:0;font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.st-notify-note{margin:var(--hf-spacing-m) 0 0;font-size:var(--hf-font-size-xs);line-height:24px}
+.st-notify-link{margin:var(--hf-spacing-s) 0 0;font-size:var(--hf-font-size-xs);line-height:24px}
+.st-notify-link a{color:var(--hf-color-link-default)}
+.st-notify-link a:hover{color:var(--hf-color-link-hover)}
+.st-notify-subtitle{
+  margin:var(--hf-spacing-xl) 0 var(--hf-spacing-m);
+  font-size:var(--hf-font-size-xs);line-height:24px;
+  font-weight:var(--hf-font-weight-medium);
+}
+.st-notify-freq{display:flex;flex-direction:column;gap:var(--hf-spacing-s)}
+.st-check--tight{align-items:center}
+.st-check--tight input{margin-top:0}
+
+/* «Интеграции»: пока одна карточка */
+.st-integration{margin-top:var(--hf-spacing-xxl)}
+.st-integration-head{display:flex;align-items:center;gap:var(--hf-spacing-m)}
+.st-integration-logo{flex:none;width:32px;height:32px;border-radius:50%}
+.st-integration .st-lead{max-width:640px}
+.st-integration .hf-btn{margin-top:var(--hf-spacing-l)}
+
+/* Настройки справочника — модалка на два селекта и чекбокс */
+.st-dict-form{max-width:456px}
+.st-dict-form .hf-field{margin-bottom:var(--hf-spacing-xl)}
+.st-dict-form .hf-label{display:block;margin-bottom:var(--hf-spacing-xs)}
+.st-dict-form .hf-select{width:100%}
+
+/* ── Настройки: раздел «Шаблоны, оценка и анкеты» ──────────────
+   Три вида содержимого: списки шаблонов, две рекламные плашки
+   и два редактора — письма и формы обратной связи. */
+
+.st-h3--spaced{margin-top:var(--hf-spacing-xxl)}
+.st-h2-row--spaced{margin-top:var(--hf-spacing-4xl)}
+.st-subtabs--flat{margin-top:var(--hf-spacing-l)}
+
+/* Строка списка шаблонов: круглая иконка, название, копия справа.
+   Кнопка копии в оригинале проявляется по наведению. */
+.st-circle-list{list-style:none;margin:var(--hf-spacing-m) 0 0;padding:0}
+.st-circle-list--spaced{margin-top:var(--hf-spacing-xl)}
+.st-circle-row{display:flex;align-items:center;height:30px}
+.st-circle-btn{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:22px;
+  color:var(--hf-color-text-main);
+}
+.st-circle-ic{display:flex;flex:none;color:var(--hf-color-text-main)}
+.st-circle-ic svg{width:30px;height:30px;fill:none;stroke:currentColor}
+.st-circle-btn:hover .st-circle-name{color:var(--hf-color-link-hover)}
+.st-circle-btn--add{color:var(--hf-color-link-default)}
+.st-circle-btn--add .st-circle-ic{color:var(--hf-color-link-default)}
+.st-circle-copy{
+  display:flex;align-items:center;justify-content:center;
+  width:24px;height:24px;flex:none;margin-left:var(--hf-spacing-s);
+  border:0;background:none;cursor:pointer;color:var(--hf-color-text-semilight);
+  opacity:0;transition:opacity .12s ease;
+}
+.st-circle-copy svg{width:13px;height:16px;fill:none;stroke:currentColor}
+.st-circle-row:hover .st-circle-copy,
+.st-circle-copy:focus-visible{opacity:1}
+.st-circle-copy:hover{color:var(--hf-color-text-main)}
+
+/* Плашка без бейджа тарифа: SMS не в тарифе, а в договоре
+   с оператором, поэтому «Максимального» тут нет */
+.st-promo--plain .st-promo-title{margin-top:0}
+.st-promo-logos{display:flex;align-items:center;gap:var(--hf-spacing-xl);margin-top:var(--hf-spacing-m)}
+.st-promo-logos img{display:block;height:auto;max-width:110px}
+
+/* Редактор письма: слева тема и содержание, справа копия,
+   видимость и автор */
+.st-dialog--wide{width:1025px}
+.st-mail{display:flex;gap:var(--hf-spacing-xxl)}
+.st-mail-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--hf-spacing-xl)}
+.st-mail-field .hf-input{width:100%;margin-top:var(--hf-spacing-xs)}
+.st-mail-field--single{max-width:715px}
+.st-mail-label{display:flex;align-items:baseline;justify-content:space-between;gap:var(--hf-spacing-l)}
+.st-linkbtn{
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xxs);line-height:24px;
+  color:var(--hf-color-link-default);
+}
+.st-linkbtn:hover{color:var(--hf-color-link-hover)}
+.st-mail .hf-richtext{margin-top:var(--hf-spacing-xs)}
+/* Переменная подстановки внутри текста письма */
+.st-var{
+  padding:1px 4px;border-radius:var(--hf-radius-xs);
+  background:var(--hf-color-base-main-100);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;
+}
+.st-mail-side{
+  flex:none;width:238px;
+  padding-left:var(--hf-spacing-xxl);
+  border-left:1px solid var(--hf-color-divider-default);
+}
+.st-mail-side-block{padding-bottom:var(--hf-spacing-l);margin-bottom:var(--hf-spacing-l);border-bottom:1px solid var(--hf-color-divider-default)}
+.st-mail-side-block:last-child{padding-bottom:0;margin-bottom:0;border-bottom:0}
+.st-mail-side-block .hf-input{width:100%;margin-top:var(--hf-spacing-xs)}
+.st-mail-side-block .st-check{margin-top:var(--hf-spacing-s)}
+.st-mail-side-caption{display:block;font-size:var(--hf-font-size-xxs);line-height:24px;color:var(--hf-color-text-semilight)}
+.st-mail-author{display:flex;align-items:center;gap:var(--hf-spacing-s);margin-top:var(--hf-spacing-xs);font-size:var(--hf-font-size-xs)}
+.st-mail-author svg{width:24px;height:24px;flex:none}
+.st-mail-followup{margin-top:var(--hf-spacing-xl)}
+
+/* Конструктор формы обратной связи: карточка на вопрос,
+   кнопка добавления с меню типов сбоку */
+.st-dialog-sub{font-size:var(--hf-font-size-xxs);line-height:24px;color:var(--hf-color-text-semilight);font-weight:var(--hf-font-weight-regular)}
+.st-survey-head{max-width:442px;padding-bottom:var(--hf-spacing-xl);border-bottom:1px solid var(--hf-color-divider-default)}
+.st-survey-head .hf-input{width:100%;margin-top:var(--hf-spacing-xs)}
+.st-survey-field{padding-top:var(--hf-spacing-xl)}
+.st-survey-field-head{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--hf-spacing-l)}
+.st-survey-no b{display:block;font-size:var(--hf-font-size-m);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.st-survey-kind{display:block;font-size:var(--hf-font-size-l);line-height:28px;color:var(--hf-color-text-semilight)}
+.st-survey-acts{display:flex;gap:var(--hf-spacing-s);flex:none}
+.st-survey-body{display:flex;gap:var(--hf-spacing-xxl);margin-top:var(--hf-spacing-l);padding-top:var(--hf-spacing-l);border-top:1px solid var(--hf-color-divider-default)}
+.st-survey-main{flex:1;min-width:0}
+.st-survey-main .hf-input{width:100%;margin:var(--hf-spacing-xs) 0 var(--hf-spacing-m)}
+.st-survey-params{
+  margin:var(--hf-spacing-l) 0 var(--hf-spacing-m);padding-top:var(--hf-spacing-l);
+  border-top:1px solid var(--hf-color-divider-default);
+  font-size:var(--hf-font-size-xxs);line-height:24px;font-weight:var(--hf-font-weight-medium);
+}
+.st-survey-side{flex:none;width:238px;display:flex;flex-direction:column;gap:var(--hf-spacing-s)}
+/* Кнопка «добавить вопрос» висит снаружи модалки у правого края,
+   меню типов раскрыто — в макете оно всегда видно */
+.st-dialog{position:relative}
+.st-survey-add{
+  position:absolute;right:calc(var(--hf-spacing-xxl) * -1);top:var(--hf-spacing-xl);
+  display:flex;flex-direction:column;align-items:flex-end;gap:var(--hf-spacing-s);
+}
+.st-survey-add-btn{
+  display:flex;align-items:center;justify-content:center;
+  width:55px;height:55px;flex:none;
+  border:0;border-radius:50%;background:var(--hf-color-base-white-900);
+  box-shadow:0 2px 12px rgba(5,5,5,.18);
+  cursor:pointer;color:var(--hf-color-text-main);
+}
+.st-survey-add-btn svg{width:32px;height:32px;fill:none;stroke:currentColor}
+.st-survey-add-btn:hover{background:var(--hf-color-base-main-50,#fafafa)}
+.st-survey-menu{
+  width:350px;padding:var(--hf-spacing-l) 0;
+  border-radius:var(--hf-radius-m);background:var(--hf-color-base-white-900);
+  box-shadow:0 2px 12px rgba(5,5,5,.18);
+}
+.st-survey-menu-title{
+  margin:0 0 var(--hf-spacing-s);padding:0 var(--hf-spacing-xl);
+  font-size:var(--hf-font-size-s);line-height:28px;font-weight:var(--hf-font-weight-medium);
+}
+.st-survey-type{
+  display:block;width:100%;padding:var(--hf-spacing-s) var(--hf-spacing-xl);
+  border:0;background:none;cursor:pointer;text-align:left;
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;
+  color:var(--hf-color-text-main);
+}
+.st-survey-type:hover{background:var(--hf-color-base-main-50,#fafafa)}
+
+/* Оценка рекрутмента: состояние показано плашкой во всю ширину */
+.st-banner{
+  margin:0;padding:18px 15px;border-radius:32px;text-align:center;
+  background:#e8e8e8;font-size:25px;line-height:28px;
+  font-weight:var(--hf-font-weight-medium);
+}
+.st-banner--on{background:#7ac016;color:var(--hf-color-text-invert)}
+.st-lead--center{text-align:center}
+.st-banner-acts{display:flex;justify-content:center;gap:var(--hf-spacing-s);margin:var(--hf-spacing-xl) 0 0}
+.st-vars-wrap{position:relative;display:inline-flex}
+.st-vars{
+  position:absolute;right:0;top:28px;z-index:5;
+  display:flex;flex-direction:column;
+  width:280px;max-height:320px;overflow-y:auto;
+  padding:var(--hf-spacing-s) 0;
+  border-radius:var(--hf-radius-m);background:var(--hf-color-base-white-900);
+  box-shadow:0 2px 12px rgba(5,5,5,.18);
+}
+.st-vars-item{
+  padding:var(--hf-spacing-xs) var(--hf-spacing-l);
+  border:0;background:none;cursor:pointer;text-align:left;
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;
+  color:var(--hf-color-text-main);
+}
+.st-vars-item:hover{background:var(--hf-color-base-main-50,#fafafa)}
+
+/* ── Настройки: раздел «Сбор откликов» ────────────────────────
+   Единственный раздел без меню подразделов: содержимое занимает
+   весь остров, а не правые две трети. Отсюда `--plain`: убрать
+   зазор под меню и снять ограничение ширины колонки. */
+.st-body--plain{gap:0}
+.st-body--plain .st-pane{max-width:1000px}
+
+/* Заголовок блока внутри одностраничного раздела мельче обычного
+   `st-h2`: тот стоит один на страницу, а этих на странице три */
+.st-h2--s{font-size:20px;line-height:26px}
+
+/* Адрес карьерного сайта — не ссылка в тексте, а полоса во всю
+   ширину: единственный на весь макет градиент, и это снято,
+   а не придумано. В оригинале фоном лежит картинка-текстура;
+   повторяем её градиентом, чтобы не тащить чужой файл. */
+.st-cs-status{padding-bottom:15px;border-bottom:1px solid var(--hf-color-divider-default)}
+.st-cs-banner{
+  display:flex;align-items:center;justify-content:center;
+  height:64px;padding:18px 15px;
+  border-radius:32px;
+  background:linear-gradient(90deg,
+    var(--hf-color-base-green-400) 0%,
+    var(--hf-color-base-green-500) 30%,
+    var(--hf-color-base-green-700) 78%,
+    var(--hf-color-base-green-300) 100%);
+  color:var(--hf-color-text-invert);text-decoration:none;
+  font-size:25px;line-height:28px;font-weight:var(--hf-font-weight-medium);
+}
+.st-cs-banner:hover{filter:saturate(1.15)}
+.st-cs-banner:focus-visible{outline:3px solid var(--hf-color-base-cyan-500);outline-offset:2px}
+.st-cs-state{margin:var(--hf-spacing-xl) 0 0;text-align:center}
+.st-cs-on{font-weight:var(--hf-font-weight-medium);color:var(--hf-color-text-success)}
+.st-cs-actions{
+  display:flex;align-items:center;justify-content:center;gap:var(--hf-spacing-s);
+  padding:15px 0;
+}
+.st-cs-actions--left{justify-content:flex-start;padding:0}
+
+/* «Выключить» и «Удалить» — не красные кнопки, а серый текст,
+   краснеющий по наведению: действие опасное, но не главное */
+.st-cs-off{
+  height:var(--hf-size-button-height-s);padding:0 12px;
+  border:0;border-radius:var(--hf-radius-s);background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xxs);line-height:20px;
+  font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-text-semilight);
+}
+.st-cs-off:hover{background:var(--hf-color-plank-danger-background);color:var(--hf-color-plank-danger-text)}
+
+.st-cs-block{
+  margin-top:10px;padding:var(--hf-spacing-xl) 0 30px;
+  border-top:1px solid var(--hf-color-divider-default);
+}
+.st-cs-status + .st-cs-block{border-top:0}
+.st-cs-block .st-h2--s{margin-bottom:var(--hf-spacing-xl)}
+
+/* Поля уже колонки: в оригинале у формы правый отступ в 95px,
+   из-за которого поле не дотягивается до края острова */
+.st-cs-form{max-width:905px}
+.st-cs-form .hf-label{line-height:24px}
+.st-cs-control{width:100%}
+.st-cs-hint{
+  margin:var(--hf-spacing-xs) 0 0;
+  font-size:var(--hf-font-size-xxs);line-height:20px;
+  color:var(--hf-color-text-light);
+}
+.st-cs-hint b{font-weight:var(--hf-font-weight-regular);color:var(--hf-color-base-cyan-500)}
+.st-cs-area{min-height:161px}
+.st-cs-logo{display:block;margin-bottom:var(--hf-spacing-xl);border-radius:var(--hf-radius-xs)}
+
+/* Сайт ещё не включён: вместо настроек — белая карточка с тенью,
+   на белом же острове. Единственный на весь макет радиус в 50px
+   и единственная тень такого размаха — так в оригинале. */
+.st-cs-promo{
+  margin-bottom:30px;
+  border-radius:50px;background:var(--hf-color-base-white-900);
+  box-shadow:0 0 50px rgba(0,0,0,.15);
+  background-image:url("assets/career-site-promo.png");
+  background-repeat:no-repeat;background-position:100% 30%;
+}
+.st-cs-promo-in{padding:40px 165px 40px 60px}
+.st-cs-promo-title{margin:0;font-size:28px;line-height:36px;font-weight:var(--hf-font-weight-medium)}
+.st-cs-promo-lead{margin:10px 0 0;font-size:var(--hf-font-size-m);line-height:28px}
+.st-cs-promo-list{list-style:none;margin:15px 0 0;padding:0;max-width:480px}
+.st-cs-promo-list li{
+  position:relative;margin-top:10px;padding-left:34px;
+  font-size:var(--hf-font-size-xs);line-height:24px;
+}
+/* Галочка не иконка, а две повёрнутые палочки — так в оригинале.
+   Иконка из спрайта тут не годится: она залита их зелёным намертво,
+   атрибутом на path, а через <use> снаружи это не перекрасить */
+.st-cs-promo-list li::before,
+.st-cs-promo-list li::after{
+  content:"";position:absolute;width:2px;background:var(--hf-color-text-main);
+  transform-origin:1px 0;
+}
+.st-cs-promo-list li::before{height:12px;left:5px;top:11px;transform:rotate(-40deg)}
+.st-cs-promo-list li::after{height:20px;left:25px;top:4px;transform:rotate(40deg)}
+.st-cs-promo + .st-cs-block{margin-top:0;border-top:0}
+.st-cs-block > .hf-btn{margin-top:var(--hf-spacing-l)}
+
+/* ── Настройки: раздел «API и вебхуки» ────────────────────────
+   Второй раздел без подвкладок. Две одинаковые по устройству
+   таблицы — токены и вебхуки — и тёмная плашка над ними. */
+.st-api-promo{
+  padding:30px 60px;border-radius:50px;
+  /* Тёмный фиолетово-серый вне нейтральной шкалы — он живёт только
+     в промо-плашках и в разделителе сайдбара */
+  background:#38343f;color:var(--hf-color-text-invert);
+  box-shadow:0 0 50px rgba(0,0,0,.15);
+}
+.st-api-promo-title{margin:0;font-size:25px;line-height:28px;font-weight:var(--hf-font-weight-medium)}
+.st-api-promo-lead{margin:11px 0 0;font-size:var(--hf-font-size-s);line-height:22px}
+.st-api-promo-link{
+  display:inline-block;margin-top:10px;
+  font-size:var(--hf-font-size-s);line-height:20px;
+  font-weight:var(--hf-font-weight-medium);color:#ffea32;
+}
+.st-api-promo-link:hover{color:var(--hf-color-base-white-900)}
+
+.st-api-block{margin-top:30px}
+.st-api-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:7px;border-bottom:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.st-api-h3{margin:0;font-size:var(--hf-font-size-l,20px);line-height:22px;font-weight:var(--hf-font-weight-medium)}
+.st-api-head .hf-btn svg{width:12px;height:12px;margin-right:var(--hf-spacing-s)}
+
+/* Строка токена — только иконка и имя. Ни действий по наведению,
+   ни карточки по клику: в оригинале их нет */
+.st-api-list{list-style:none;margin:0;padding:15px 0 0;display:grid;gap:var(--hf-spacing-s)}
+.st-api-list--hooks{gap:10px}
+.st-api-token{display:flex;align-items:flex-start;gap:10px;line-height:22px}
+.st-api-token svg{width:27px;height:27px;flex:none}
+.st-api-token span{padding-top:2px}
+.st-api-token.is-inactive{color:var(--hf-color-text-semilight)}
+
+.st-api-hook{
+  display:flex;align-items:center;gap:10px;
+  padding:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer;
+  border-radius:var(--hf-radius-s);
+}
+.st-api-hook svg{width:30px;height:30px;flex:none}
+.st-api-hook:hover span{color:var(--hf-color-link-hover)}
+.st-api-hook:focus-visible{outline:2px solid var(--hf-color-text-main);outline-offset:2px}
+
+/* Карточка вебхука: слева адрес и подписка, справа адресаты жалоб */
+.st-api-cols{display:grid;grid-template-columns:454px 213px;gap:49px}
+.st-api-cols .hf-field:last-of-type{margin-bottom:0}
+/* Стрелку рисует сам `hf-select` фоном — своей иконки тут не нужно */
+.st-api-events-btn{width:100%;text-align:left;cursor:pointer}
+/* Список раскрывается поверх карточки, а не раздвигает её:
+   в оригинале это всплывающее меню, и высота модалки от него не растёт */
+.st-api-events-field{position:relative}
+/* Тело модалки по умолчанию прокручивается и обрезало бы выпадающий
+   список; в оригинале он всплывает поверх карточки и за её край */
+[data-hf-overlay="st-api-hook"] .hf-modal-body{overflow:visible}
+.st-api-events{
+  position:absolute;top:100%;left:0;right:0;z-index:2;
+  list-style:none;margin:var(--hf-spacing-xs) 0 0;padding:var(--hf-spacing-s) 0;
+  border:var(--hf-border-xs) solid var(--hf-color-divider-default);
+  border-radius:var(--hf-radius-s);background:var(--hf-color-base-white-900);
+  box-shadow:0 4px 16px var(--hf-color-base-main-alpha-200);
+}
+.st-api-event{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  padding:var(--hf-spacing-s) var(--hf-spacing-m);
+  font-size:var(--hf-font-size-xs);line-height:22px;
+}
+.st-api-event:hover{background:var(--hf-color-base-main-100)}
+.st-api-event-mark{width:16px;height:16px;flex:none;color:#38343f}
+.st-api-event-mark svg{width:16px;height:16px}
+
+.st-api-active{display:flex;align-items:center;gap:var(--hf-spacing-m);margin-top:var(--hf-spacing-xl)}
+.st-api-active .st-toggle{margin-top:0}
+
+.st-api-notify .hf-label{display:block;line-height:24px}
+.st-api-owners{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  margin:var(--hf-spacing-m) 0 var(--hf-spacing-l);
+  font-size:var(--hf-font-size-xs);line-height:22px;
+}
+.st-api-owners svg{width:20px;height:20px;flex:none;color:var(--hf-color-text-semilight)}
+.st-fields--flat{padding-bottom:0;border-bottom:0}
+
+/* ── Страница согласования заявки ─────────────────────────────
+   Единственный экран переноса без оболочки приложения: согласующий
+   попадает сюда по ссылке и не входит в систему вовсе. Отсюда
+   и вид — логотип на чёрной полосе и белый лист под ним. */
+.ra-body{margin:0;background:var(--hf-color-base-main-900);color:var(--hf-color-text-main)}
+.ra-header{display:flex;align-items:center;height:56px;padding:0 var(--hf-spacing-xl)}
+.ra-sheet{
+  min-height:calc(100vh - 64px);margin:0 8px 8px;
+  background:var(--hf-color-base-white-900);border-radius:var(--hf-radius-l);
+}
+.ra-inner{max-width:672px;margin:0 auto;padding:100px var(--hf-spacing-xl) 80px}
+.ra-title{margin:0;font-size:28px;line-height:36px;font-weight:var(--hf-font-weight-medium)}
+.ra-position{margin:var(--hf-spacing-xs) 0 0;line-height:22px;color:var(--hf-color-text-semilight)}
+.ra-author{display:flex;align-items:center;gap:var(--hf-spacing-l);margin-top:var(--hf-spacing-3xl)}
+.ra-avatar{
+  display:flex;align-items:center;justify-content:center;
+  width:56px;height:56px;flex:none;border-radius:50%;
+  background:var(--hf-color-base-main-200);color:var(--hf-color-base-main-600);
+}
+.ra-author-text{display:flex;flex-direction:column}
+.ra-author-text b{font-weight:var(--hf-font-weight-medium);line-height:24px}
+.ra-author-text span{color:var(--hf-color-text-semilight);line-height:22px}
+.ra-divider{
+  height:1px;margin:var(--hf-spacing-3xl) 0;
+  background:var(--hf-color-divider-default);
+}
+.ra-fact{margin:0 0 var(--hf-spacing-l);line-height:24px}
+.ra-fact b{font-weight:var(--hf-font-weight-medium)}
+.ra-label{display:block;margin-bottom:var(--hf-spacing-s);font-weight:var(--hf-font-weight-medium);line-height:22px}
+.ra-comment{
+  display:block;width:100%;padding:12px 15px;
+  font:inherit;line-height:24px;resize:vertical;
+  border:var(--hf-border-xs) solid var(--hf-color-base-cyan-500,#22c5da);
+  border-radius:var(--hf-radius-s);
+}
+.ra-actions{display:flex;gap:var(--hf-spacing-m);margin-top:var(--hf-spacing-xl)}
+
+/* Зелёная и красная кнопки — единственное место во всём переносе,
+   где цвет кнопки несёт смысл решения, а не роль в иерархии */
+.ra-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:36px;padding:var(--hf-spacing-s) var(--hf-spacing-l);
+  border-radius:var(--hf-radius-s);line-height:20px;
+  font-weight:var(--hf-font-weight-medium);
+}
+.ra-btn--ok{background:#7ab317;color:var(--hf-color-base-white-900)}
+.ra-btn--ok:hover{background:#699b13;color:var(--hf-color-base-white-900)}
+.ra-btn--no{background:#f4593c;color:var(--hf-color-base-white-900)}
+.ra-btn--no:hover{background:#dd472c;color:var(--hf-color-base-white-900)}
+.ra-btn--plain{
+  background:var(--hf-color-base-white-900);color:var(--hf-color-text-main);
+  border:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.ra-btn--plain:hover{background:var(--hf-color-base-main-100);color:var(--hf-color-text-main)}
+.ra-btn.is-off{
+  background:var(--hf-color-base-main-200);color:var(--hf-color-base-main-600);
+  pointer-events:none;
+}
+.ra-confirm{
+  display:inline-block;margin-top:var(--hf-spacing-s);
+  border:var(--hf-border-xs) solid var(--hf-color-divider-default);
+  border-radius:var(--hf-radius-m);background:var(--hf-color-base-white-900);
+  box-shadow:0 8px 24px var(--hf-color-base-main-alpha-200);
+}
+.ra-confirm-title{
+  margin:0;padding:var(--hf-spacing-l) var(--hf-spacing-xl);
+  font-weight:var(--hf-font-weight-medium);line-height:22px;
+  border-bottom:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.ra-confirm-actions{display:flex;gap:var(--hf-spacing-m);padding:var(--hf-spacing-l) var(--hf-spacing-xl)}
+.ra-done-note{margin:var(--hf-spacing-xl) 0 var(--hf-spacing-3xl);line-height:24px}
+
+
+/* ── Получение токена по ссылке ───────────────────────────────
+   Та же публичная страница, что и согласование заявки: логотип,
+   белый лист, никакой оболочки. Отличие одно — здесь показывают
+   значения, которые больше нигде не увидеть, поэтому строка ключа
+   не сжимается, а кнопка копирования не уезжает за край. */
+.tr-note{margin:var(--hf-spacing-l) 0 var(--hf-spacing-2xl);line-height:24px}
+.tr-field{margin-bottom:var(--hf-spacing-xl)}
+.tr-row{display:flex;gap:var(--hf-spacing-m);align-items:center;margin-top:var(--hf-spacing-xs)}
+.tr-value{flex:1;min-width:0;font-family:var(--hf-font-family-mono,ui-monospace,SFMono-Regular,Menlo,monospace);font-size:13px}
+.tr-warn{
+  margin:var(--hf-spacing-xl) 0 var(--hf-spacing-2xl);line-height:22px;
+  color:var(--hf-color-text-secondary);
+}
+/* ── Темы оформления ──────────────────────────────────────────
+   Плитка 154×91 — миниатюра приложения: чёрная полоса шапки,
+   цветной сайдбар и точка акцента. Размеры и радиусы сняты
+   с боевого экрана, не подобраны. */
+.st-themes{
+  /* Шесть плиток по 154 в ряд — как в оригинале. Промежуток не задан
+     числом, а разложен между ними: при фиксированном gap шестая плитка
+     не помещается в остров и ряд ломается на пятую */
+  display:grid;grid-template-columns:repeat(6,154px);justify-content:space-between;
+  row-gap:var(--hf-spacing-xl);
+  margin:var(--hf-spacing-xl) 0 0;padding:0;list-style:none;
+}
+.st-theme-btn{
+  display:block;width:154px;padding:0;border:0;background:none;
+  font-family:inherit;text-align:left;cursor:pointer;
+}
+.st-theme-preview{
+  position:relative;display:block;height:91px;overflow:hidden;
+  border-radius:10px;background:var(--hf-color-base-main-100);
+  box-shadow:0 0 0 var(--hf-border-xs) var(--hf-color-divider-default);
+}
+.st-theme-top{position:absolute;inset:0 0 auto;height:10px;background:#050505}
+.st-theme-side{position:absolute;left:0;top:0;bottom:0;width:36px}
+/* Разделитель 1px между сайдбаром и содержимым — он есть и в оригинале.
+   Без него светлые темы («Чистая», «Светлая») выглядят как плитка
+   без сайдбара вовсе: белое на светло-сером не видно */
+.st-theme-side::after{
+  content:'';position:absolute;right:-1px;top:0;bottom:0;width:1px;background:#eaeaea;
+}
+.st-theme-dot{position:absolute;left:52px;top:28px;width:12px;height:12px;border-radius:50%}
+.st-theme-name{
+  display:block;margin-top:var(--hf-spacing-s);
+  font-size:11px;line-height:24px;font-weight:var(--hf-font-weight-medium);
+  text-transform:uppercase;color:var(--hf-color-text-main);
+}
+.st-theme.is-active .st-theme-preview{
+  box-shadow:0 0 0 2px var(--hf-color-base-cyan-700);
+}
+.st-theme-btn:focus-visible .st-theme-preview{
+  outline:2px solid var(--hf-color-base-cyan-700);outline-offset:2px;
+}
+
+/* ── Личные разделы «Мой Хантфлоу» ────────────────────────────
+   Пять одностраничников одного устройства: подзаголовок, список
+   строк «название — действие». Строка не схлопывается: длинный
+   адрес почты переносится, кнопка остаётся на месте. */
+.st-plain-lead{margin:0 0 var(--hf-spacing-l);line-height:22px;color:var(--hf-color-text-secondary)}
+.st-plain-h3{margin:0 0 var(--hf-spacing-m);font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.st-my-form{max-width:420px;margin-bottom:var(--hf-spacing-3xl)}
+.st-my-photo{display:flex;align-items:center;gap:var(--hf-spacing-l);margin-bottom:var(--hf-spacing-xl)}
+.st-my-avatar{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:56px;height:56px;flex:none;border-radius:50%;
+  background:var(--hf-color-base-main-100);color:var(--hf-color-text-semilight);
+}
+.st-my-block{margin-bottom:var(--hf-spacing-3xl)}
+.st-my-block:last-child{margin-bottom:0}
+.st-my-row,.st-my-item{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:var(--hf-spacing-l);padding:var(--hf-spacing-l) 0;
+  border-bottom:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.st-my-list{margin:0 0 var(--hf-spacing-l);padding:0;list-style:none}
+.st-my-list .st-my-item:last-child{border-bottom:0}
+.st-my-row-text,.st-my-item-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.st-my-row-label{font-size:var(--hf-font-size-xs);line-height:20px;color:var(--hf-color-text-secondary)}
+.st-my-row-value,.st-my-item-name{line-height:22px;word-break:break-word}
+.st-my-item-note{font-size:var(--hf-font-size-xs);line-height:20px;color:var(--hf-color-text-secondary)}
+.st-kbd{
+  display:inline-block;padding:1px 6px;
+  border:var(--hf-border-xs) solid var(--hf-color-divider-default);
+  border-radius:4px;background:var(--hf-color-base-main-100);
+  font-family:inherit;font-size:var(--hf-font-size-xs);
+}
+
+/* ── Публикация вакансии на джоб-сайтах ───────────────────────
+   Семь строк одинакового веса: собственный карьерный сайт стоит
+   в общем ряду и ничем не выделен — так в оригинале. */
+.vi-sites{margin:0;padding:0;list-style:none}
+.vi-site{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--hf-spacing-l);
+  padding:var(--hf-spacing-l) 0;
+  border-bottom:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.vi-site:last-child{border-bottom:0}
+.vi-site-name{line-height:22px}
+.vi-site-promo{
+  margin-top:var(--hf-spacing-l);padding:var(--hf-spacing-xl);
+  background:var(--hf-color-base-main-100);
+  border-radius:var(--hf-radius-m);
+}
+.vi-site-promo-title{margin:0 0 var(--hf-spacing-s);font-weight:var(--hf-font-weight-medium);line-height:24px}
+.vi-site-promo-text{margin:0 0 var(--hf-spacing-l);line-height:22px;color:var(--hf-color-text-secondary)}
+.vi-site-promo-links{display:flex;gap:var(--hf-spacing-xl);margin:0;flex-wrap:wrap}
+.vi-link-a{color:var(--hf-color-link-default);text-decoration:none}
+.vi-link-a:hover{color:var(--hf-color-link-hover);text-decoration:underline}
+.vi-empty{margin:0;padding:var(--hf-spacing-xl) 0;line-height:22px;color:var(--hf-color-text-secondary)}
+
+.st-api-token-name{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);
+  margin:0 0 var(--hf-spacing-l);font-weight:var(--hf-font-weight-medium);line-height:24px;
+}
+.st-api-token-hint{margin:0 0 var(--hf-spacing-xl);line-height:22px;color:var(--hf-color-text-secondary)}
+.st-api-token-row{display:flex;gap:var(--hf-spacing-m);align-items:center}
+.st-api-token-link{flex:1;min-width:0;font-size:13px}
+.tr-link{color:var(--hf-color-link-default);text-decoration:none}
+.tr-link:hover{color:var(--hf-color-link-hover);text-decoration:underline}
+
+
+/* ── Корень настроек ──────────────────────────────────────────
+   Единственный экран, откуда видно все разделы сразу. Карточки
+   лежат в три колонки и выступают на 16 пикселей влево, чтобы
+   название раздела встало по одной линии с заголовком страницы,
+   а подложка при наведении заходила за неё. */
+.st-home-title{
+  margin:0;font-size:var(--hf-font-size-m);line-height:26px;
+  font-weight:var(--hf-font-weight-medium);
+}
+.st-home-title--group{
+  margin-top:var(--hf-spacing-3xl);padding-top:var(--hf-spacing-3xl);
+  border-top:var(--hf-border-xs) solid var(--hf-color-divider-default);
+}
+.st-home-meta{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  margin:var(--hf-spacing-xs) 0 0;
+  font-size:var(--hf-font-size-s);line-height:24px;color:var(--hf-color-text-semilight);
+}
+.st-home-id{
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:inherit;line-height:inherit;color:inherit;
+}
+.st-home-id:hover{color:var(--hf-color-text-main)}
+.st-home-grid{
+  display:flex;flex-wrap:wrap;gap:var(--hf-spacing-m) 30px;
+  margin:var(--hf-spacing-xl) 0 0 -16px;
+}
+.st-home-card{
+  display:flex;gap:var(--hf-spacing-m);width:303px;
+  padding:var(--hf-spacing-s) 11px var(--hf-spacing-s) var(--hf-spacing-l);
+  border-radius:12px;color:inherit;text-decoration:none;
+}
+.st-home-card:hover{background:#f5f5f5}
+/* Раздел, который мы не переносили: карточка на месте, но мёртвая */
+.st-home-card.is-flat{cursor:default}
+.st-home-card:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:-2px}
+.st-home-icon{flex:none;margin-top:3px}
+.st-home-icon svg{width:20px;height:20px;fill:none;stroke:currentColor}
+.st-home-text{display:flex;flex-direction:column;gap:var(--hf-spacing-xxs)}
+.st-home-name{font-size:var(--hf-font-size-m);line-height:26px;font-weight:var(--hf-font-weight-medium)}
+.st-home-note{font-size:var(--hf-font-size-s);line-height:24px;color:var(--hf-color-text-light)}
+
+/* ── Картина дня ──────────────────────────────────────────────
+   Первая вкладка приложения: портфель вакансий двумя разрезами.
+   Тот же остров, что у сведений о вакансии, но внутри — таблица
+   групп. Размеры сняты с боевого экрана: строка 85px, шапка
+   группы 40px на сером, колонки чисел по 140px.              */
+.kd-sheet{
+  flex:1;min-height:0;overflow-y:auto;
+  background:var(--hf-color-island-background);
+  border-radius:var(--hf-radius-l);
+  padding:var(--hf-spacing-3xl) var(--hf-spacing-3xl) 100px;
+}
+.kd-head{display:flex;align-items:center;gap:var(--hf-spacing-m);height:38px}
+.kd-head svg{width:28px;height:28px;fill:currentColor}
+.kd-title{margin:0;font-size:var(--hf-font-size-4xl);line-height:38px;font-weight:var(--hf-font-weight-medium)}
+
+.kd-filters{display:flex;gap:10px;margin-top:var(--hf-spacing-l)}
+.kd-filter{position:relative}
+.kd-filter-btn{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--hf-spacing-s);
+  width:220px;height:40px;padding:0 var(--hf-spacing-l);
+  border:1px solid var(--hf-color-input-border-default);border-radius:var(--hf-radius-s);
+  background:var(--hf-color-base-white-900);color:var(--hf-color-text-main);
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;cursor:pointer;
+  text-align:left;
+}
+.kd-filter-btn:hover{border-color:var(--hf-color-base-main-500)}
+.kd-filter-btn.is-open{border-color:var(--hf-color-base-cyan-500)}
+.kd-filter-btn:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:1px}
+.kd-filter-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kd-filter-btn svg{width:24px;height:24px;flex:none;fill:currentColor}
+
+/* Выпадающие списки. Меню разреза узкое и без поиска, фильтр —
+   широкий, с поиском и виртуальным списком: у подразделений
+   и рекрутеров записей сотни. */
+.kd-drop{
+  position:absolute;top:50px;left:0;z-index:30;
+  border-radius:var(--hf-radius-s);background:var(--hf-color-base-white-900);
+  box-shadow:0 4px 24px rgba(5,5,5,.16),0 0 1px rgba(5,5,5,.24);
+}
+.kd-drop--cut{width:400px;padding:var(--hf-spacing-s)}
+.kd-drop--filter{width:450px;padding-top:var(--hf-spacing-l)}
+.kd-drop-search{padding:0 var(--hf-spacing-l) var(--hf-spacing-l);position:relative}
+.kd-drop-search svg{
+  position:absolute;left:24px;top:12px;width:16px;height:16px;
+  fill:currentColor;opacity:.5;pointer-events:none;
+}
+.kd-drop-search input{
+  width:100%;height:40px;padding:0 var(--hf-spacing-l) 0 var(--hf-spacing-3xl);
+  border:1px solid var(--hf-color-base-cyan-500);border-radius:var(--hf-radius-s);
+  font-family:inherit;font-size:var(--hf-font-size-xs);line-height:24px;color:var(--hf-color-text-main);
+}
+.kd-drop-search input:focus{outline:none}
+.kd-drop-actions{
+  display:flex;justify-content:space-between;
+  padding:0 var(--hf-spacing-l) var(--hf-spacing-s);
+}
+.kd-drop-act{
+  padding:0;border:0;background:none;cursor:pointer;color:var(--hf-color-text-main);
+  font-family:inherit;font-size:var(--hf-font-size-xxs);line-height:20px;font-weight:var(--hf-font-weight-medium);
+}
+.kd-drop-act:hover{color:var(--hf-color-base-cyan-700)}
+.kd-drop-list{max-height:320px;overflow-y:auto;padding:var(--hf-spacing-s)}
+.kd-drop-item{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);
+  min-height:42px;padding:var(--hf-spacing-s) var(--hf-spacing-m);
+  border-radius:var(--hf-radius-s);cursor:pointer;
+}
+.kd-drop-item:hover,.kd-drop-item.is-on{background:var(--hf-color-base-main-alpha-150)}
+.kd-drop-item .hf-avatar svg{fill:currentColor}
+.kd-drop-name{font-size:var(--hf-font-size-xs);line-height:24px}
+.kd-drop-mail{font-size:var(--hf-font-size-xs);line-height:24px;opacity:.5}
+.kd-drop-item .hf-avatar{margin-block:auto}
+.kd-drop-check{width:20px;flex:none;fill:currentColor}
+.kd-drop-check.is-off{visibility:hidden}
+
+/* ── Группы и строки ─────────────────────────────────────── */
+.kd-groups{display:flex;flex-direction:column;gap:var(--hf-spacing-xxl);margin-top:var(--hf-spacing-xxl)}
+.kd-group-head{
+  display:flex;align-items:center;height:40px;
+  padding:var(--hf-spacing-s) var(--hf-spacing-m);
+  border-radius:var(--hf-radius-s);background:var(--hf-color-plank-default-background);
+}
+.kd-group-title{
+  display:flex;align-items:center;gap:var(--hf-spacing-s);
+  width:503px;flex:none;box-sizing:border-box;
+  margin:0;padding-right:var(--hf-spacing-m);
+  font-size:var(--hf-font-size-xs);line-height:24px;font-weight:var(--hf-font-weight-medium);
+}
+.kd-group-title .hf-avatar svg{fill:currentColor}
+.kd-group-plan{font-weight:var(--hf-font-weight-regular);opacity:.5}
+.kd-group-col{
+  width:140px;flex:none;padding-right:30px;
+  font-size:var(--hf-font-size-xs);line-height:24px;opacity:.5;
+}
+
+.kd-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.kd-table td{
+  padding:var(--hf-spacing-m) 26px var(--hf-spacing-l) var(--hf-spacing-xs);
+  border-bottom:1px solid var(--hf-color-base-main-alpha-200);
+  vertical-align:top;
+}
+.kd-table tr:last-child td{border-bottom:0}
+/* Ширины держат первые две колонки, третья добирает остаток —
+   так числа стоят на одном месте во всех группах, и взгляд идёт
+   вниз по столбцу, а не ищет его заново в каждой группе */
+.kd-table td:first-child{width:510px}
+.kd-table td:nth-child(2){width:140px}
+.kd-vac-title{
+  display:inline-block;
+  font-size:var(--hf-font-size-m);line-height:28px;font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-base-cyan-700);text-decoration:none;
+}
+.kd-vac-title:hover{color:var(--hf-color-base-cyan-800)}
+.kd-vac-title:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:2px;border-radius:2px}
+.kd-vac-count{padding-left:var(--hf-spacing-xs);font-size:var(--hf-font-size-xs);line-height:24px;font-weight:var(--hf-font-weight-regular);opacity:.5}
+/* Вакансия на паузе: не ссылка, серая, со значком. Ставки такой
+   вакансии не идут в счётчик группы — там остаётся 0/0. */
+.kd-vac-title.is-hold{color:var(--hf-color-text-light);cursor:default}
+.kd-vac-title.is-hold:hover{color:var(--hf-color-text-light)}
+.kd-vac-hold-icon{display:inline-block;margin-right:var(--hf-spacing-xs-2);vertical-align:-4px}
+.kd-vac-sub{
+  padding-top:var(--hf-spacing-xs);
+  font-size:var(--hf-font-size-xs);line-height:24px;color:var(--hf-color-text-light);
+}
+.kd-num{font-size:var(--hf-font-size-xs);line-height:24px;padding-top:var(--hf-spacing-xxs);display:inline-block}
+
+.kd-more{
+  display:inline-flex;align-items:center;gap:var(--hf-spacing-xs);
+  margin-top:var(--hf-spacing-s);padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xxs);line-height:22px;color:var(--hf-color-text-secondary);
+}
+.kd-more:hover{color:var(--hf-color-text-main)}
+.kd-more:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:2px;border-radius:2px}
+.kd-more svg{width:20px;height:20px;fill:currentColor}
+
+/* Кто вакансий не ведёт. Здесь же оказываются токены API:
+   в их модели токен — такой же пользователь, как человек. */
+.kd-idlers{margin-top:var(--hf-spacing-xxl);color:var(--hf-color-base-main-500)}
+.kd-idlers-title{
+  margin:0;font-size:var(--hf-font-size-m);line-height:24px;font-weight:var(--hf-font-weight-medium);
+}
+.kd-idlers-count{padding-left:var(--hf-spacing-s);font-weight:var(--hf-font-weight-regular)}
+.kd-idlers-list{margin-top:var(--hf-spacing-m);font-size:var(--hf-font-size-xs);line-height:24px}
+
+/* ═══════════════════════════════════════════════════════════════
+   Экран «Поиск»
+
+   Своей строки запроса у экрана нет — она в шапке, вместе с выбором
+   предмета. Здесь только полоса фильтров и выдача, и обе меняются
+   целиком при смене предмета: у кандидатов две колонки со списком
+   и карточкой, у вакансий — одна во всю ширину.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Экран занимает всё полотно: полоса фильтров сверху, выдача под ней тянется */
+#search-screen{flex:1;min-height:0;display:flex;flex-direction:column;gap:var(--layout-offset)}
+.se-bar-row{display:flex;gap:var(--layout-offset);height:52px;flex:none}
+.se-bar{
+  flex:1;min-width:0;height:52px;padding:0 var(--hf-spacing-xl);
+  display:flex;align-items:center;justify-content:space-between;gap:40px;
+}
+.se-bar-items{display:flex;align-items:center;gap:22px}
+.se-bar-side{flex:none;width:52px;height:52px;display:flex;align-items:center;justify-content:center}
+.se-bar-side.se-sort{width:auto;padding:0 var(--hf-spacing-l)}
+.se-list-settings{width:52px;height:52px;border-radius:var(--hf-radius-l);color:var(--hf-color-text-main)}
+
+.se-filter{position:relative}
+.se-filter-btn{
+  display:inline-flex;align-items:center;gap:var(--hf-spacing-xs);
+  height:42px;padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-s);line-height:20px;
+  color:var(--hf-color-text-main);white-space:nowrap;
+}
+.se-filter-btn svg{width:20px;height:20px;fill:currentColor;flex:none}
+.se-filter-btn:hover{color:var(--hf-color-base-cyan-700)}
+.se-filter-btn.is-open{color:var(--hf-color-base-cyan-700)}
+.se-filter-btn:focus-visible{outline:2px solid var(--hf-color-base-cyan-500);outline-offset:2px;border-radius:4px}
+
+.se-export{
+  display:inline-flex;align-items:center;gap:var(--hf-spacing-xs);
+  padding:0;border:0;background:none;cursor:pointer;
+  font-family:inherit;font-size:var(--hf-font-size-xxs);line-height:20px;
+  color:var(--hf-color-text-main);white-space:nowrap;
+}
+.se-export svg{width:20px;height:20px;fill:currentColor}
+.se-export:hover{color:var(--hf-color-base-cyan-700)}
+
+/* Панель фильтра: карточка под кнопкой. Вложенный список раскрывается
+   поверх неё и правее — так же, как в оригинале */
+.se-pop{position:absolute;top:52px;left:0;z-index:30}
+.se-pop--wide{left:auto;right:0}
+.se-pop--right{left:auto;right:0}
+.se-sel{position:relative}
+.se-subpop{position:absolute;top:28px;left:18px;z-index:31}
+.se-drop-head{display:flex;flex-direction:column;gap:var(--hf-spacing-m);padding:0 var(--hf-spacing-l) var(--hf-spacing-l)}
+.se-drop-group{
+  padding:var(--hf-spacing-s) var(--hf-spacing-m) var(--hf-spacing-xs);
+  border-bottom:1px solid var(--hf-color-base-main-alpha-200);
+  font-size:var(--hf-font-size-xxs);line-height:20px;color:var(--hf-color-base-main-600);
+}
+.se-panel{
+  padding:var(--hf-spacing-l);display:flex;flex-direction:column;gap:var(--hf-spacing-m);
+  border-radius:var(--hf-radius-l);background:var(--hf-color-base-white-900);
+  box-shadow:0 4px 24px rgba(5,5,5,.16),0 0 1px rgba(5,5,5,.24);
+}
+.se-panel-title{font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.se-select{width:100%}
+.se-drop-list{position:static;width:450px;padding-top:var(--hf-spacing-l)}
+.se-drop-list .kd-drop-item > span:first-child{flex:1;min-width:0}
+.se-tag-dot{width:12px;height:12px;border-radius:50%;flex:none;margin-block:auto}
+.se-quick{display:flex;flex-wrap:wrap;gap:var(--hf-spacing-m);margin-top:calc(var(--hf-spacing-s) * -1)}
+.se-quick-item{
+  padding:0;border:0;background:none;cursor:pointer;font-family:inherit;
+  font-size:var(--hf-font-size-xxs);line-height:20px;
+  color:var(--hf-color-text-secondary);border-bottom:1px dashed var(--hf-color-base-main-alpha-400);
+}
+.se-quick-item:hover{color:var(--hf-color-text-main)}
+
+/* Доп. инфо не настроено — вместо фильтра предложение его настроить */
+.se-promo{gap:var(--hf-spacing-s)}
+.se-promo-title{font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium)}
+.se-promo-text{margin:0;font-size:var(--hf-font-size-xs);line-height:22px}
+.se-promo .ap-btn{align-self:flex-start;margin-top:var(--hf-spacing-s);text-decoration:none}
+
+/* ── Выдача по кандидатам: узкий список и карточка ─────────── */
+
+.se-results{flex:1;min-height:0;display:flex;gap:var(--layout-offset)}
+.se-list{
+  flex:none;width:326px;padding:var(--hf-spacing-s);
+  display:flex;flex-direction:column;min-height:0;
+}
+.se-counter{
+  padding:0 var(--hf-spacing-s) var(--hf-spacing-s);
+  border-bottom:1px solid var(--hf-color-base-main-alpha-200);
+  font-size:var(--hf-font-size-xxs);line-height:20px;font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-base-main-600);
+}
+.se-cards{flex:1;min-height:0;overflow-y:auto;padding-top:var(--hf-spacing-s)}
+.se-card{
+  display:flex;gap:13px;padding:var(--hf-spacing-l);cursor:pointer;
+  border-radius:var(--hf-radius-m);
+}
+.se-card:hover{background:var(--hf-color-base-main-alpha-100)}
+.se-card.is-active{background:var(--hf-color-base-main-alpha-150)}
+.se-card-photo{
+  flex:none;width:56px;height:56px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--hf-color-base-main-alpha-150);
+  font-size:var(--hf-font-size-xxs);line-height:20px;color:var(--hf-color-text-secondary);
+}
+.se-card-body{min-width:0;display:flex;flex-direction:column}
+.se-card-name{
+  font-size:var(--hf-font-size-s);line-height:24px;font-weight:var(--hf-font-weight-medium);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.se-card-info{
+  font-size:var(--hf-font-size-xxs);line-height:20px;color:var(--hf-color-text-secondary);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;
+}
+.se-detail{flex:1;min-width:0;padding:var(--hf-spacing-xxl);overflow-y:auto}
+.se-empty{
+  height:100%;display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:var(--hf-font-size-l,20px);line-height:26px;color:var(--hf-color-base-main-600);
+}
+
+/* ── Выдача по вакансиям: одна колонка во всю ширину ───────── */
+
+.se-vac-sheet{flex:1;min-height:0;overflow-y:auto;padding:var(--hf-spacing-xxl)}
+.se-vac-list{margin:var(--hf-spacing-l) 0 0;padding:0;list-style:none}
+.se-vac + .se-vac{margin-top:20px}
+.se-vac-title{
+  font-size:var(--hf-font-size-m);line-height:22px;font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-link-default);text-decoration:none;
+}
+.se-vac-title:hover{color:var(--hf-color-link-hover)}
+.se-vac.is-hold .se-vac-title{color:var(--hf-color-base-main-600)}
+/* Бейдж состояния стоит внутри ссылки и набран мелким капслоком */
+.se-vac-tag{
+  display:inline-block;margin-right:var(--hf-spacing-s);padding:4px 7px 3px;
+  border:1px solid var(--hf-color-base-main-600);border-radius:3px;
+  font-size:var(--hf-font-size-4xs);line-height:1;text-transform:uppercase;
+  color:var(--hf-color-base-main-600);vertical-align:2px;
+}
+.se-vac-pause{display:inline-block;margin-right:var(--hf-spacing-xs);color:var(--hf-color-text-main)}
+.se-vac-pause svg{width:12px;height:12px;fill:currentColor}
+.se-vac-org{padding-top:3px;font-size:var(--hf-font-size-xs);line-height:24px;color:var(--hf-color-base-main-600)}
+.se-vac-dates{display:flex;gap:var(--hf-spacing-l);margin-top:5px}
+.se-vac-dates span,.se-vac-line{
+  font-size:var(--hf-font-size-xxs);line-height:18px;color:var(--hf-color-base-main-600);
+}
+.se-vac-line{margin-top:5px}
+.se-vac-dates b,.se-vac-line b{font-weight:var(--hf-font-weight-regular);color:var(--hf-color-base-main-700)}
+
+/* ── Настройка списков кандидатов ──────────────────────────── */
+
+.se-set-title{
+  padding-bottom:var(--hf-spacing-s);
+  font-size:var(--hf-font-size-xs);line-height:24px;color:var(--hf-color-text-secondary);
+}
+.se-set-line{margin:var(--hf-spacing-l) 0;border:0;border-top:1px solid var(--hf-color-base-main-alpha-200)}
+.se-radio,.se-check{
+  display:flex;align-items:center;gap:var(--hf-spacing-m);
+  padding:var(--hf-spacing-xs) 0;font-size:var(--hf-font-size-xs);line-height:24px;cursor:pointer;
+}
+.se-radio input,.se-check input{width:18px;height:18px;accent-color:var(--hf-color-base-cyan-600);cursor:pointer}
+.se-check.is-locked{color:var(--hf-color-base-main-600);cursor:default}
+.se-check.is-locked input{cursor:default}
+
+/* Галочка выбранного предмета поиска в меню шапки */
+.hf-menu-check{display:inline-flex;width:20px;flex:none;justify-content:center}
+.hf-menu-check svg{width:16px;height:16px;fill:currentColor}
+
+/* ─────────────────────────────────────────────────────────────
+   Экран «Календарь» (calendar.html).
+
+   Единственный вид — сетка месяца. Заголовков дней недели нет:
+   в оригинале их действительно нет, только числа. Значения ниже
+   сняты с боевого, а не подобраны: ячейка 166×110, рамка #ebebeb,
+   выходной #fbfbfb, сегодня — рамка #22bbd2, полоса события #eaeaea.
+   ───────────────────────────────────────────────────────────── */
+
+.cl-screen{flex:1;min-height:0;display:flex;flex-direction:column}
+.cl-sheet{
+  flex:1;min-height:0;display:flex;flex-direction:column;
+  border-radius:var(--hf-radius-l);
+  overflow:visible;
+}
+
+/* Шапка: три равные колонки, поэтому месяц стоит ровно по центру
+   независимо от ширины кнопок слева */
+.cl-head{display:flex;align-items:center;padding:0 8px;height:40px;margin:0 0 8px}
+.cl-head-col{flex:1;display:flex;gap:10px;position:relative}
+.cl-head-col--end{justify-content:flex-end}
+.cl-title{
+  flex:1;text-align:center;
+  font-size:22px;line-height:40px;font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-text-main);
+}
+.cl-head .hf-btn{border-radius:var(--hf-radius-s)}
+.cl-gear{width:52px;padding:0;color:var(--hf-color-text-light)}
+.cl-gear.is-open{background:var(--hf-color-button-secondary-fill-active)}
+
+/* Сетка: 7×6, рамки соседних ячеек схлопываются отрицательным полем */
+.cl-grid{
+  flex:1;min-height:0;
+  display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:110px;
+}
+.cl-cell{
+  position:relative;min-width:0;
+  border:1px solid #ebebeb;margin:0 -1px -1px 0;
+  overflow:visible;
+}
+.cl-cell--weekend{background:#fbfbfb}
+.cl-cell--today{border-color:#22bbd2;z-index:1}
+.cl-date{
+  padding:0 5px 0 0;text-align:right;
+  font-size:18px;line-height:32px;
+  color:var(--hf-color-text-main);
+}
+.cl-cell--filler .cl-date{color:#ccc}
+.cl-slots{display:flex;flex-direction:column;gap:1px;min-width:0}
+
+/* Полоса события. Обрезается многоточием: полное название — в подсказке */
+.cl-slot{
+  display:block;width:100%;height:16px;
+  padding:1px 7px;border:0;border-radius:0;
+  background:#eaeaea;color:var(--hf-color-text-main);
+  font:400 12px/14px inherit;text-align:left;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  cursor:pointer;
+}
+.cl-slot:hover{background:#dcdcdc}
+.cl-slot.is-open{background:#22bbd2;color:#fff}
+.cl-slot:focus-visible,.cl-more:focus-visible{outline:2px solid #0093ac;outline-offset:1px}
+/* Отменённое не исчезает из сетки, а зачёркивается */
+.cl-strike{text-decoration:line-through}
+
+.cl-more{
+  align-self:flex-start;
+  padding:1px 7px;border:0;background:none;
+  color:#999;font:400 12px/14px inherit;cursor:pointer;
+}
+.cl-more:hover{color:var(--hf-color-text-main)}
+
+/* ── Всплывающие карточки ──────────────────────────────────── */
+
+.cl-pop-anchor{position:absolute;top:32px;left:0;z-index:20}
+.cl-pop-anchor--right{left:auto;right:0}
+.cl-pop{
+  background:var(--hf-color-base-white-900);
+  border-radius:var(--hf-radius-s);
+  box-shadow:0 0 25px rgba(0,0,0,.15);
+  text-align:left;
+}
+.cl-pop--event{width:550px}
+.cl-pop--day{width:500px}
+.cl-pop--sources{position:absolute;top:44px;right:0;width:300px;padding:8px;z-index:20}
+
+.cl-ev-head{padding:16px;border-bottom:1px solid var(--hf-color-base-main-alpha-200)}
+.cl-ev-title{
+  margin:0;font-size:18px;line-height:22px;font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-text-main);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.cl-ev-sub{margin:0;font-size:16px;line-height:18px;color:var(--hf-color-text-main)}
+.cl-ev-body{margin:0;padding:16px}
+.cl-ev-body dt{font-size:14px;line-height:20px;color:var(--hf-color-text-secondary)}
+.cl-ev-body dd{margin:0;font-size:15px;line-height:20px;color:var(--hf-color-text-main)}
+.cl-ev-body dt + dd{margin-bottom:8px}
+.cl-ev-text{margin-bottom:8px;font-size:15px;line-height:20px;color:var(--hf-color-text-main)}
+.cl-ev-foot{
+  display:flex;gap:8px;align-items:center;
+  padding:16px;border-top:1px solid var(--hf-color-base-main-alpha-200);
+}
+.cl-ev-remove{margin-left:auto;color:var(--hf-color-text-secondary)}
+
+/* Карточка дня — единственное место, где день виден целиком */
+.cl-day-title{
+  margin:0;padding:16px;
+  font-size:15px;line-height:20px;font-weight:var(--hf-font-weight-medium);
+  color:var(--hf-color-text-main);
+}
+.cl-day-list{display:flex;flex-direction:column}
+.cl-day-item{
+  display:block;width:100%;height:42px;
+  padding:0 20px;border:0;border-top:1px solid var(--hf-color-base-main-alpha-200);
+  background:none;color:var(--hf-color-text-main);
+  font:400 16px/42px inherit;text-align:left;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;
+}
+.cl-day-item:hover{background:var(--hf-color-base-main-alpha-100)}
+.cl-day-foot{padding:16px;border-top:1px solid var(--hf-color-base-main-alpha-200)}
+
+/* Список календарей под шестернёй. Их здесь один: чужой календарь
+   появится в списке только после подключения почты в настройках */
+.cl-source{
+  display:flex;align-items:center;gap:8px;
+  height:36px;padding:0 8px;border-radius:var(--hf-radius-s);
+  font-size:var(--hf-font-size-s);color:var(--hf-color-text-main);
+}
+.cl-source svg{color:var(--hf-color-text-main)}

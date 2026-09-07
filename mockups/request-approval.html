@@ -1,0 +1,40 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/request.md
+
+     Единственная страница переноса, живущая ВНЕ приложения. Согласующий
+     получает ссылку вида /request/vacancy/<токен> и открывает её без входа
+     в систему: ни авторизации, ни проверки личности здесь нет. Поэтому
+     ни сайдбара, ни шапки приложения — только логотип и белый лист.
+
+     Состояния адресуются хешем:
+       request-approval.html            — решение ещё не принято
+       request-approval.html#confirm    — подтверждение согласования
+       request-approval.html#approved   — согласовано
+       request-approval.html#rejected   — отклонено -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Согласование заявки на подбор — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="screens.css">
+<script src="icons.js" defer></script>
+<script src="shell.js" defer></script>
+<script src="request-approval.js" defer></script>
+</head>
+<body class="ra-body">
+
+<header class="ra-header">
+  <img src="assets/logo-huntflow.svg" width="152" height="36" alt="Хантфлоу">
+</header>
+
+<main class="ra-sheet">
+  <div class="ra-inner" id="approval-screen"></div>
+</main>
+
+</body>
+</html>

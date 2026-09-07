@@ -1,0 +1,50 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/settings-org.md,
+     settings-funnel.md, settings-business.md, settings-users.md, settings-response.md, settings-api.md,
+     settings-themes.md, settings-my.md -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Настройки — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="screens.css">
+<script src="icons.js" defer></script>
+<script src="shell.js" defer></script>
+<!-- Порядок важен: ядро, потом разделы. Каждый раздел дописывает
+     себя в SECTIONS; отрисовка ждёт DOMContentLoaded -->
+<script src="settings.js" defer></script>
+<script src="settings-home.js" defer></script>
+<script src="settings-org.js" defer></script>
+<script src="settings-funnel.js" defer></script>
+<script src="settings-business.js" defer></script>
+<script src="settings-templates.js" defer></script>
+<script src="settings-users.js" defer></script>
+<script src="settings-response.js" defer></script>
+<script src="settings-api.js" defer></script>
+<script src="settings-themes.js" defer></script>
+<script src="settings-my.js" defer></script>
+</head>
+<body>
+
+<!-- У настроек своя оболочка: сайдбара вакансий нет,
+     в шапке вместо названия вакансии возврат к работе -->
+<div class="hf-app" data-od-id="app-settings">
+  <header class="hf-header" id="hf-header" data-od-id="app-header"></header>
+  <div class="hf-canvas">
+    <main class="hf-main">
+
+      <div class="st-cover" data-od-id="settings-cover">
+        <div class="st-inner" id="settings-screen"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/vacancy-info.md -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Сведения о вакансии — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="screens.css">
+<script src="icons.js" defer></script>
+<script src="shell.js" defer></script>
+<script src="vacancy-info.js" defer></script>
+</head>
+<body>
+
+<div class="hf-app" data-od-id="app-vacancy-info">
+  <header class="hf-header" id="hf-header" data-od-id="app-header"></header>
+  <div class="hf-canvas">
+    <aside class="hf-sidebar" id="hf-sidebar" data-od-id="app-sidebar"></aside>
+    <main class="hf-main">
+
+      <!-- Один остров на всю ширину: списка кандидатов здесь нет -->
+      <div class="vi-sheet" data-od-id="vacancy-info-sheet">
+        <div class="vi-inner" id="vacancy-info"></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

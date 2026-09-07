@@ -1,0 +1,269 @@
+/* ─────────────────────────────────────────────────────────────
+   Токены Хантфлоу.
+   Сняты со стилей боевого приложения (huntflow.ru/app), а не подобраны
+   на глаз. Имена переменных сохранены как в оригинале — так проще
+   сверяться с референсом и позже подменять значения на свои.
+   ───────────────────────────────────────────────────────────── */
+
+:root{
+  /* ── Палитра: нейтральная ───────────────────────────────── */
+  --hf-color-base-main-50:#f8f8f8;
+  --hf-color-base-main-100:#f5f5f5;
+  --hf-color-base-main-200:#ededed;
+  --hf-color-base-main-300:#d7d7d7;
+  --hf-color-base-main-400:#cdcdcd;
+  --hf-color-base-main-500:#b4b4b4;
+  --hf-color-base-main-600:#989898;
+  --hf-color-base-main-700:#696969;
+  --hf-color-base-main-750:#3c3c3c;
+  --hf-color-base-main-800:#1e1e1e;
+  --hf-color-base-main-900:#050505;
+  --hf-color-base-white-900:#fff;
+
+  --hf-color-base-main-alpha-0:transparent;
+  --hf-color-base-main-alpha-100:rgba(5,5,5,.03);
+  --hf-color-base-main-alpha-150:rgba(5,5,5,.05);
+  --hf-color-base-main-alpha-200:rgba(5,5,5,.08);
+  --hf-color-base-main-alpha-300:rgba(5,5,5,.16);
+  --hf-color-base-main-alpha-400:rgba(5,5,5,.2);
+  --hf-color-base-main-alpha-500:rgba(5,5,5,.3);
+  --hf-color-base-main-alpha-600:rgba(5,5,5,.45);
+  --hf-color-base-main-alpha-700:rgba(5,5,5,.6);
+  --hf-color-base-main-alpha-800:rgba(5,5,5,.8);
+
+  --hf-color-base-white-alpha-0:hsla(0,0%,100%,0);
+  --hf-color-base-white-alpha-100:hsla(0,0%,100%,.03);
+  --hf-color-base-white-alpha-150:hsla(0,0%,100%,.05);
+  --hf-color-base-white-alpha-200:hsla(0,0%,100%,.08);
+  --hf-color-base-white-alpha-300:hsla(0,0%,100%,.16);
+  --hf-color-base-white-alpha-400:hsla(0,0%,100%,.2);
+  --hf-color-base-white-alpha-500:hsla(0,0%,100%,.3);
+  --hf-color-base-white-alpha-600:hsla(0,0%,100%,.45);
+  --hf-color-base-white-alpha-700:hsla(0,0%,100%,.6);
+  --hf-color-base-white-alpha-800:hsla(0,0%,100%,.8);
+
+  /* ── Палитра: цветная ───────────────────────────────────── */
+  --hf-color-base-cyan-50:#f6fdfe;
+  --hf-color-base-cyan-100:#ebfcff;
+  --hf-color-base-cyan-200:#d6f6fd;
+  --hf-color-base-cyan-300:#97dff2;
+  --hf-color-base-cyan-400:#56d2ec;
+  --hf-color-base-cyan-500:#25cfe8;
+  --hf-color-base-cyan-600:#0ab3ce;
+  --hf-color-base-cyan-700:#0093ac;
+  --hf-color-base-cyan-800:#00768a;
+  --hf-color-base-cyan-900:#004f5c;
+
+  --hf-color-base-red-50:#fff9f9;
+  --hf-color-base-red-100:#fff5f5;
+  --hf-color-base-red-200:#ffd8d8;
+  --hf-color-base-red-300:#ffb3af;
+  --hf-color-base-red-400:#ff7a73;
+  --hf-color-base-red-500:#ff533b;
+  --hf-color-base-red-600:red;
+  --hf-color-base-red-700:#df0000;
+  --hf-color-base-red-800:#b20000;
+  --hf-color-base-red-900:maroon;
+
+  --hf-color-base-green-50:#f4faec;
+  --hf-color-base-green-100:#e4f2d0;
+  --hf-color-base-green-200:#cae6a1;
+  --hf-color-base-green-300:#afd973;
+  --hf-color-base-green-400:#95cd45;
+  --hf-color-base-green-500:#7ac016;
+  --hf-color-base-green-600:#70b60b;
+  --hf-color-base-green-700:#5ca200;
+  --hf-color-base-green-800:#16730d;
+  --hf-color-base-green-900:#0f4d09;
+
+  --hf-color-base-pistou-green-50:#ecfaf1;
+  --hf-color-base-pistou-green-100:#d0f2dd;
+  --hf-color-base-pistou-green-200:#a2e5bb;
+  --hf-color-base-pistou-green-300:#73d998;
+  --hf-color-base-pistou-green-400:#45cc76;
+  --hf-color-base-pistou-green-500:#16bf54;
+  --hf-color-base-pistou-green-600:#36a85f;
+  --hf-color-base-pistou-green-700:#0d7332;
+
+  --hf-color-base-orange-50:#fff7f2;
+  --hf-color-base-orange-100:#fdefe7;
+  --hf-color-base-orange-200:#fbdcc8;
+  --hf-color-base-orange-300:#f7be98;
+  --hf-color-base-orange-400:#f59e0b;
+  --hf-color-base-orange-500:#f38b2a;
+  --hf-color-base-orange-600:#e67900;
+  --hf-color-base-orange-700:#c46200;
+
+  --hf-color-base-yellow-50:#fffbe9;
+  --hf-color-base-yellow-100:#fff4c5;
+  --hf-color-base-yellow-200:#fee585;
+  --hf-color-base-yellow-300:#ffd22e;
+  --hf-color-base-yellow-400:#ffba00;
+  --hf-color-base-yellow-500:#fe9900;
+  --hf-color-base-yellow-600:#e27000;
+
+  --hf-color-base-violet-400:#8a62c0;
+  --hf-color-base-violet-500:#7147ad;
+  --hf-color-base-violet-600:#512e8c;
+  --hf-color-base-violet-700:#401e7b;
+  --hf-color-base-violet-800:#2c0a67;
+
+  --hf-color-base-teal-400:#52d2be;
+  --hf-color-base-teal-500:#44b8a7;
+  --hf-color-base-teal-600:#359489;
+
+  --hf-color-base-pink-400:#ff829d;
+  --hf-color-base-pink-500:#ff5d80;
+  --hf-color-base-pink-600:#ff3963;
+
+  --hf-color-base-purple-400:#daa3dc;
+  --hf-color-base-purple-500:#bf79c1;
+  --hf-color-base-purple-600:#b050b9;
+
+  /* ── Семантика: текст ───────────────────────────────────── */
+  --hf-color-text-main:var(--hf-color-base-main-900);
+  --hf-color-text-secondary:var(--hf-color-base-main-700);
+  --hf-color-text-semilight:var(--hf-color-base-main-600);
+  --hf-color-text-light:var(--hf-color-base-main-500);
+  --hf-color-text-invert:var(--hf-color-base-white-900);
+  --hf-color-text-danger:var(--hf-color-base-red-600);
+  --hf-color-text-hover:var(--hf-color-base-red-600);
+  --hf-color-text-success:var(--hf-color-base-green-500);
+  --hf-color-link-default:var(--hf-color-base-cyan-700);
+  --hf-color-link-hover:var(--hf-color-base-red-500);
+
+  /* ── Семантика: поверхности ─────────────────────────────── */
+  --hf-color-pagetemplate-background:#f2f2f2;
+  --hf-color-island-background:var(--hf-color-base-white-900);
+  --hf-color-divider-default:var(--hf-color-base-main-200);
+  --hf-color-plank-default-background:#f5f5f5;
+  --hf-color-plank-default-border:#e5e5e5;
+  --hf-color-plank-danger-background:#fff5f5;
+  --hf-color-plank-danger-border:#ffd8d8;
+  --hf-color-plank-danger-text:#df0000;
+  --hf-color-plank-success-background:rgba(24,191,85,.04);
+  --hf-color-plank-success-border:rgba(24,191,85,.16);
+  --hf-color-plank-success-text:#00972d;
+
+  /* ── Семантика: кнопки ──────────────────────────────────── */
+  --hf-color-button-primary-default:var(--hf-color-base-main-900);
+  --hf-color-button-primary-hover:var(--hf-color-base-main-800);
+  --hf-color-button-primary-active:var(--hf-color-base-main-750);
+  --hf-color-button-secondary-border-default:var(--hf-color-base-main-alpha-200);
+  --hf-color-button-secondary-fill-default:var(--hf-color-base-white-900);
+  --hf-color-button-secondary-fill-hover:var(--hf-color-base-main-200);
+  --hf-color-button-secondary-fill-active:var(--hf-color-base-main-100);
+  --hf-color-button-accent-default:var(--hf-color-base-green-500);
+  --hf-color-button-accent-hover:var(--hf-color-base-green-600);
+  --hf-color-button-accent-active:var(--hf-color-base-green-700);
+  --hf-color-button-danger-default:var(--hf-color-base-red-500);
+  --hf-color-button-danger-hover:var(--hf-color-base-red-600);
+  --hf-color-button-danger-active:var(--hf-color-base-red-700);
+  --hf-color-button-disable-default:var(--hf-color-base-main-100);
+  --hf-color-button-transparent-secondary-fill-default:var(--hf-color-base-main-alpha-0);
+  --hf-color-button-transparent-secondary-fill-hover:var(--hf-color-base-main-alpha-150);
+  --hf-color-button-transparent-secondary-fill-active:var(--hf-color-base-main-alpha-200);
+  --hf-color-button-border-focus:var(--hf-color-base-main-200);
+
+  /* ── Семантика: поля ────────────────────────────────────── */
+  --hf-color-input-background-default:var(--hf-color-base-white-900);
+  --hf-color-input-background-disable:var(--hf-color-base-main-50);
+  --hf-color-input-background-check-default:var(--hf-color-base-cyan-600);
+  --hf-color-input-border-default:var(--hf-color-base-main-300);
+  --hf-color-input-border-focus:var(--hf-color-base-cyan-500);
+  --hf-color-input-border-focus-visible:var(--hf-color-base-cyan-200);
+  --hf-color-input-border-error:var(--hf-color-base-red-600);
+  --hf-color-input-border-disable:var(--hf-color-base-main-200);
+  --hf-color-input-text-placeholder:var(--hf-color-text-semilight);
+
+  /* ── Семантика: бейджи ──────────────────────────────────── */
+  --hf-color-badge-background-grey:var(--hf-color-base-main-50);
+  --hf-color-badge-background-cyan:var(--hf-color-base-cyan-50);
+  --hf-color-badge-background-green:var(--hf-color-base-green-50);
+  --hf-color-badge-background-orange:var(--hf-color-base-orange-50);
+  --hf-color-badge-background-red:var(--hf-color-base-red-50);
+  --hf-color-badge-text-grey:var(--hf-color-base-main-600);
+  --hf-color-badge-text-cyan:var(--hf-color-base-cyan-700);
+  --hf-color-badge-text-green:var(--hf-color-base-green-600);
+  --hf-color-badge-text-orange:var(--hf-color-base-orange-600);
+  --hf-color-badge-text-red:var(--hf-color-base-red-600);
+
+  /* ── Сайдбар ────────────────────────────────────────────── */
+  --sidebar-background:#000;
+  --sidebar-text-color:#fff;
+  --sidebar-header-text-color:#929097;
+  --sidebar-text-background-active:rgba(255,255,255,.14);
+  --sidebar-text-background-hover:rgba(255,255,255,.09);
+  --sidebar-divider-color:rgba(255,255,255,.16);
+  --sidebar-vertical-divider-color:#38343f;
+  --plus-button-background:#25cfe8;
+
+  /* ── Шрифт ──────────────────────────────────────────────── */
+  /* Оригинал — Graphik LC (лицензионный, в макет не кладём).
+     Golos Text подставлен как ближайший свободный аналог с кириллицей:
+     та же гротескная основа и близкие пропорции. Если Graphik установлен
+     в системе — возьмётся он, и макет совпадёт с боевым один в один. */
+  --hf-font-family-body:'Graphik LC','Graphik','Golos Text',Arial,Tahoma,Verdana,sans-serif;
+  --hf-font-weight-regular:400;
+  --hf-font-weight-medium:500;
+
+  --hf-font-size-4xs:11px; --hf-font-size-3xs:12px; --hf-font-size-xxs:14px;
+  --hf-font-size-xs:15px;  --hf-font-size-s:16px;   --hf-font-size-m:18px;
+  --hf-font-size-l:20px;   --hf-font-size-xl:22px;  --hf-font-size-2xl:24px;
+  --hf-font-size-3xl:26px; --hf-font-size-4xl:28px; --hf-font-size-5xl:30px;
+  --hf-font-size-6xl:40px;
+
+  --hf-font-size-text-h1:var(--hf-font-size-5xl);
+  --hf-font-size-text-h2:var(--hf-font-size-2xl);
+  --hf-font-size-text-h3:var(--hf-font-size-l);
+  --hf-font-size-text-h4:var(--hf-font-size-m);
+  --hf-font-size-text-primary:var(--hf-font-size-xs);
+  --hf-font-size-text-secondary:var(--hf-font-size-xxs);
+  --hf-font-size-text-accent:var(--hf-font-size-s);
+  --hf-font-size-text-extra-small:var(--hf-font-size-3xs);
+  --hf-font-size-text-tag:var(--hf-font-size-4xs);
+
+  --hf-font-line-height-text-h1:40px;
+  --hf-font-line-height-text-h2:28px;
+  --hf-font-line-height-text-h3:28px;
+  --hf-font-line-height-text-h4:24px;
+  --hf-font-line-height-text-primary:24px;
+  --hf-font-line-height-text-secondary:20px;
+  --hf-font-line-height-text-accent:24px;
+  --hf-font-line-height-text-extra-small:18px;
+  --hf-font-line-height-text-tag:14px;
+
+  /* ── Отступы ────────────────────────────────────────────── */
+  --hf-spacing-xxs:2px; --hf-spacing-xs:4px;  --hf-spacing-xs-2:6px;
+  --hf-spacing-s:8px;   --hf-spacing-m:12px;  --hf-spacing-l:16px;
+  --hf-spacing-xl:20px; --hf-spacing-xxl:24px; --hf-spacing-3xl:32px;
+  --hf-spacing-4xl:40px; --hf-spacing-5xl:48px; --hf-spacing-6xl:56px;
+
+  /* ── Радиусы ────────────────────────────────────────────── */
+  --hf-radius-3xs:1px; --hf-radius-xxs:2px; --hf-radius-xs:4px;
+  --hf-radius-s:8px;   --hf-radius-m:12px;  --hf-radius-l:16px;
+  --hf-radius-xl:20px; --hf-radius-xxl:24px; --hf-radius-10xl:999px;
+
+  /* ── Границы ────────────────────────────────────────────── */
+  --hf-border-xs:1px; --hf-border-s:2px; --hf-border-m:3px;
+
+  /* ── Размеры ────────────────────────────────────────────── */
+  --hf-size-button-height-xs:28px;
+  --hf-size-button-height-s:32px;
+  --hf-size-button-height-m:36px;
+  --hf-size-button-height-l:40px;
+  --hf-size-button-height-xl:48px;
+  --hf-size-button-height-xxl:56px;
+  --hf-size-avatar-xxs:24px; --hf-size-avatar-xs:28px; --hf-size-avatar-s:32px;
+  --hf-size-avatar-m:44px;   --hf-size-avatar-l:56px;  --hf-size-avatar-xl:64px;
+  --hf-size-popup-width-default:768px;
+  --hf-size-popup-width-large:1024px;
+
+  /* ── Тень выпадающих ────────────────────────────────────── */
+  --hf-shadow-dropdown:0 0 40px 0 var(--hf-color-base-main-alpha-300);
+
+  /* ── Каркас страницы ────────────────────────────────────── */
+  --header-height:56px;
+  --layout-offset:8px;
+  --sidebar-width:250px;
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/settings-api.md
+
+     Вторая страница переноса, живущая ВНЕ приложения — после согласования
+     заявки. Администратор, заведя токен, получает не сам ключ, а ссылку
+     вида /token_request/<секрет>, действующую три рабочих дня, и передаёт
+     её разработчику. Разработчик открывает её без входа в систему и сам
+     забирает пару access/refresh. Секрет не проходит через руки того,
+     кто токен создавал, и в приложении не показывается никогда.
+
+     Поэтому ни сайдбара, ни шапки — только логотип и белый лист.
+
+     Состояния адресуются хешем:
+       token-request.html          — ссылка открыта, токен ещё не забрали
+       token-request.html#issued   — токены показаны, единственный раз
+       token-request.html#used     — по ссылке уже приходили -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Получение токена API — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="screens.css">
+<script src="icons.js" defer></script>
+<script src="shell.js" defer></script>
+<script src="token-request.js" defer></script>
+</head>
+<body class="ra-body">
+
+<header class="ra-header">
+  <img src="assets/logo-huntflow.svg" width="152" height="36" alt="Хантфлоу">
+</header>
+
+<main class="ra-sheet">
+  <div class="ra-inner" id="token-screen"></div>
+</main>
+
+</body>
+</html>

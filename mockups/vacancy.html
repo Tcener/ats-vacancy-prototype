@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/vacancy.md -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Вакансия — макет ATS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="shell.css">
+<link rel="stylesheet" href="screens.css">
+<script src="icons.js" defer></script>
+<script src="shell.js" defer></script>
+<script src="candidate.js" defer></script>
+<script src="vacancy.js" defer></script>
+</head>
+<body>
+
+<div class="hf-app" data-od-id="app-vacancy">
+  <header class="hf-header" id="hf-header" data-od-id="app-header"></header>
+  <div class="hf-canvas">
+    <aside class="hf-sidebar" id="hf-sidebar" data-od-id="app-sidebar"></aside>
+    <main class="hf-main">
+
+      <div class="hf-tabflow" data-od-id="funnel-tabs">
+        <div class="hf-island hf-tabflow-lead">
+          <div class="ap-tabs-row" style="gap:var(--hf-spacing-xxl)">
+            <span class="vc-ai">AI</span>
+            <a class="ap-tab" href="#source=base"><span class="ap-tab-in">Из базы</span></a>
+            <a class="ap-tab" href="#source=replies"><span class="ap-tab-in">Отклики</span></a>
+          </div>
+        </div>
+        <div class="hf-island ap-tabflow-scroll">
+          <div class="ap-tabs-row" id="funnel-tabs-row"></div>
+        </div>
+        <div class="hf-island" style="width:52px;height:52px">
+          <button class="hf-icon-btn" style="width:52px;height:52px;color:var(--hf-color-text-main);border-radius:16px" type="button" aria-label="Настройка списка">
+            <svg style="width:24px;height:24px"><use href="#options-2-24"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Вкладка «В работе»: список во всю ширину -->
+      <div class="vc-list" id="vacancy-wide" data-od-id="vacancy-wide-list"></div>
+
+      <!-- Конкретный этап: те же две колонки, что на экране кандидатов -->
+      <div class="ap-columns" id="vacancy-split" hidden data-od-id="vacancy-split">
+        <div class="ap-list" id="candidate-list"></div>
+        <div class="ap-detail"><div class="ap-detail-inner" id="candidate-detail"></div></div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
