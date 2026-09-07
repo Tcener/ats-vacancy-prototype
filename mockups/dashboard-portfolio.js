@@ -41,7 +41,7 @@
   save();
   const date=value=>value?new Date(value+'T12:00:00').toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}):'—';
   const cell=(r,id)=>{
-    if(id==='name')return `<a class="vp-name" href="ats-product.html#vacancy/${r.id==='design'?'designer':r.id==='data'?'analyst':r.id==='backend'?'backend':r.id==='ios'?'ios':'android'}">${esc(r.name)}</a><span class="vp-sub">${r.start?'Поиск с '+date(r.start):'Поиск ещё не начат'}</span>`;
+    if(id==='name')return `<a class="vp-name" href="ats-product.html#vacancy/${r.id==='designer'?'designer':r.id==='analyst'?'analyst':r.id==='go'?'backend':r.id==='ios'?'ios':'android'}">${esc(r.name)}</a><span class="vp-sub">${r.start?'Поиск с '+date(r.start):'Поиск ещё не начат'}</span>`;
     if(id==='status')return `<span class="vp-status ${r.status}">${statuses[r.status]}</span>${r.sla<0?'<span class="vp-risk">Просрочен SLA</span>':''}`;
     if(id==='progress')return `<div title="Демонстрационный индикатор прогресса воронки, не вероятность найма"><div class="vp-progress"><i style="width:${r.progress}%"></i></div><span class="vp-sub vp-number">${r.progress}%</span></div>`;
     if(id==='sla')return r.status==='hold'?'<span class="vp-sub">Заморожен</span>':r.sla===null?'<span class="vp-sub">Не начат</span>':`<span class="${r.sla<0?'vp-risk':'vp-number'}">${r.sla<0?'−'+Math.abs(r.sla)+' дн.':r.sla+' дн.'}</span><span class="vp-sub">${r.sla<0?'просрочено':'до '+date(r.deadline)}</span>`;

@@ -48,7 +48,7 @@
     const requests=document.querySelector('.hf-requests,[data-od-id="requests-empty"]');
     if(requests){const after=requests.nextElementSibling;requests.remove();if(after?.classList.contains('hf-sidebar-divider'))after.remove();}
     document.querySelectorAll('.hf-vacancy-org').forEach(node=>node.remove());
-    document.querySelectorAll('.hf-vacancy-link').forEach((node,index)=>{node.href=`ats-product.html#vacancy/${index===1?'designer':index===2?'analyst':index===7?'backend':index===8?'ios':'android'}`;});
+    document.querySelectorAll('.hf-vacancy-link').forEach(node=>{const name=node.textContent.trim().toLowerCase();const id=name.includes('designer')?'designer':name.includes('data')||name==='analyst'?'analyst':name.includes('backend')?'backend':name.includes('ios')||name.includes('devops')?'ios':'android';node.href=`ats-product.html#vacancy/${id}`;});
     const hold=document.querySelector('a[href*="state=hold"]');
     const closed=document.querySelector('a[href*="state=closed"]');
     if(hold&&closed){
