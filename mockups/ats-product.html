@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Собессо — интерактивный прототип ATS</title>
+  <link rel="icon" href="assets/mark-sobesso.ico">
+  <link rel="stylesheet" href="ats-product.css?v=20260907-1">
+  <script src="ats-product.js?v=20260907-1" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Основная навигация">
+      <a class="brand" href="dashboard.html" aria-label="Собессо — главная"><img src="assets/logo-sobesso.png" alt="Собессо"></a>
+      <nav class="main-nav" id="main-nav">
+        <a class="nav-item" href="dashboard.html"><svg class="nav-icon"><use href="assets/icons.svg#home-20"></use></svg><span>Главная</span></a>
+        <button class="nav-item" data-route="search"><svg class="nav-icon"><use href="assets/icons.svg#search-20"></use></svg><span>Поиск</span></button>
+        <button class="nav-item" data-route="tasks"><svg class="nav-icon"><use href="assets/icons.svg#check"></use></svg><span>Мои задачи</span><span class="nav-count">7</span></button>
+        <button class="nav-item" data-route="calendar"><svg class="nav-icon"><use href="assets/icons.svg#calendar-20"></use></svg><span>Календарь</span></button>
+        <button class="nav-item" data-route="analytics"><svg class="nav-icon"><use href="assets/icons.svg#graph-20"></use></svg><span>Аналитика</span></button>
+        <button class="nav-item" data-route="requisitions"><svg class="nav-icon"><use href="assets/icons.svg#edit-2-20"></use></svg><span>Заявки</span><span class="nav-count">3</span></button>
+        <button class="nav-item" data-route="settings"><svg class="nav-icon"><use href="assets/icons.svg#settings"></use></svg><span>Настройки</span></button>
+      </nav>
+      <section class="vacancy-nav">
+        <div class="vacancy-nav-title"><svg class="nav-icon"><use href="assets/icons.svg#folder-20"></use></svg><b>Мои вакансии</b><svg class="nav-icon"><use href="assets/icons.svg#chevron-down-20"></use></svg></div>
+        <button data-route="vacancy/android">Senior Android-разработчик</button>
+        <button data-route="vacancy/designer">Senior Product Designer</button>
+        <button data-route="vacancy/analyst">Data Analyst</button>
+        <button data-route="vacancy/backend">Backend-разработчик Go</button>
+        <button data-route="vacancy/ios">Senior iOS-разработчик</button>
+        <button class="archive" data-route="portfolio"><svg class="nav-icon"><use href="assets/icons.svg#archive-2-20"></use></svg>Архив</button>
+      </section>
+      <div class="fab-row"><button class="fab" id="create-fab" aria-label="Создать">+</button><button class="fab ai" id="ai-fab" aria-label="Открыть ИИ-ассистента">AI</button></div>
+    </aside>
+    <main class="main-sheet" id="screen" tabindex="-1"></main>
+  </div>
+  <dialog class="modal" id="modal" aria-labelledby="modal-title"><header><div><h2 id="modal-title"></h2><p id="modal-subtitle"></p></div><button class="icon-btn" data-close-modal aria-label="Закрыть">×</button></header><div class="modal-body" id="modal-body"></div><footer id="modal-footer"></footer></dialog>
+  <aside class="drawer" id="drawer" hidden><header><div><h2 id="drawer-title"></h2><p id="drawer-subtitle"></p></div><button class="icon-btn" data-close-drawer aria-label="Закрыть">×</button></header><div class="drawer-body" id="drawer-body"></div></aside>
+  <aside class="ai-panel" id="ai-panel" hidden><header><div><b>ИИ-ассистент Собессо</b><small id="ai-context">Контекст: текущий экран</small></div><button class="icon-btn" data-close-ai aria-label="Закрыть">×</button></header><div class="ai-messages" id="ai-messages"><div class="ai-message">Опишите, что нужно найти, объяснить или настроить. Перед изменением я покажу план и попрошу подтверждение.</div><div class="ai-suggestions"><button>Покажи риски SLA</button><button>Найди сильных кандидатов</button><button>Настрой этот экран</button></div></div><form class="ai-compose" id="ai-form"><input id="ai-input" placeholder="Напишите задачу обычным языком"><button>↑</button></form></aside>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>

@@ -23,6 +23,10 @@
 .portfolio-mode .hf-fab,.portfolio-mode .sb-ai-fab{background:#6b53d5;color:#fff;box-shadow:none}
 .portfolio-mode .hf-fab:hover,.portfolio-mode .sb-ai-fab:hover{background:#5d45c6;filter:none}
 .portfolio-mode .kd-sheet{border-radius:18px;border:1px solid #f0f0f0}
+.portfolio-mode{--sb-block-border:#d8d2e3}
+.portfolio-mode .sb-counter,.portfolio-mode .sb-plan,.portfolio-mode .sb-meetings,
+.portfolio-mode .vp-table-wrap{border:2px solid var(--sb-block-border)}
+.portfolio-mode .vp-table th,.portfolio-mode .vp-table td{border-bottom-color:#ded9e6}
 .portfolio-mode .hf-menu{border-color:#f0f0f0;border-radius:14px;box-shadow:0 12px 36px rgba(23,23,23,.14)}
 .portfolio-mode .hf-menu-title{color:#747474}
 .portfolio-mode .hf-menu-item:hover{background:#f5f0ff}

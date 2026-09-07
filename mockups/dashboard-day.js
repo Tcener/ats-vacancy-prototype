@@ -39,20 +39,21 @@
     nav.dataset.sobessoNav='true';
     nav.innerHTML=`
       <li><a class="hf-nav-link is-active" href="dashboard.html">${HF.icon('home-20')}<span class="hf-nav-title">Главная</span></a></li>
-      <li><a class="hf-nav-link" href="search.html">${HF.icon('search-20')}<span class="hf-nav-title">Поиск</span></a></li>
-      <li><button class="hf-nav-link hf-nav-action" type="button" data-sb-nav-tasks>${HF.icon('check')}<span class="hf-nav-title">Мои задачи</span><span class="hf-nav-count">7</span></button></li>
-      <li><a class="hf-nav-link" href="calendar.html">${HF.icon('calendar-20')}<span class="hf-nav-title">Календарь</span></a></li>
-      <li><a class="hf-nav-link" href="#">${HF.icon('graph-20')}<span class="hf-nav-title">Аналитика</span></a></li>
-      <li><button class="hf-nav-link hf-nav-action" type="button" data-hf-modal="request-queue">${HF.icon('edit-2-20')}<span class="hf-nav-title">Заявки</span><span class="hf-nav-count">1</span></button></li>
-      <li><button class="hf-nav-link hf-nav-action" type="button" data-hf-menu="settings">${HF.icon('settings')}<span class="hf-nav-title">Настройки</span></button></li>`;
+      <li><a class="hf-nav-link" href="ats-product.html#search">${HF.icon('search-20')}<span class="hf-nav-title">Поиск</span></a></li>
+      <li><a class="hf-nav-link" href="ats-product.html#tasks">${HF.icon('check')}<span class="hf-nav-title">Мои задачи</span><span class="hf-nav-count">7</span></a></li>
+      <li><a class="hf-nav-link" href="ats-product.html#calendar">${HF.icon('calendar-20')}<span class="hf-nav-title">Календарь</span></a></li>
+      <li><a class="hf-nav-link" href="ats-product.html#analytics">${HF.icon('graph-20')}<span class="hf-nav-title">Аналитика</span></a></li>
+      <li><a class="hf-nav-link" href="ats-product.html#requisitions">${HF.icon('edit-2-20')}<span class="hf-nav-title">Заявки</span><span class="hf-nav-count">1</span></a></li>
+      <li><a class="hf-nav-link" href="ats-product.html#settings">${HF.icon('settings')}<span class="hf-nav-title">Настройки</span></a></li>`;
     const requests=document.querySelector('.hf-requests,[data-od-id="requests-empty"]');
     if(requests){const after=requests.nextElementSibling;requests.remove();if(after?.classList.contains('hf-sidebar-divider'))after.remove();}
     document.querySelectorAll('.hf-vacancy-org').forEach(node=>node.remove());
+    document.querySelectorAll('.hf-vacancy-link').forEach((node,index)=>{node.href=`ats-product.html#vacancy/${index===1?'designer':index===2?'analyst':index===7?'backend':index===8?'ios':'android'}`;});
     const hold=document.querySelector('a[href*="state=hold"]');
     const closed=document.querySelector('a[href*="state=closed"]');
     if(hold&&closed){
       const archive=document.createElement('div');archive.className='sb-archive';
-      archive.innerHTML=`<button class="hf-nav-link hf-nav-action" type="button" data-sb-archive aria-expanded="false">${HF.icon('archive-2-20')}<span class="hf-nav-title">Архив</span>${HF.icon('chevron-down-20')}</button><div class="sb-archive-links" hidden><a href="${hold.getAttribute('href')}">На паузе</a><a href="${closed.getAttribute('href')}">Закрытые вакансии</a></div>`;
+      archive.innerHTML=`<a class="hf-nav-link" href="ats-product.html#portfolio">${HF.icon('archive-2-20')}<span class="hf-nav-title">Архив</span></a>`;
       hold.previousElementSibling?.insertAdjacentElement('afterend',archive);
       hold.remove();closed.remove();
     }
