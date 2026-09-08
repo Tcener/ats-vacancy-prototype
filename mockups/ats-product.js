@@ -141,9 +141,9 @@
 
   function render(){
     const route=location.hash.slice(1)||'search';
-    document.querySelectorAll('.nav-item[data-route]').forEach(x=>x.classList.toggle('active',x.dataset.route===route));
+    document.querySelectorAll('.nav-item[data-route]').forEach(x=>x.classList.toggle('active',x.dataset.route===route.split('/')[0]));
     $('#ai-context').textContent=`Контекст: ${route.startsWith('vacancy')?'вакансия':route==='requisitions'?'заявки':route==='analytics'?'аналитика':route==='tasks'?'мои задачи':route==='calendar'?'календарь':route==='settings'?'настройки':'поиск'}`;
-    if(route==='search')renderSearch();else if(route==='tasks')renderTasks();else if(route==='calendar')renderCalendar();else if(route==='analytics')renderAnalytics();else if(route==='requisitions')renderRequisitions();else if(route==='settings')renderSettings();else if(route==='portfolio')renderPortfolio();else if(route.startsWith('vacancy/'))renderVacancy(route.split('/')[1]);else renderSearch();
+    if(window.RecruitWorkspaces?.render(route)){}else if(route==='search')renderSearch();else if(route==='tasks')renderTasks();else if(route==='calendar')renderCalendar();else if(route==='analytics')renderAnalytics();else if(route==='requisitions')renderRequisitions();else if(route==='settings')renderSettings();else if(route==='portfolio')renderPortfolio();else if(route.startsWith('vacancy/'))renderVacancy(route.split('/')[1]);else renderSearch();
     screen.scrollTop=0;screen.focus({preventScroll:true});
   }
 
