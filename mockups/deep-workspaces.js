@@ -133,7 +133,7 @@ window.RecruitWorkspaces=(()=>{
   let pendingRemote=false;
   window.addEventListener('storage',e=>{if(e.key!==KEY)return;pendingRemote=true;toast('Данные изменены в другой вкладке. Обновите страницу перед сохранением.');const el=document.getElementById('ws-editor-body')||document.getElementById('ws-request-main');el?.insertAdjacentHTML('afterbegin',`<div class="ws-note amber">Есть более свежая версия данных. Сохранение остановлено, чтобы не затереть чужие изменения. ${btn('Открыть актуальную версию','reload-current')}</div>`)});
   document.addEventListener('click',e=>{
-    if(e.target.closest('[data-action="new-requisition"]')){e.preventDefault();e.stopImmediatePropagation();document.getElementById('modal')?.close();newRequest();return}
+    if(e.target.closest('[data-action="new-requisition"]')){e.preventDefault();e.stopImmediatePropagation();document.getElementById('modal')?.close();if(window.RequestExperience?.open)window.RequestExperience.open();else newRequest();return}
     const a=e.target.closest('[data-ws]');if(!a)return;const act=a.dataset.ws;
     if(act==='row-up'){e.stopImmediatePropagation();const [key,i]=a.dataset.id.split(':');move(editing.values[key],Number(i),-1);markDirty();render(route);return}
     if(act==='reset-override'){e.stopImmediatePropagation();editing.values.active=false;markDirty();render(route);toast('Исключение будет завершено после публикации изменения.');return}
