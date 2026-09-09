@@ -73,17 +73,17 @@
 .vacancy-name-button{width:100%;min-height:48px;padding:10px 24px;border:0;background:#fff;color:var(--text);font-size:17px;font-weight:650;text-align:left;cursor:pointer}
 .vacancy-name-button:hover{background:#fbfaff}
 .compact-pipeline{height:50px;display:flex;align-items:stretch;gap:8px;overflow:hidden;margin:0 -24px;padding:6px 14px;border-bottom:1px solid var(--line-soft);background:#fafafa}
-.pipeline-sources{display:flex;gap:2px;padding-right:0;border-right:0}
-.pipeline-sources button,.pipeline-stages button,.pipeline-terminals button{display:flex;align-items:center;gap:6px;flex:none;padding:0 10px;border:0;border-radius:9px;background:transparent;color:#625d66;font-size:10px;white-space:nowrap}
+.pipeline-sources{display:flex;align-items:center;gap:2px;padding-right:0;border-right:0}
+.pipeline-sources button,.pipeline-stages button,.pipeline-terminals button{height:38px;display:flex;align-items:center;gap:6px;flex:none;margin:0;padding:0 10px;border:0;border-radius:9px;background:transparent;color:#625d66;font-size:10px;line-height:1.2;white-space:nowrap}
 .pipeline-sources button:hover,.pipeline-stages button:hover,.pipeline-terminals button:hover{background:#f0edf5;color:var(--accent-dark)}
 .pipeline-sources button:first-child{background:transparent;border:0}
 .pipeline-sources span,.pipeline-stages span,.pipeline-stages small,.pipeline-terminals span{min-width:18px;padding:2px 5px;border-radius:10px;background:#ece9ef;color:#79737d;font-size:8px;text-align:center}
-.pipeline-stages{min-width:0;display:flex;flex:1 1 0;align-items:stretch;gap:2px;overflow:hidden}
-.pipeline-terminals{display:flex;align-items:stretch;gap:3px;flex:none;padding-left:6px;border-left:1px solid #e5e0e8}
+.pipeline-stages{min-width:0;display:flex;flex:1 1 0;align-items:center;gap:2px;overflow:hidden}
+.pipeline-terminals{display:flex;align-items:center;gap:3px;flex:none;padding-left:6px;border-left:1px solid #e5e0e8}
 .pipeline-stages [hidden]{display:none}
 .pipeline-stages .work-total{font-weight:700;color:var(--text)}
-.pipeline-stages .stage{min-width:auto;height:auto;border:0;border-radius:9px;text-align:left}
-.pipeline-stages .stage b,.pipeline-stages .stage small{display:block;margin:0}
+.compact-pipeline .stage{min-width:auto;border:0;border-radius:9px;text-align:left}
+.compact-pipeline button b,.compact-pipeline button small,.compact-pipeline button span{margin-top:0;line-height:1.2}
 .compact-pipeline .stage.active{background:var(--accent);color:#fff}.compact-pipeline .stage.active small,.compact-pipeline .stage.active span{background:rgba(255,255,255,.2);color:#fff}
 .compact-pipeline .system-stage:not(.active){color:#6c5b82}
 .compact-pipeline .pipeline-outcome{border:1px solid #b9dccd;border-radius:9px;background:#f0faf6;color:#247153}.compact-pipeline .pipeline-outcome:hover{background:#e3f5ed;color:#176044}.compact-pipeline .pipeline-outcome span{background:#d9efe5;color:#247153}
