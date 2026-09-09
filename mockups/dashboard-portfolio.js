@@ -25,7 +25,7 @@
     ['sla','SLA',140],['start','Начало поиска',145],['deadline','Закрыть до',145],['candidates','Кандидатов',120],['location','Локация',160]
   ].map(([id,label,width])=>({id,label,width}));
   const defaults = () => ({schema:2,order:columns.map(c=>c.id),visible:columns.slice(0,9).map(c=>c.id),sort:null,direction:1});
-  let prefs=defaults(), draft, opener;
+  let prefs=defaults(), draft, opener, viewMode='table';
   try {
     const saved=JSON.parse(localStorage.getItem('hf-vacancy-portfolio-v1'));
     if(saved){
@@ -40,9 +40,15 @@
   const save=()=>{try{localStorage.setItem('hf-vacancy-portfolio-v1',JSON.stringify(prefs));}catch(_){}};
   save();
   const date=value=>value?new Date(value+'T12:00:00').toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}):'—';
+  const vacancyHref=r=>`ats-product.html#vacancy/${r.id==='designer'?'designer':r.id==='analyst'?'analyst':r.id==='go'?'backend':r.id==='ios'?'ios':'android'}`;
+  const statusChip=r=>`<span class="vp-status ${r.status}">${statuses[r.status]}</span>${r.sla<0?'<span class="vp-risk">Просрочен SLA</span>':''}`;
+  const slaValue=r=>r.status==='hold'?'Заморожен':r.sla===null?'Не начат':r.sla<0?`−${Math.abs(r.sla)} дн.`:`${r.sla} дн.`;
+  const attentionText=r=>r.sla<0?'Срок закрытия просрочен':!r.recruiter?'Нужно назначить рекрутера':r.status==='hold'?'Поиск приостановлен':r.sla<=5?'Скоро истекает SLA':`До SLA ${r.sla} дней`;
+  const attentionTone=r=>r.sla<0?'risk':!r.recruiter?'assign':r.status==='hold'?'hold':r.sla<=5?'soon':'normal';
+  const positionsWord=n=>n%10===1&&n%100!==11?'ставка':n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?'ставки':'ставок';
   const cell=(r,id)=>{
-    if(id==='name')return `<a class="vp-name" href="ats-product.html#vacancy/${r.id==='designer'?'designer':r.id==='analyst'?'analyst':r.id==='go'?'backend':r.id==='ios'?'ios':'android'}">${esc(r.name)}</a><span class="vp-sub">${r.start?'Поиск с '+date(r.start):'Поиск ещё не начат'}</span>`;
-    if(id==='status')return `<span class="vp-status ${r.status}">${statuses[r.status]}</span>${r.sla<0?'<span class="vp-risk">Просрочен SLA</span>':''}`;
+    if(id==='name')return `<a class="vp-name" href="${vacancyHref(r)}">${esc(r.name)}</a><span class="vp-sub">${r.start?'Поиск с '+date(r.start):'Поиск ещё не начат'}</span>`;
+    if(id==='status')return statusChip(r);
     if(id==='progress')return `<div title="Демонстрационный индикатор прогресса воронки, не вероятность найма"><div class="vp-progress"><i style="width:${r.progress}%"></i></div><span class="vp-sub vp-number">${r.progress}%</span></div>`;
     if(id==='sla')return r.status==='hold'?'<span class="vp-sub">Заморожен</span>':r.sla===null?'<span class="vp-sub">Не начат</span>':`<span class="${r.sla<0?'vp-risk':'vp-number'}">${r.sla<0?'−'+Math.abs(r.sla)+' дн.':r.sla+' дн.'}</span><span class="vp-sub">${r.sla<0?'просрочено':'до '+date(r.deadline)}</span>`;
     if(id==='start'||id==='deadline')return date(r[id]);
@@ -68,18 +74,30 @@
   document.getElementById('dashboard-screen').innerHTML=`
     <div class="vp-heading"><div class="vp-heading-title"><div class="kd-head"><h1 class="kd-title">Главная</h1></div><p>Понедельник, 07.09.2026</p></div><div id="sb-day-summary"></div></div>
     <section id="sb-day" aria-label="Мой рабочий день"></section>
-    <div class="vp-portfolio-heading"><h2>Вакансии команды</h2><button class="vp-btn" id="vp-columns">${icon('options-2-24')}Столбцы</button></div>
+    <div class="vp-portfolio-heading"><h2>Вакансии команды</h2><div class="vp-actions"><div class="vp-view-switch" role="group" aria-label="Вид списка вакансий"><button type="button" data-view="table" class="active" aria-pressed="true"><span class="vp-view-icon table" aria-hidden="true"></span>Таблица</button><button type="button" data-view="cards" aria-pressed="false"><span class="vp-view-icon cards" aria-hidden="true"></span>Карточки</button><button type="button" data-view="list" aria-pressed="false"><span class="vp-view-icon list" aria-hidden="true"></span>Список</button></div><button class="vp-btn" id="vp-columns">${icon('options-2-24')}Столбцы</button></div></div>
     <div class="vp-filters" aria-label="Фильтры вакансий"><input id="vp-query" placeholder="Найти вакансию…" aria-label="Найти вакансию"><select id="vp-recruiter" aria-label="Рекрутер">${options('recruiter','Все рекрутеры')}<option value="unassigned">Не назначен</option></select><select id="vp-department" aria-label="Департамент">${options('department','Все департаменты')}</select><select id="vp-status" aria-label="Статус вакансии"><option value="">Все статусы</option>${Object.entries(statuses).map(([id,label])=>`<option value="${id}">${label}</option>`).join('')}<option value="risk">Просрочен SLA</option></select><button class="vp-btn" id="vp-reset" hidden>Сбросить фильтры</button></div>
-    <div class="vp-meta"><span id="vp-count" role="status" aria-live="polite"></span><span id="vp-sort-note"></span></div><div class="vp-table-wrap" tabindex="0" aria-label="Таблица вакансий, прокручивается по горизонтали"><table class="vp-table" id="vp-table" aria-label="Вакансии команды"></table></div><div class="vp-foot"><span>Демонстрационные данные · 3 сентября 2026</span><a href="dashboard.html#view=reference" id="vp-reference">Оригинал Хантфлоу ↗</a></div>`;
-  const renderTable=()=>{
+    <div class="vp-meta"><span id="vp-count" role="status" aria-live="polite"></span><span id="vp-sort-note"></span></div><div id="vp-content"></div><div class="vp-foot"><span>Демонстрационные данные · 3 сентября 2026</span><a href="dashboard.html#view=reference" id="vp-reference">Оригинал Хантфлоу ↗</a></div>`;
+  const cardHtml=r=>`<article class="vp-card ${attentionTone(r)}"><header><div><a class="vp-card-name" href="${vacancyHref(r)}">${esc(r.name)}</a><p>${esc(r.department)} · ${esc(r.grade)} · ${esc(r.location)}</p></div><div class="vp-card-status">${statusChip(r)}</div></header><div class="vp-card-owner"><span class="vp-person-avatar">${r.recruiter?r.recruiter.split(' ').map(x=>x[0]).join('').slice(0,2):'—'}</span><div><small>Рекрутер</small><b>${esc(r.recruiter||'Не назначен')}</b></div><div class="vp-card-progress"><small>Прогноз закрытия</small><span><i style="width:${r.progress}%"></i></span><b>${r.progress}%</b></div></div><div class="vp-card-metrics"><div><small>Кандидаты</small><b>${r.candidates}</b></div><div><small>Ставки</small><b>${r.positions}</b></div><div><small>SLA</small><b class="${r.sla<0?'is-late':''}">${slaValue(r)}</b></div></div><footer><span>${r.start?'Поиск с '+date(r.start):'Поиск не начат'}</span><span>${r.deadline?'Закрыть до '+date(r.deadline):attentionText(r)}</span><a href="${vacancyHref(r)}" aria-label="Открыть вакансию ${esc(r.name)}">Открыть →</a></footer></article>`;
+  const listHtml=r=>`<a class="vp-visual-row ${attentionTone(r)}" href="${vacancyHref(r)}"><span class="vp-row-accent" aria-hidden="true"></span><span class="vp-row-main"><small>${esc(r.department)} · ${esc(r.grade)} · ${r.positions} ${r.positions===1?'ставка':'ставки'}</small><strong>${esc(r.name)}</strong><span>${esc(r.location)} · ${r.start?'поиск с '+date(r.start):'поиск ещё не начат'}</span></span><span class="vp-row-status">${statusChip(r)}</span><span class="vp-row-owner"><small>Рекрутер</small><b>${esc(r.recruiter||'Не назначен')}</b></span><span class="vp-row-attention"><small>Контроль</small><b>${attentionText(r)}</b></span><span class="vp-row-candidates"><small>Кандидаты</small><b>${r.candidates}</b></span><span class="vp-row-arrow" aria-hidden="true">›</span></a>`;
+  const renderPortfolio=()=>{
     const shown=prefs.order.filter(id=>prefs.visible.includes(id)).map(id=>columns.find(c=>c.id===id));
-    const rows=getRows();
-    const table=document.getElementById('vp-table');
-    table.style.minWidth=shown.reduce((sum,c)=>sum+c.width,0)+'px';
-    table.innerHTML=`<colgroup>${shown.map(c=>`<col style="width:${c.width}px">`).join('')}</colgroup><thead><tr>${shown.map(c=>`<th scope="col" aria-sort="${prefs.sort===c.id?(prefs.direction===1?'ascending':'descending'):'none'}"><button class="vp-sort" data-sort="${c.id}" title="Сортировать: ${c.label}">${c.label}<span aria-hidden="true">${prefs.sort===c.id?(prefs.direction===1?'↑':'↓'):'↕'}</span></button></th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr data-vacancy="${r.id}">${shown.map(c=>`<td>${cell(r,c.id)}</td>`).join('')}</tr>`).join(''):`<tr><td class="vp-empty" colspan="${shown.length}">Вакансии не найдены.<br>Попробуйте изменить запрос или сбросить фильтры.</td></tr>`}</tbody>`;
-    document.getElementById('vp-count').textContent=`${rows.length} из ${vacancies.length} вакансий · ${rows.reduce((s,r)=>s+r.positions,0)} ставок`;
-    document.getElementById('vp-sort-note').textContent=prefs.sort?`${columns.find(c=>c.id===prefs.sort).label}: ${prefs.direction===1?'по возрастанию':'по убыванию'}`:'Нажмите на заголовок, чтобы отсортировать';
+    let rows=getRows();
+    const content=document.getElementById('vp-content');
+    if(viewMode==='table'){
+      const minWidth=shown.reduce((sum,c)=>sum+c.width,0);
+      content.innerHTML=`<div class="vp-table-wrap" tabindex="0" aria-label="Таблица вакансий, прокручивается по горизонтали"><table class="vp-table" id="vp-table" aria-label="Вакансии команды" style="min-width:${minWidth}px"><colgroup>${shown.map(c=>`<col style="width:${c.width}px">`).join('')}</colgroup><thead><tr>${shown.map(c=>`<th scope="col" aria-sort="${prefs.sort===c.id?(prefs.direction===1?'ascending':'descending'):'none'}"><button class="vp-sort" data-sort="${c.id}" title="Сортировать: ${c.label}">${c.label}<span aria-hidden="true">${prefs.sort===c.id?(prefs.direction===1?'↑':'↓'):'↕'}</span></button></th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(r=>`<tr data-vacancy="${r.id}">${shown.map(c=>`<td>${cell(r,c.id)}</td>`).join('')}</tr>`).join(''):`<tr><td class="vp-empty" colspan="${shown.length}">Вакансии не найдены.<br>Попробуйте изменить запрос или сбросить фильтры.</td></tr>`}</tbody></table></div>`;
+    }else if(viewMode==='cards'){
+      content.innerHTML=rows.length?`<div class="vp-card-grid">${rows.map(cardHtml).join('')}</div>`:'<div class="vp-view-empty">Вакансии не найдены. Попробуйте изменить фильтры.</div>';
+    }else{
+      rows=[...rows].sort((a,b)=>{const score=r=>r.sla<0?0:!r.recruiter?1:r.sla!==null&&r.sla<=5?2:r.status==='hold'?3:4;return score(a)-score(b);});
+      content.innerHTML=rows.length?`<div class="vp-visual-list"><div class="vp-list-caption"><b>${rows.length} вакансий</b><span>Сначала требующие внимания</span></div>${rows.map(listHtml).join('')}</div>`:'<div class="vp-view-empty">Вакансии не найдены. Попробуйте изменить фильтры.</div>';
+    }
+    const positions=rows.reduce((s,r)=>s+r.positions,0);
+    document.getElementById('vp-count').textContent=`${rows.length} из ${vacancies.length} вакансий · ${positions} ${positionsWord(positions)}`;
+    document.getElementById('vp-sort-note').textContent=viewMode==='table'?(prefs.sort?`${columns.find(c=>c.id===prefs.sort).label}: ${prefs.direction===1?'по возрастанию':'по убыванию'}`:'Нажмите на заголовок, чтобы отсортировать'):viewMode==='cards'?'Две карточки в ряд':'Операционный список';
     document.getElementById('vp-reset').hidden=!Object.values(filters).some(Boolean);
+    document.getElementById('vp-columns').hidden=viewMode!=='table';
+    document.querySelectorAll('[data-view]').forEach(button=>{const active=button.dataset.view===viewMode;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
   };
   const dialog=document.createElement('dialog');
   dialog.className='vp-dialog';dialog.id='vp-column-dialog';dialog.setAttribute('aria-labelledby','vp-dialog-title');
@@ -97,12 +115,13 @@
   dialog.addEventListener('change',e=>{const id=e.target.dataset.column;if(!id)return;draft.visible=e.target.checked?[...new Set([...draft.visible,id])]:draft.visible.filter(x=>x!==id);});
   dialog.addEventListener('click',e=>{const button=e.target.closest('[data-up],[data-down]');if(!button)return;const id=button.dataset.up||button.dataset.down;const index=draft.order.indexOf(id);const next=index+(button.dataset.up?-1:1);if(index<1||next<1||next>=draft.order.length)return;[draft.order[index],draft.order[next]]=[draft.order[next],draft.order[index]];renderColumns();dialog.querySelector(`[${button.dataset.up?'data-up':'data-down'}="${id}"]`)?.focus();});
   document.getElementById('vp-defaults').addEventListener('click',()=>{draft=defaults();renderColumns();});
-  document.getElementById('vp-apply').addEventListener('click',()=>{prefs.order=draft.order;prefs.visible=draft.visible;if(!prefs.visible.includes(prefs.sort))prefs.sort=null;save();renderTable();dialog.close();});
-  document.getElementById('vp-table').addEventListener('click',e=>{const button=e.target.closest('[data-sort]');if(!button)return;const id=button.dataset.sort;prefs.direction=prefs.sort===id?-prefs.direction:1;prefs.sort=id;save();renderTable();document.querySelector(`[data-sort="${id}"]`)?.focus();});
-  document.getElementById('vp-query').addEventListener('input',e=>{filters.query=e.target.value;renderTable();});
-  ['recruiter','department','status'].forEach(key=>document.getElementById('vp-'+key).addEventListener('change',e=>{filters[key]=e.target.value;renderTable();}));
-  document.getElementById('vp-reset').addEventListener('click',()=>{Object.keys(filters).forEach(k=>filters[k]='');['query','recruiter','department','status'].forEach(k=>document.getElementById('vp-'+k).value='');renderTable();});
+  document.getElementById('vp-apply').addEventListener('click',()=>{prefs.order=draft.order;prefs.visible=draft.visible;if(!prefs.visible.includes(prefs.sort))prefs.sort=null;save();renderPortfolio();dialog.close();});
+  document.getElementById('vp-content').addEventListener('click',e=>{const button=e.target.closest('[data-sort]');if(!button)return;const id=button.dataset.sort;prefs.direction=prefs.sort===id?-prefs.direction:1;prefs.sort=id;save();renderPortfolio();document.querySelector(`[data-sort="${id}"]`)?.focus();});
+  document.querySelector('.vp-view-switch').addEventListener('click',e=>{const button=e.target.closest('[data-view]');if(!button||button.dataset.view===viewMode)return;viewMode=button.dataset.view;renderPortfolio();button.focus();});
+  document.getElementById('vp-query').addEventListener('input',e=>{filters.query=e.target.value;renderPortfolio();});
+  ['recruiter','department','status'].forEach(key=>document.getElementById('vp-'+key).addEventListener('change',e=>{filters[key]=e.target.value;renderPortfolio();}));
+  document.getElementById('vp-reset').addEventListener('click',()=>{Object.keys(filters).forEach(k=>filters[k]='');['query','recruiter','department','status'].forEach(k=>document.getElementById('vp-'+k).value='');renderPortfolio();});
   document.getElementById('vp-reference').addEventListener('click',e=>{e.preventDefault();location.hash='view=reference';location.reload();});
-  renderTable();
+  renderPortfolio();
   if(new URLSearchParams(location.hash.slice(1)).get('m')==='columns')openColumns();
 })();
