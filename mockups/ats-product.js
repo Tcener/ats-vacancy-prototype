@@ -262,7 +262,7 @@
     if(!stagePanel.hidden)closeStagePanel();
     document.querySelectorAll('.nav-item[data-route]').forEach(x=>x.classList.toggle('active',x.dataset.route===route.split('/')[0]));
     $('#ai-context').textContent=`Контекст: ${route.startsWith('vacancy')?'вакансия':route==='requisitions'?'заявки':route==='analytics'?'аналитика':route==='tasks'?'мои задачи':route==='calendar'?'календарь':route==='settings'?'настройки':'поиск'}`;
-    if(window.RecruitWorkspaces?.render(route)){}else if(route==='search')renderSearch();else if(route==='tasks')renderTasks();else if(route==='calendar')renderCalendar();else if(route==='analytics')renderAnalytics();else if(route==='requisitions')renderRequisitions();else if(route==='settings')renderSettings();else if(route==='portfolio')renderPortfolio();else if(route.startsWith('vacancy/'))renderVacancy(route.split('/')[1]);else renderSearch();
+    if(window.AnalyticsWorkspace?.render(route)){}else if(window.RecruitWorkspaces?.render(route)){}else if(route==='search')renderSearch();else if(route==='tasks')renderTasks();else if(route==='calendar')renderCalendar();else if(route==='analytics')renderAnalytics();else if(route==='requisitions')renderRequisitions();else if(route==='settings')renderSettings();else if(route==='portfolio')renderPortfolio();else if(route.startsWith('vacancy/'))renderVacancy(route.split('/')[1]);else renderSearch();
     if(route.startsWith('vacancy/')){screen.querySelector('.vacancy-head.compact')?.insertAdjacentHTML('beforeend',`<button class="vacancy-ai-button" data-action="ai-vacancy-automation"><span>AI</span> Автоматизация</button>`);mountPipelineLayout()}
     screen.scrollTop=0;screen.focus({preventScroll:true});
   }
