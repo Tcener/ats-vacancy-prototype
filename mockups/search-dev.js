@@ -36,9 +36,47 @@
   // Черновик строки не меняет уже показанную выдачу до нажатия «Найти».
   let submittedBaseQuery = M.normalizeState(state);
   let localCandidates = clone(M.candidates || []), localHhCandidates = clone(M.hhCandidates || []);
+  const createdCandidatesKey = 'sobesso-created-candidates-v1';
+  let createdCandidatesFingerprint = '';
+  function createdCandidateRuntime() {
+    try {if (window.parent !== window && window.parent?.CreationStore) return {store:window.parent.CreationStore,catalog:window.parent.ATSPrototype?.catalog?.()};} catch (_) { /* Чужой frame не читаем. */ }
+    return {store:window.CreationStore,catalog:window.ATSPrototype?.catalog?.()};
+  }
+  function readCreatedCandidateRecords() {
+    try {
+      const store = createdCandidateRuntime().store;
+      const data = typeof store?.read === 'function' ? store.read() : JSON.parse(localStorage.getItem(createdCandidatesKey) || 'null');
+      return Array.isArray(data?.records) ? data.records : [];
+    } catch (_) {return [];}
+  }
+  function normalizeCreatedCandidate(record) {
+    const input = record?.candidate;
+    if (!input || !/^local-candidate-[a-z0-9-]+$/i.test(input.id || '') || typeof input.name !== 'string' || !input.name.trim() || !/^[a-z0-9-]+$/i.test(record.vacancyId || '') || typeof record.stage !== 'string') return null;
+    const strings = values => (Array.isArray(values) ? values : []).filter(value => typeof value === 'string');
+    const objects = values => (Array.isArray(values) ? values : []).filter(value => value && typeof value === 'object' && !Array.isArray(value));
+    const profile = clone(input);
+    profile.resumes = objects(profile.resumes).filter(resume => typeof resume.id === 'string' && resume.id.startsWith(`${profile.id}-resume-`)).map(resume => ({...resume,skills:strings(resume.skills),experience:objects(resume.experience),educationDetails:objects(resume.educationDetails),languages:objects(resume.languages),fullText:typeof resume.fullText === 'string' ? resume.fullText.slice(0,200000) : typeof resume.text === 'string' ? resume.text.slice(0,200000) : '',text:typeof resume.text === 'string' ? resume.text.slice(0,200000) : typeof resume.fullText === 'string' ? resume.fullText.slice(0,200000) : ''}));
+    if (!profile.resumes.length) return null;
+    profile.skills = strings(profile.skills);profile.tags = strings(profile.tags);profile.experience = objects(profile.experience);
+    profile.contacts = Object.fromEntries(['phone','email','telegram','whatsapp','max','viber','hhURL'].map(key => [key,typeof profile.contacts?.[key] === 'string' ? profile.contacts[key] : '']));
+    profile.processes = objects(profile.processes).filter(process => /^[a-z0-9-]+$/i.test(process.vacancyId || '') && typeof process.stage === 'string').map(process => ({...process,title:process.title || process.vacancyName || ''}));
+    if (!profile.processes.some(process => process.vacancyId === record.vacancyId)) profile.processes.push({vacancyId:record.vacancyId,title:record.vacancyName || '',stageId:record.stageId,stage:record.stage,resumeId:profile.resumes[0].id});
+    profile.createdLocally = true;profile.searchProvider = 'ats';profile.internalHistoryAvailable = true;profile.photoIndex = null;
+    return profile;
+  }
+  function hydrateCreatedCandidates() {
+    const profiles = [...new Map(readCreatedCandidateRecords().map(normalizeCreatedCandidate).filter(Boolean).map(profile => [profile.id,profile])).values()];
+    const fingerprint = JSON.stringify(profiles);
+    if (fingerprint === createdCandidatesFingerprint) return false;
+    createdCandidatesFingerprint = fingerprint;
+    for (const profile of profiles) for (const assignment of state.assignments) if (assignment.candidateId === profile.id && !profile.processes.some(process => process.vacancyId === assignment.vacancyId)) profile.processes.push({vacancyId:assignment.vacancyId,title:assignment.vacancyTitle,stage:assignment.stage,resumeId:assignment.resumeId});
+    localCandidates = [...localCandidates.filter(candidate => !/^local-candidate-/i.test(candidate.id || '')),...profiles];
+    return true;
+  }
+  hydrateCreatedCandidates();
   const allCandidates = () => [...localCandidates,...localHhCandidates.filter(item => !localCandidates.some(internal => internal.id === item.id))];
-  const findCandidate = id => allCandidates().find(item => item.id === id);
-  const currentDataset = () => M.selectResultsDataset(state.searchProvider,localCandidates,localHhCandidates);
+  const findCandidate = id => {hydrateCreatedCandidates();return allCandidates().find(item => item.id === id);};
+  const currentDataset = () => {hydrateCreatedCandidates();return M.selectResultsDataset(state.searchProvider,localCandidates,localHhCandidates);};
   const providerName = () => state.searchProvider === 'both' ? 'База ATS + hh.ru · Демо' : state.searchProvider === 'hh' ? 'hh.ru · Демо' : 'База ATS';
   // Выбор строк — временное состояние выдачи, не часть сохранённого запроса.
   const selectedCandidateIds = new Set();
@@ -76,19 +114,27 @@
     const node = $('#sd-toast'); node.textContent = message; node.hidden = false;
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { node.hidden = true; }, 4500);
   }
-  const allowedRoute = route => /^(search|tasks|calendar|analytics|requisitions|settings|portfolio|create|vacancy\/(android|designer|analyst|backend|ios)(\/edit)?)$/.test(route);
+  function createdSidebarVacancies() {
+    try {
+      const stored = JSON.parse(localStorage.getItem('sobesso-prototype-new-vacancies') || 'null');
+      if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return [];
+      return Object.entries(stored).filter(([id,vacancy]) => /^draft-[a-z0-9-]+$/.test(id) && vacancy && typeof vacancy === 'object' && !Array.isArray(vacancy) && (vacancy.id === undefined || vacancy.id === id) && typeof vacancy.name === 'string' && vacancy.name.trim() && vacancy.name.trim().length <= 200).map(([id,vacancy]) => ({id,title:vacancy.name.trim()}));
+    } catch (_) {return [];}
+  }
+  const allowedRoute = route => typeof route === 'string' && (/^(search|tasks|calendar|analytics|requisitions|settings|portfolio|create(\/(requisition|vacancy|candidate))?|vacancy\/(android|designer|analyst|backend|ios)(\/edit)?)$/.test(route) || (() => {const own = /^vacancy\/(draft-[a-z0-9-]+)(\/edit)?$/.exec(route);return !!own && createdSidebarVacancies().some(vacancy => vacancy.id === own[1]);})());
   function navigate(route) {
     if (route === 'dashboard') {
-      const url = new URL('dashboard.html?public=509f70c12929', location.href).href;
+      const url = new URL('dashboard.html?public=cb7a70f4cca9', location.href).href;
       if (window.parent !== window) window.parent.location.href = url; else location.href = url;
     } else if (allowedRoute(route)) {
       if (window.parent !== window) window.parent.location.hash = route;
-      else location.href = `ats-product.html?public=ee8046268b22#${route}`;
+      else location.href = `ats-product.html?public=ccb0d82c83de#${route}`;
     }
   }
   function renderSidebar() {
     const nav = [['dashboard','Главная','home'],['search','Поиск','search'],['tasks','Мои задачи','check'],['calendar','Календарь','calendar'],['analytics','Аналитика','chart'],['requisitions','Заявки','list'],['settings','Настройки','settings']];
-    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=509f70c12929" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=ee8046268b22#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${vacancies.map(vacancy => `<a href="ats-product.html?public=ee8046268b22#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=ee8046268b22#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><a class="sd-side-create" href="ats-product.html?public=ee8046268b22#create" data-sd-route="create"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></a><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
+    const sidebarVacancies = [...new Map([...vacancies.filter(vacancy => !/^draft-/.test(vacancy.id)),...createdSidebarVacancies()].map(vacancy => [vacancy.id,vacancy])).values()];
+    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=cb7a70f4cca9" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=cb7a70f4cca9' : `ats-product.html?public=ccb0d82c83de#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${sidebarVacancies.map(vacancy => `<a href="ats-product.html?public=ccb0d82c83de#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=ccb0d82c83de#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><button type="button" class="sd-side-create" data-create-menu-trigger aria-label="Создать" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></button><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
     $('#sd-shell').classList.toggle('sd-sidebar-collapsed', !!state.collapsed);
     $('#sd-shell').style.setProperty('--sd-sidebar-width',`${state.sidebarWidth || 276}px`);
     $('#sd-sidebar-resizer').setAttribute('aria-valuenow',String(state.sidebarWidth || 276));
@@ -96,6 +142,7 @@
     message.innerHTML = `${svg('messages')}<span class="sd-nav-label">Сообщения</span>`; $('.sd-nav',document).children[3].before(message);
     const assistant = document.createElement('button'); assistant.type = 'button'; assistant.className = 'sd-shell-assistant'; assistant.dataset.sdAction = 'assistant'; assistant.setAttribute('aria-label','Открыть ИИ-ассистента'); assistant.title = 'ИИ-ассистент';assistant.textContent = '✦';
     $('.sd-side-create',document).after(assistant);
+    window.CreateMenu?.install(document, {navigate:route => {persist();navigate(route);}});
   }
   function renderModes() {
     $('#sd-mode-tabs').innerHTML = `<button type="button" data-sd-action="saved">${svg('folder')}<span>Сохранённые поиски</span></button>`;
@@ -174,6 +221,28 @@
   }
   const portraitStyle = candidate => window.SearchDemoPortraits?.style(candidate.photoIndex) || '';
   const portraitFallback = candidate => portraitStyle(candidate) ? '' : `<span class="sd-photo-fallback">${esc(candidate.initials || candidate.name.split(' ').slice(0,2).map(word => word[0]).join(''))}</span>`;
+  function matchesCreatedQueries(candidate, queries) {
+    const matches = row => {
+      if (!['all','resume'].includes(row.scope || 'all')) return M.matchQuery(candidate,row);
+      const text = M.fold(row.text), haystack = M.fold(`${M.scopeText(candidate,row.scope || 'all')} ${(candidate.resumes || []).map(resume => resume.fullText || resume.text || '').join(' ')}`);
+      if (!text) return true;
+      const tokens = text.split(/[\s,;]+/).filter(Boolean), contains = token => haystack.includes(token);
+      return row.condition === 'phrase' ? haystack.includes(text) : row.condition === 'any' ? tokens.some(contains) : row.condition === 'not' ? tokens.every(token => !contains(token)) : tokens.every(contains);
+    };
+    const rows = (Array.isArray(queries) ? queries : []).filter(row => M.fold(row?.text));
+    return !rows.length || rows.slice(1).reduce((found,row) => row.join === 'or' ? found || matches(row) : row.join === 'not' ? found && !matches(row) : found && matches(row),matches(rows[0]));
+  }
+  function searchWithCreatedCandidates(input, dataset) {
+    const query = M.normalizeState(input), own = dataset.filter(candidate => candidate.createdLocally), demo = dataset.filter(candidate => !candidate.createdLocally);
+    const now = Date.now(), cutoff = query.period === 'month' ? now - 30 * 86400000 : query.period === 'week' ? now - 7 * 86400000 : null;
+    const created = M.search({...query,queries:[M.defaultQuery()],period:'all'},own).allItems.filter(candidate => {
+      const updated = Date.parse(candidate.updatedAt);
+      return matchesCreatedQueries(candidate,query.queries) && (cutoff === null || Number.isFinite(updated) && updated >= cutoff && updated <= now);
+    });
+    const allItems = [...M.search(query,demo).allItems,...created].sort((left,right) => (Date.parse(right.updatedAt) || 0) - (Date.parse(left.updatedAt) || 0) || String(left.id).localeCompare(String(right.id),'ru'));
+    const total = allItems.length, pages = Math.max(1,Math.ceil(total / query.pageSize)), page = Math.min(query.page,pages);
+    return {items:allItems.slice((page-1)*query.pageSize,page*query.pageSize),allItems,total,pages,page,pageSize:query.pageSize};
+  }
   function activeSearch() {
     let source = currentDataset();
     let query = {...submittedBaseQuery,page:state.page,pageSize:state.pageSize,sort:state.sort};
@@ -182,7 +251,7 @@
       source = currentDataset().filter(item => ids.has(item.id));
       query = {...M.defaultState(),searchProvider:state.searchProvider,page:state.page,pageSize:state.pageSize};
     }
-    const found = M.search(query, source);
+    const found = source.some(candidate => candidate.createdLocally) ? searchWithCreatedCandidates(query,source) : M.search(query, source);
     if (state.resultKind !== 'base') {
       found.allItems.sort((left,right) => (state.aiResults.find(item => item.candidateId === right.id)?.score || 0) - (state.aiResults.find(item => item.candidateId === left.id)?.score || 0));
       found.items = found.allItems.slice((found.page-1)*found.pageSize,found.page*found.pageSize);
@@ -283,6 +352,8 @@
     return Number.isFinite(job.years) && job.years > 0 ? job.years * 12 : 0;
   }
   function renderResumeExperience(resume) {
+    const fullText = typeof resume?.fullText === 'string' ? resume.fullText : typeof resume?.text === 'string' ? resume.text : '';
+    if (fullText.trim()) return `<section class="sd-preview-section sd-resume-experience"><div class="sd-resume-section-head"><h3>Резюме кандидата</h3><span class="sd-resume-source">${esc(labelFor('sources',resume?.source || 'none'))}</span></div><div class="sd-resume-full-text" style="white-space:pre-wrap;line-height:1.75;overflow-wrap:anywhere">${esc(fullText)}</div></section>`;
     const jobs = Array.isArray(resume?.experience) ? resume.experience : [];
     const total = resumeDuration(jobs.reduce((sum,job) => sum + resumeJobMonths(job),0));
     const paragraphs = values => (Array.isArray(values) ? values : []).filter(value => typeof value === 'string' && value.trim()).map(value => `<p>${esc(value)}</p>`).join('');
@@ -315,7 +386,7 @@
     preview.innerHTML = `${window.SearchPreviewHeader.render(candidate,resume,{external,score,selectedResumeId:state.selectedResumeId,esc,select,svg,portraitStyle,portraitFallback,labelFor,dateLabel,tagLabel})}
     <div class="sd-resume-document" aria-label="Содержание выбранного резюме">${renderResumeExperience(resume)}${renderResumeDetails(resume)}</div>
     <div class="sd-preview-ats-history"><section class="sd-preview-section"><h3>Процессы подбора <small>${external ? 'Неизвестны' : candidate.processes.length}</small></h3>${external ? '<p>Это внешнее деморезюме. История, метки и заметки ATS появятся только после явного добавления кандидата на вакансию.</p>' : candidate.processes.length ? candidate.processes.map(process => `<div class="sd-profile-process"><div><b>${esc(process.title || vacancies.find(vacancy => vacancy.id === process.vacancyId)?.title || 'Вакансия')}</b><small>${esc(process.stage)}</small></div>${button('Открыть на вакансии','candidate-route','',`data-id="${esc(candidate.id)}" data-route="vacancy/${esc(process.vacancyId)}"`)}</div>`).join('') : '<p>Нет активных процессов.</p>'}</section>${!external ? `<section class="sd-preview-section"><h3>Метки и комментарии</h3><div class="sd-preview-skills">${(candidate.tags || []).map(tag => `<span>${esc(tagLabel(tag))}</span>`).join('') || '<p>Меток пока нет.</p>'}</div>${candidate.feedback ? `<p style="margin-top:12px">${esc(candidate.feedback)}</p>` : ''}</section>` : ''}</div>
-    <footer class="sd-preview-footer"><small>Демопрофиль и фото вымышлены</small>${button(external ? 'Добавить на вакансию' : 'Взять на вакансию','assign','green',`data-id="${esc(candidate.id)}"`)}</footer>`;
+    <footer class="sd-preview-footer"><small>${candidate.createdLocally ? 'Добавлен в этом браузере · файл не отправлялся' : 'Демопрофиль и фото вымышлены'}</small>${button(external ? 'Добавить на вакансию' : 'Взять на вакансию','assign','green',`data-id="${esc(candidate.id)}"`)}</footer>`;
     preview.dataset.resumeKey = resumeKey;
     if (changedDocument) preview.scrollTop = 0;
   }
@@ -371,11 +442,39 @@
     });
     showErrors(config.vacancyId ? preview.errors : []);
   }
+  function createdAssignmentPlan(item) {
+    const candidate = findCandidate(item.candidateId);
+    if (!candidate?.createdLocally) return null;
+    const runtime = createdCandidateRuntime();
+    if (typeof runtime.store?.assign !== 'function') return {error:'Добавление созданного кандидата на другую вакансию пока недоступно в этой вкладке.'};
+    const stored = readCreatedCandidateRecords().find(record => record.candidate?.id === candidate.id);
+    if (!stored || !stored.candidate.resumes?.some(resume => resume.id === item.resumeId)) return {error:'Созданный кандидат или его резюме больше не доступны. Обновите выдачу.'};
+    const vacancy = (runtime.catalog || M.vacancies || []).find(entry => entry.id === item.vacancyId);
+    const stages = (vacancy?.stages || []).map(stage => typeof stage === 'string' ? {id:stage,label:stage} : stage);
+    const stage = stages.find(stage => stage.enabled !== false && stage.disabled !== true && !stage.terminal && !['выход','отказ'].includes(M.fold(stage.label || stage.name)) && (stage.id === item.stage || stage.label === item.stage || stage.name === item.stage));
+    if (!vacancy || !stage) return {error:'Этот этап отсутствует в текущей воронке вакансии. Выберите доступный рабочий этап.'};
+    return {store:runtime.store,process:{vacancyId:item.vacancyId,vacancyName:vacancy.title || vacancy.name || item.vacancyTitle,stageId:stage.id,stage:stage.label || stage.name || item.stage,resumeId:item.resumeId}};
+  }
+  function openCreatedCandidate(candidate, process) {
+    if (!candidate?.createdLocally || !process || !/^local-candidate-[a-z0-9-]+$/i.test(candidate.id || '')) return false;
+    const runtime = createdCandidateRuntime(), stored = readCreatedCandidateRecords().find(record => record.candidate?.id === candidate.id);
+    const linked = stored && (stored.vacancyId === process.vacancyId || stored.candidate.processes?.some(item => item.vacancyId === process.vacancyId));
+    if (!linked || typeof runtime.store?.select !== 'function' || runtime.store.select(candidate.id,process.vacancyId) !== true) return false;
+    navigate(`vacancy/${process.vacancyId}`);
+    return true;
+  }
   function commitDemoAssignment(item) {
-    let candidate = findCandidate(item.candidateId);
+    let candidate = findCandidate(item.candidateId);if (!candidate) return {ok:false,error:'Кандидат больше не доступен.'};
+    if (candidate.createdLocally) {
+      const plan = createdAssignmentPlan(item);
+      if (plan?.error) return {ok:false,error:plan.error};
+      let result;try {result = plan.store.assign(candidate.id,plan.process);} catch (_) {return {ok:false,error:'Не удалось сохранить новый процесс кандидата. Повторите позже.'};}
+      if (result?.ok !== true) return {ok:false,error:result?.error || result?.message || 'Новый процесс не сохранён.'};
+    }
     if (candidate.searchProvider === 'hh' && !candidate.importedToATS) {candidate = {...clone(candidate),importedToATS:true,internalHistoryAvailable:true};localCandidates.push(candidate);}
     candidate.processes.push({vacancyId:item.vacancyId,title:item.vacancyTitle,stage:item.stage});state.assignments.push(item);
     if (candidate.searchProvider === 'hh') Object.assign(localHhCandidates.find(external => external.id === candidate.id) || {},clone(candidate));
+    return {ok:true};
   }
   function openAutopick(config = {}) {
     const draft = {...M.defaultAutoPick(),vacancyId:vacancies[0]?.id || '',...config};
@@ -696,7 +795,10 @@
       if (overlay?.kind !== 'bulk-assign') return;
       const preview = M.previewBulkAssignment(overlay.candidateIds.map(findCandidate),bulkAssignmentConfig(),vacancies);
       if (preview.errors.length) {showErrors(preview.errors);return;}
-      preview.eligible.forEach(commitDemoAssignment);
+      const plans = preview.eligible.filter(item => findCandidate(item.candidateId)?.createdLocally).map(createdAssignmentPlan);
+      if (plans.some(plan => plan?.error)) {showErrors(plans.filter(plan => plan?.error).map(plan => plan.error));return;}
+      const commits = preview.eligible.map(commitDemoAssignment), failures = commits.filter(result => result?.ok === false);
+      if (failures.length) {showErrors(failures.map(result => result.error));renderResults();persist();return;}
       selectedCandidateIds.clear();closeDialog();renderBase();renderResults();persist();
       toast(`Добавлено ${preview.eligible.length} · пропущено ${preview.skipped.length}. Только в демонстрационном макете.`);
     }
@@ -705,12 +807,13 @@
       const preview = M.previewAssignment([overlay.candidateId],config.vacancyId,config.initialStage,{[overlay.candidateId]:config.resumeId},allCandidates());
       if (preview.errors.length || candidate.processes.some(process => process.vacancyId === config.vacancyId)) {showErrors(preview.errors.length ? preview.errors : ['Кандидат уже добавлен на эту вакансию.']); return;}
       const item = preview.items[0]; if (!item) return;
-      commitDemoAssignment(item);
+      const commit = commitDemoAssignment(item);if (commit?.ok === false) {showErrors([commit.error]);return;}
       closeDialog();renderBase();renderResults();persist();toast('Демонстрационный процесс добавлен. Реальная ATS не менялась.');
     } else if (action === 'candidate-route') {
       const candidate = findCandidate(control.dataset.id || overlay?.candidateId || state.selectedCandidateId);
       const process = candidate?.processes.find(item => item.vacancyId === control.dataset.route.split('/')[1]);
       if (dialog.open) closeDialog();persist();
+      if (candidate?.createdLocally) {if (!openCreatedCandidate(candidate,process)) toast('Не удалось открыть сохранённый процесс кандидата. Обновите выдачу.');return;}
       if (candidate && process && window.parent !== window && window.parent.SearchCandidateHandoff?.open(clone(candidate),clone(process))) return;
       navigate(control.dataset.route);
     }
@@ -773,5 +876,14 @@
   $('#sd-sidebar-resizer').addEventListener('dblclick',() => setSidebarWidth(276));
   dialog.addEventListener('cancel', event => {event.preventDefault(); closeDialog();});
   dialog.addEventListener('click', event => {if (event.target === dialog) {const rect = dialog.getBoundingClientRect(); if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeDialog();}});
+  function refreshCreatedSearch() {
+    if (!hydrateCreatedCandidates()) return;
+    renderBase();renderResults();
+  }
+  window.addEventListener('sd-creation-refresh', refreshCreatedSearch);
+  window.addEventListener('focus', refreshCreatedSearch);
+  window.addEventListener('storage', event => {if (event.key === createdCandidatesKey || event.key === null) refreshCreatedSearch();});
+  try {if (window.parent !== window) window.parent.addEventListener('hashchange', () => {if (window.parent.location.hash === '#search') refreshCreatedSearch();});} catch (_) { /* Чужой frame не слушаем. */ }
+  window.addEventListener('sd-creation-refresh', () => renderSidebar());
   renderAll();
 })();

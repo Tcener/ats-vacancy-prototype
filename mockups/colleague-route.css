@@ -1,0 +1,6 @@
+/* Четыре импортированных экрана изолированы; защищённые разделы остаются своими. */
+.colleague-reference-frame{position:fixed;inset:0;z-index:1000;width:100%;height:100%;border:0;background:#f3f2f8}
+.colleague-reference-frame[hidden]{display:none!important}
+body.colleague-reference-route{overflow:hidden;background:#f3f2f8}
+body.colleague-reference-route > :not(#colleague-reference-frame){display:none!important}
+body.colleague-reference-route > #toast:not([hidden]){display:block!important;z-index:1200}

@@ -34,14 +34,19 @@
   <link rel="stylesheet" href="sobesso-native-config.css?public=1d9e3b308d3c">
   <link rel="stylesheet" href="analytics-dev-route.css?public=9774d1a9fa8b">
   <link rel="stylesheet" href="search-dev-route.css?public=ce0f5e847398">
+  <link rel="stylesheet" href="create-menu.css?public=0e74c56f4c02" id="create-menu-styles">
+  <link rel="stylesheet" href="candidate-create.css?public=f831eaa92cf0">
+  <link rel="stylesheet" href="vacancy-create.css?public=60425e5497ce">
+  <link rel="stylesheet" href="creation-workspace.css?public=281a10e8588e">
+  <link rel="stylesheet" href="colleague-route.css?public=7b28c750a52f">
   <script src="antd/antd-layer.js?public=37f66eaf4ef4"></script>
   <script src="vacancy-setup.js?public=b7f63f1e5c9a" defer></script>
   <script src="candidacy-runs.js?public=489751cf5451" defer></script>
   <script src="product-mode.js?public=02147ed60137" defer></script>
-  <script src="sidebar.js?public=fe5815709469" defer></script>
+  <script src="sidebar.js?public=db81ef90b0cf" defer></script>
   <script src="workspace-catalog.js?public=de55ae3ffe3d" defer></script>
   <script src="deep-workspaces.js?public=e9e15d83f60e" defer></script>
-  <script src="request-experience.js?public=3f153b88a20b" defer></script>
+  <script src="request-experience.js?public=c77a6939630c" defer></script>
   <script src="analytics-workspace.js?public=46dcff71de1c" defer></script>
   
   <script src="publications.js?public=1608c66e9f48" defer></script>
@@ -51,14 +56,21 @@
   <script src="vacancy-automation-config.js?public=4a4abb1747b9" defer></script>
   <script src="search-demo-portraits.js?public=dbce15be7871" defer></script>
   <script src="search-candidate-handoff.js?public=3b724b8bd2a1" defer></script>
-  <script src="candidate-navigation.js?public=d0b61e4a70ee" defer></script>
-  <script src="vacancy-editor-form.js?public=f38ac21390fa" defer></script>
-  <script src="ats-product.js?public=e7151a64d635" defer></script>
+  <script src="candidate-navigation.js?public=1fb25e96494a" defer></script>
+  <script src="vacancy-editor-form.js?public=be85449965d2" defer></script>
+  <script src="create-menu.js?public=daca9eea591a" defer></script>
+  <script src="creation-store.js?public=4d3f2e529da0" defer></script>
+  <script src="candidate-resume-files.js?public=17e6b5963589" defer></script>
+  <script src="candidate-create-model.js?public=9995cb6b8416" defer></script>
+  <script src="candidate-create.js?public=802c70a5ce64" defer></script>
+  <script src="vacancy-create.js?public=6120e652bf6a" defer></script>
+  <script src="ats-product.js?public=f39127318812" defer></script>
 </head>
 <body>
   <iframe class="candidate-reference-frame" id="candidate-reference-frame" title="Актуальная карточка кандидата" hidden></iframe>
   <iframe class="analytics-reference-frame" id="analytics-reference-frame" title="Аналитика Собесо — макет из Dev" data-antd="none" hidden></iframe>
   <iframe class="search-reference-frame" id="search-reference-frame" title="Поиск Собесо — макет из Dev" data-antd="none" hidden></iframe>
+  <iframe class="colleague-reference-frame" id="colleague-reference-frame" title="Главная, кандидаты, задачи и заявки — объединённый макет ATS" data-antd="none" hidden></iframe>
   <div class="app-shell">
     <aside data-sidebar></aside>
     <main class="main-sheet" id="screen" tabindex="-1"></main>

@@ -12,6 +12,10 @@
     backend:{name:'Backend-разработчик Go',department:'Platform',grade:'Senior',priority:1,recruiter:'Ирина Лебедева',progress:71,sla:'12 дней',positions:3,hires:1,waiting:2,load:1.3,roles:['Backend Engineer','Go-разработчик','Senior Software Engineer']},
     ios:{name:'Senior iOS-разработчик',department:'Mobile',grade:'Senior',priority:1,recruiter:'Не назначен',progress:0,sla:'Не начат',positions:2,hires:0,waiting:0,load:.15,roles:['iOS-разработчик','Swift-разработчик','Mobile Developer']},
     service:{name:'Руководитель клиентского сервиса',department:'Operations',grade:'Lead',priority:1,recruiter:'Елена Крылова',progress:49,sla:'5 дней',positions:1,hires:0,waiting:0,load:.55,roles:['Руководитель клиентского сервиса','Customer Service Lead','Руководитель поддержки']},
+    sales:{name:'B2B Sales / Менеджер B2B продаж',department:'Продажи',grade:'Middle',priority:1,recruiter:'Елена Крылова',progress:70,sla:'12 дней',positions:2,hires:1,waiting:0,load:1,roles:['B2B Sales Manager','Business Development Manager']},
+    fullstack:{name:'Fullstack-разработчик',department:'Разработка',grade:'Senior',priority:2,recruiter:'Антон Беляев',progress:41,sla:'5 дней',positions:2,hires:0,waiting:0,load:.8,roles:['Fullstack-разработчик','Software Engineer']},
+    java:{name:'Java-разработчик',department:'Разработка',grade:'Middle',priority:3,recruiter:'Мария Фролова',progress:25,sla:'30 дней',positions:1,hires:0,waiting:0,load:.5,roles:['Java-разработчик','Backend Engineer']},
+    smm:{name:'Контент-менеджер / SMM',department:'Маркетинг',grade:'Middle',priority:3,recruiter:'Ирина Лебедева',progress:55,sla:'3 дня',positions:1,hires:0,waiting:0,load:.7,roles:['Контент-менеджер','SMM-менеджер']},
     marketing:{name:'Product Marketing Manager',department:'Marketing',grade:'Middle+',priority:2,recruiter:'Антон Беляев',progress:46,sla:'Приостановлена',positions:1,hires:0,waiting:0,load:.35,roles:['Product Marketing Manager','Продуктовый маркетолог','Marketing Manager']},
     research:{name:'UX Researcher',department:'Core Product',grade:'Middle',priority:3,recruiter:'Мария Фролова',progress:23,sla:'31 день',positions:1,hires:0,waiting:0,load:.25,roles:['UX Researcher','Исследователь пользовательского опыта','Product Researcher']}
   };
@@ -75,7 +79,53 @@
     {id:8,title:'Проверить новые отклики',object:'Senior Product Designer · 18 откликов',priority:'Обычный',due:'12 сентября',future:true,progress:'—'},
     {id:9,title:'Зафиксировать фидбек',object:'Product Analyst · интервью',priority:'Обычный',due:'2 сентября',done:true,progress:'—'}
   ];
-  let queryRows=[{logic:'И',field:'Все доступные данные',op:'все слова',value:''}];
+  let queryRows=[{logic:'И',field:'Все доступные данные',op:'все слова',value:''}], creationView=null,pendingVacancyRequest=null;
+
+  function creationCatalog(){
+    return Object.entries(vacancies).filter(([id])=>!['marketing','research'].includes(id)).map(([id,v])=>{
+      let pipeline=v.pipeline?.stages;
+      try{const scoped=JSON.parse(localStorage.getItem('sobesso-ai-vacancy-v6-'+id));if(Array.isArray(scoped?.stages))pipeline=scoped.stages.map(s=>({...s,label:s.name||({scoring:'Скоринг','chat-bot':'Чат-бот',voice:'ИИ-интервью'}[s.kind])||'Этап',terminal:s.purpose==='awaiting'||s.purpose==='rejection'}));}catch{}
+      const fallback=VACANCY_AI_FUNNELS[id==='service'?'backoffice':'it'].stages.map((label,index)=>({id:'stage-'+index,label,terminal:['Выход','Отказ'].includes(label)}));
+      const stages=(pipeline?.length?pipeline:fallback).map(s=>({id:s.id,label:s.label||s.name,terminal:!!s.terminal||s.purpose==='awaiting'||s.purpose==='rejection',enabled:s.enabled!==false}));
+      return {id,title:v.name,stages,initialStage:stages.find(s=>!s.terminal)?.id||'',department:v.department,grade:v.grade,recruiter:v.recruiter,positions:v.positions,hires:v.hires,sla:v.sla,createdAt:v.createdAt,priority:v.priority,progress:v.progress,candidateCount:v.createdLocally?(window.CreationStore?.records(id)||[]).length:undefined,createdLocally:!!v.createdLocally,sourceRequisition:v.sourceRequisition||null};
+    });
+  }
+  function refreshCreatedSidebar(){
+    const nav=document.querySelector('.vacancy-nav'),archive=nav?.querySelector('.archive');
+    if(!nav)return;nav.querySelectorAll('[data-created-vacancy-link]').forEach(a=>a.remove());
+    Object.entries(vacancies).filter(([id])=>id.startsWith('draft-')).forEach(([id,v])=>{
+      const link=document.createElement('a');link.className='vacancy-link';link.dataset.createdVacancyLink='';link.dataset.route='vacancy/'+id;link.href='#vacancy/'+id;link.textContent=v.name;nav.insertBefore(link,archive||null);
+    });
+  }
+  function persistCreatedVacancies(){
+    try{localStorage.setItem('sobesso-prototype-new-vacancies',JSON.stringify(Object.fromEntries(Object.entries(vacancies).filter(([id])=>id.startsWith('draft-')))));refreshCreatedSidebar();return true;}catch{return false;}
+  }
+  function registerVacancy(object,name){
+    const legacy=typeof object==='string';
+    const id=legacy?object:object?.id;
+    if(!/^draft-[a-z0-9-]+$/i.test(id||'')||Object.hasOwn(vacancies,id))return {ok:false,error:'Не удалось зарегистрировать новую вакансию.'};
+    const v=legacy?{id,name,department:'',grade:'Middle',priority:2,positions:1,recruiter:'Не назначен',roles:[],load:0,hires:0,waiting:0,progress:0,sla:'Не начат',createdLocally:true,sourceRequisition:null}:JSON.parse(JSON.stringify(object));
+    v.createdLocally=true;v.load=0;v.hires=0;v.waiting=0;v.progress=0;v.roles=[];
+    let persisted=false;const custom=Object.fromEntries(Object.entries(vacancies).filter(([key])=>key.startsWith('draft-')));custom[id]=v;
+    try{
+      if(!legacy)localStorage.setItem('sobesso-ai-vacancy-v6-'+id,JSON.stringify(window.VacancyCreate.setupFor(v)));
+      localStorage.setItem('sobesso-prototype-new-vacancies',JSON.stringify(custom));persisted=true;
+    }catch{return {ok:false,message:'Не хватает места для сохранения вакансии. Освободите место в браузере и повторите.'};}
+    vacancies[id]=v;refreshCreatedSidebar();return {ok:true,persisted,object:v};
+  }
+  function renderCreation(kind){
+    const cancel=()=>routeTo('search');
+    if(kind==='requisition'||kind==='requisition-ai'){window.RequestExperience?.open({keepRoute:true});return;}
+    if(kind==='candidate')creationView=window.CandidateCreate?.mount(screen,{vacancies:creationCatalog(),onCancel:cancel,register:(candidate,assignment)=>window.CreationStore.add(candidate,assignment,creationCatalog()),onCreated:(candidate,assignment,result)=>{
+      const record=result?.record||window.CreationStore.read().records.find(r=>r.candidate.id===candidate.id);
+      if(record){routeTo('vacancy/'+record.vacancyId);showToast(result?.persisted===false?'Кандидат добавлен до закрытия вкладки; сохранить в браузере не удалось.':'Кандидат добавлен на выбранный этап вакансии');}
+    }});
+    else creationView=window.VacancyCreate?.mount(screen,{initialValues:pendingVacancyRequest?.values,onCancel:()=>{pendingVacancyRequest=null;cancel();},register:v=>registerVacancy(pendingVacancyRequest?{...v,sourceRequisition:pendingVacancyRequest.id}:v),onCreated:(id,result)=>{pendingVacancyRequest=null;routeTo('vacancy/'+id);showToast(result?.persisted===false?'Вакансия создана только в текущей вкладке':'Вакансия создана. Кандидаты и ИИ-оценки пока отсутствуют.');}});
+  }
+  function renderCreatedVacancy(id){
+    activeVacancyId=id;const v=vacancies[id],records=window.CreationStore.records(id),catalog=creationCatalog().find(c=>c.id===id);
+    screen.innerHTML=`<section class="created-vacancy" data-antd="none"><header><div><h1>${esc(v.name)}</h1><p>${esc(v.department)} · ${esc(v.grade)} · Рекрутер: ${esc(v.recruiter)}</p></div><button class="btn" data-action="vacancy-info">Настройки вакансии</button></header><nav class="created-pipeline" aria-label="Этапы новой вакансии">${(catalog?.stages||[]).map(s=>`<span>${esc(s.label)} <b>${records.filter(r=>r.stageId===s.id).length}</b></span>`).join('')}</nav>${records.length?`<div class="created-vacancy-list">${records.map(r=>`<button data-created-candidate="${esc(r.candidate.id)}"><span>${esc(r.candidate.initials)}</span><div><b>${esc(r.candidate.name)}</b><small>${esc(r.candidate.position)} · ${esc(r.stage)}</small></div></button>`).join('')}</div><div class="actions" style="margin-top:20px">${button('+ Добавить кандидата','add-candidate','primary')}</div>`:`<div class="created-vacancy-empty"><h2>Вакансия готова к подбору</h2><p>Добавьте первого кандидата на нужный этап. ИИ и коммуникации автоматически не запускаются.</p>${button('+ Добавить кандидата','add-candidate','primary')}</div>`}<p class="created-vacancy-note">Создано в этом браузере. Публикации, история и оценки другой вакансии не переносятся.</p></section>`;
+  }
 
   const head=(title,sub,actions='')=>`<header class="page-head"><div><h1>${title}</h1><p>${sub}</p></div><div class="actions">${actions}</div></header>`;
   const button=(label,action,kind='')=>`<button class="btn ${kind}" data-action="${action}">${label}</button>`;
@@ -272,6 +322,8 @@
   }
 
   function vacancyTeamSection(){
+    const own=vacancies[activeVacancyId];
+    if(own?.createdLocally)return `<section class="vacancy-overview-section ve68-team-section"><div class="drawer-section-head"><div><h3>Команда вакансии</h3><p>Участники, выбранные при создании.</p></div></div><div class="people-list"><div><span class="person-avatar">${esc(own.recruiter.split(' ').map(w=>w[0]).slice(0,2).join(''))}</span><p><b>${esc(own.recruiter)}</b><small>Основной рекрутер</small></p></div></div><p>Нанимающая команда пока не добавлена. Заявка-основание не указана.</p></section>`;
     return `<section class="vacancy-overview-section ve68-team-section"><div class="drawer-section-head"><div><h3>Команда вакансии</h3><p>Ответственные, нанимающие менеджеры и доступ к кандидатам.</p></div></div><div class="vacancy-team-grid"><div><h4>Рекрутеры</h4><div class="people-list"><div><span class="person-avatar">ЕК</span><p><b>Елена Крылова</b><small>Основной рекрутер · полный доступ</small></p></div><div><span class="person-avatar">АБ</span><p><b>Антон Беляев</b><small>Кандидаты и коммуникации</small></p></div></div><button type="button" class="vacancy-team-add" data-action="vacancy-team" data-team-role="recruiter">+ Добавить</button></div><div><h4>Нанимающая команда</h4><div class="people-list"><div><span class="person-avatar">АМ</span><p><b>Алексей Мельников</b><small>Автор заявки · нанимающий менеджер</small></p></div><div><span class="person-avatar">ОС</span><p><b>Ольга Селезнёва</b><small>Интервьюер · назначенные формы</small></p></div></div><button type="button" class="vacancy-team-add" data-action="vacancy-team" data-team-role="hiring">+ Добавить</button></div></div><button class="text-action" data-action="vacancy-access">Проверить права участников →</button></section>`;
   }
 
@@ -310,6 +362,8 @@
   }
 
   function vacancyHistorySection(){
+    const own=vacancies[activeVacancyId];
+    if(own?.createdLocally)return `<section class="vacancy-overview-section"><h3>История вакансии</h3><div class="vacancy-history"><div><span></span><p><b>Вакансия создана вручную</b><small>${esc(new Date(own.createdAt).toLocaleString('ru-RU'))} · ${esc(own.recruiter)}</small></p></div></div><p>Заявка-основание, оценки и действия другой вакансии не переносились.</p></section>`;
     return `<section class="vacancy-overview-section"><h3>История вакансии</h3><div class="vacancy-history">${window.VacancySetup.templateHistory().map(h=>`<div><span></span><p><b>Применена версия шаблона воронки</b><small>${new Date(h.at).toLocaleString('ru-RU')} · Елена Крылова · v${h.version}</small></p></div>`).join('')}<div><span></span><p><b>Пересчитан SLA закрытия</b><small>6 сентября, 14:08 · правило Mobile Senior</small></p></div><div><span></span><p><b>Добавлен рекрутер Антон Беляев</b><small>2 сентября, 11:32 · Елена Крылова</small></p></div><div><span></span><p><b>Вакансия взята в работу</b><small>23 августа, 09:10 · Елена Крылова</small></p></div><div><span></span><p><b>Вакансия создана из заявки #1021</b><small>22 августа, 18:04 · операция создания вакансии</small></p></div></div></section>`;
   }
 
@@ -318,6 +372,10 @@
   }
 
   function vacancyDetailContent(v,id){
+    if(v.createdLocally){
+      const fields=[['Подразделение',v.department],['Грейд',v.grade],['Приоритет',v.priority],['План найма',v.positions],['Формат работы',v.workFormat],['Внутренний бюджет',v.budget],['Создана',new Date(v.createdAt).toLocaleString('ru-RU')],['Воронка',VACANCY_AI_FUNNELS[v.funnelId]?.name],['Конфиденциальность',v.confidential?'Конфиденциальная':'Обычная']];
+      return `<section class="vacancy-overview-section"><div class="drawer-section-head"><h3>Сведения о вакансии</h3>${button('Редактировать','vacancy-edit')}</div><dl class="vacancy-passport-grid">${fields.map(([label,value])=>`<div><dt>${esc(label)}</dt><dd>${esc(value||'Не указано')}</dd></div>`).join('')}</dl></section>${['duties','requirements','conditions'].map((key,index)=>`<section class="vacancy-overview-section"><h3>${['Обязанности','Требования','Условия'][index]}</h3><p style="white-space:pre-wrap">${esc(v[key]||'Не указано')}</p></section>`).join('')}${vacancyTeamSection()}${window.Publications?.section(v,id)||''}${vacancyHistorySection()}`;
+    }
     const tabs=[['overview','Сведения'],['funnel','Воронка и ИИ'],['history','История']];
     /* Публикации на работных сайтах — свой модуль (карточка 68, publications.js). */
     const publications=window.Publications?.section(v,id)||'';
@@ -337,6 +395,7 @@
      Подробный конструктор настроек остаётся доступен по вложенному /setup. */
   function renderVacancyEditor68(id){
     activeVacancyId=id;const v=vacancies[id]||vacancies.android;
+    if(v.createdLocally&&VACANCY_AI_FUNNELS[v.funnelId])selectedVacancyAiFunnel=v.funnelId;
     window.VacancySetup?.context(id);
     const paused=window.CandidacyRuns.isPaused();
     screen.innerHTML=`<div class="vacancy-editor68"><header class="ve68-head"><button type="button" class="ve68-back" data-action="editor-back" aria-label="Вернуться к карточке кандидата">←</button><div class="ve68-title"><span class="ve68-kicker">Редактирование вакансии</span><h1>${esc(v.name)}</h1><p>${esc(v.department)} · ${esc(v.grade)} · вакансия #${4231+Object.keys(vacancies).indexOf(id)}</p></div><div class="ve68-title-stats"><span class="ve68-title-status ${id==='analyst'?'danger':''}">${paused?'На паузе':id==='analyst'?'Риск SLA':'В работе'}</span><span>${v.progress}% прогноз закрытия</span><span>${v.positions} ставки</span><span>${v.sla} до SLA</span></div><div class="ve68-head-tail"><button type="button" class="btn ve68-history" data-action="vacancy-history">История</button></div></header><nav class="ve68-primary-actions" aria-label="Основные действия с вакансией">${button('Редактировать вакансию','vacancy-editor-edit','primary')}${button('Настройки AI и автоматизации','vacancy-ai-settings','ai')}<span class="ve68-state-actions">${button(paused?'Возобновить':'Поставить на паузу',paused?'vacancy-resume':'vacancy-pause')}${button('Закрыть вакансию','vacancy-close','danger')}</span></nav><main class="ve68-body">${vacancyTeamSection()}${window.Publications?.tiles(v,id)||''}</main></div>`;
@@ -349,10 +408,30 @@
 
   function renderPortfolio(){screen.innerHTML=head('Архив вакансий','Приостановленные, отменённые и закрытые вакансии.',button('Вернуться на главную','go-home'))+`<div class="filters-plain"><div class="segments"><button class="active">На паузе · 2</button><button>Отменены · 3</button><button>Закрыты · 41</button></div><input placeholder="Найти вакансию"></div><section class="panel"><table class="data-table"><thead><tr><th>Вакансия</th><th>Статус</th><th>Рекрутер</th><th>Дата изменения</th><th></th></tr></thead><tbody><tr><td><a href="#vacancy/marketing"><b>Product Marketing Manager</b></a></td><td><span class="pill warn">На паузе</span></td><td>Антон Беляев</td><td>5 сентября</td><td><a class="btn" href="#vacancy/marketing">Открыть</a></td></tr><tr><td><a href="#vacancy/research"><b>UX Researcher</b></a></td><td><span class="pill">Закрыта</span></td><td>Мария Фролова</td><td>28 августа</td><td><a class="btn" href="#vacancy/research">Открыть</a></td></tr></tbody></table></section>`}
 
+  const seedCandidateOverrides=new Set();
+  function seedProfiles(){
+    const names=['Смирнов Алексей','Воронцова Алина','Назаров Дмитрий','Романова Ольга','Волков Пётр','Соколова Екатерина','Фомин Никита','Чен Виктория','Лапшин Сергей','Орлова Марина','Петров Михаил','Иванова Дарья','Макаров Илья','Крылова Анна','Сидоров Роман','Морозова Полина','Белов Артём'];
+    const roles=['B2B Sales / Менеджер B2B продаж','Head of Sales B2B SaaS','Key Account Manager','Менеджер по работе с ключевыми клиентами','Account Manager','Business Development Manager','Менеджер корпоративных продаж','Enterprise Account Executive','Менеджер по развитию бизнеса','Key Account Manager B2B','Sales Development Representative','Customer Success Manager','Менеджер по партнёрствам','Account Executive','B2B Sales Manager','Менеджер клиентского сервиса','Business Development Manager'];
+    return names.map((name,index)=>({id:'colleague-'+index,name,position:roles[index],company:'DemoCompany-'+(index+1),photo:'assets/candidates/'+(['portrait-sergey.png','portrait-alina.png','portrait-sergey.png','portrait-olga.png','portrait-sergey.png','portrait-ekaterina.png'][index%6]),source:index%2?'Своя база':'hh.ru',tags:index%3?['Кадровый резерв']:['На будущее'],score:9-index%5,age:28+index%10,city:'Москва',phone:'+7 000 000-00-00',email:'demo_candidate_'+index+'@example.com',education:'Демонстрационный университет · менеджмент · 2015 г.',skills:['B2B Sales','Переговоры','CRM'],experience:[{period:'2024 г. — настоящее время',company:'DemoCompany-'+(index+1),role:roles[index],text:'Вымышленный опыт: работа с корпоративными клиентами, презентации решений и развитие партнёрских проектов.'}],consent:'unknown'}));
+  }
+  function candidateContext(){
+    const route=location.hash.slice(1),id=/^vacancy\/([^/]+)$/.exec(route)?.[1]||activeVacancyId;
+    const local=seedCandidateOverrides.has(id)?null:window.CreationStore?.forRoute('vacancy/'+id);
+    const handoff=seedCandidateOverrides.has(id)?null:window.SearchCandidateHandoff?.forRoute('vacancy/'+id);
+    const selected=local||handoff;
+    return {vacancyId:id,vacancyName:vacancies[id]?.name||selected?.vacancyName||vacancies.android.name,candidate:selected?.candidate||null,stage:selected?.stage||'Техническое собеседование',localCandidates:window.CreationStore?.records(id)||[],pipeline:creationCatalog().find(v=>v.id===id)?.stages||[],navigate:routeTo,
+      selectLocalCandidate:candidateId=>{if(window.CreationStore?.select(candidateId,id)){seedCandidateOverrides.delete(id);render();}},
+      leaveLocalCandidate:()=>{seedCandidateOverrides.add(id);window.CreationStore?.clearSelection();}};
+  }
   function render(){
-    const route=location.hash.slice(1)||'search';
-    const searchCandidateContext=window.SearchCandidateHandoff?.forRoute(route);
-    const exactCandidateRoute=route==='vacancy/android'||!!searchCandidateContext;
+    const route=location.hash.slice(1)||'dashboard';
+    if(route!=='create/vacancy')pendingVacancyRequest=null;
+    creationView?.destroy?.();creationView=null;
+    const searchCandidateContext=window.CreationStore?.forRoute(route)||window.SearchCandidateHandoff?.forRoute(route);
+    const colleagueFrame=document.querySelector('#colleague-reference-frame');
+    const vacancyId=/^vacancy\/([^/]+)$/.exec(route)?.[1];
+    const colleagueRoute=!!colleagueFrame&&(['dashboard','home','tasks','requisitions','create/requisition'].includes(route)||!!(vacancyId&&vacancies[vacancyId]&&(!vacancyId.startsWith('draft-')||searchCandidateContext)));
+    const exactCandidateRoute=!colleagueRoute&&(route==='vacancy/android'||!!searchCandidateContext);
     const exactCandidateFrame=document.querySelector('#candidate-reference-frame');
     const exactAnalyticsFrame=document.querySelector('#analytics-reference-frame');
     const exactSearchFrame=document.querySelector('#search-reference-frame');
@@ -361,13 +440,25 @@
     document.body.classList.toggle('candidate-reference-route',exactCandidateRoute);
     document.body.classList.toggle('analytics-reference-route',exactAnalyticsRoute);
     document.body.classList.toggle('search-reference-route',exactSearchRoute);
+    document.body.classList.toggle('colleague-reference-route',colleagueRoute);
+    document.body.classList.toggle('creation-route',route.startsWith('create/')||route.startsWith('vacancy/draft-'));
     if(exactCandidateFrame)exactCandidateFrame.hidden=!exactCandidateRoute;
     if(exactAnalyticsFrame)exactAnalyticsFrame.hidden=!exactAnalyticsRoute;
     if(exactSearchFrame)exactSearchFrame.hidden=!exactSearchRoute;
+    if(colleagueFrame)colleagueFrame.hidden=!colleagueRoute;
+    if(colleagueRoute){
+      if(vacancyId)activeVacancyId=vacancyId;
+      document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
+      if(!stagePanel.hidden)closeStagePanel();
+      if(!colleagueFrame.getAttribute('src'))colleagueFrame.src='colleague-current.html?public=8f2fcf7d900f';
+      else colleagueFrame.contentWindow?.dispatchEvent(new Event('colleague-context-refresh'));
+      return;
+    }
     if(exactSearchRoute){
       document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
       if(!stagePanel.hidden)closeStagePanel();
-      if(!exactSearchFrame.getAttribute('src'))exactSearchFrame.src='search-dev-current.html?public=519d88171fbc';
+      if(!exactSearchFrame.getAttribute('src'))exactSearchFrame.src='search-dev-current.html?public=5cccc007496b';
+      else exactSearchFrame.contentWindow?.dispatchEvent(new Event('sd-creation-refresh'));
       return;
     }
     if(exactCandidateRoute){
@@ -375,8 +466,12 @@
       const prepareCandidateFrame=()=>{
         window.CandidateNavigation?.mount(exactCandidateFrame,{
           vacancyId:searchCandidateContext?.vacancyId||'android',
-          vacancyName:searchCandidateContext?.vacancyName||vacancies.android.name,
+          vacancyName:vacancies[searchCandidateContext?.vacancyId||'android']?.name||searchCandidateContext?.vacancyName||vacancies.android.name,
           searchCandidate:searchCandidateContext?.candidate,
+          localCandidates:window.CreationStore?.records(searchCandidateContext?.vacancyId||'android'),
+          pipeline:creationCatalog().find(v=>v.id===(searchCandidateContext?.vacancyId||'android'))?.stages,
+          selectLocalCandidate:id=>{window.CreationStore.select(id);render();},
+          leaveLocalCandidate:()=>window.CreationStore.clearSelection(),
           stage:searchCandidateContext?.stage,navigate:routeTo
         });
       };
@@ -396,14 +491,17 @@
       // Скрываем iframe на других маршрутах, сохраняя его выбранные фильтры и экран.
       document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
       if(!stagePanel.hidden)closeStagePanel();
-      if(!exactAnalyticsFrame.getAttribute('src'))exactAnalyticsFrame.src='analytics-dev-current.html?public=883f459eecf8';
+      if(!exactAnalyticsFrame.getAttribute('src'))exactAnalyticsFrame.src='analytics-dev-current.html?public=1a47b71d17e7';
       return;
     }
+    if(route.startsWith('create/')){renderCreation(route.split('/')[1]);screen.scrollTop=0;return;}
+    if(route==='tasks/legacy'){renderTasks();return;}
+    if(route==='requisitions/legacy'){window.RequestExperience?.render(route);return;}
     applyMode();
     if(!stagePanel.hidden)closeStagePanel();
     document.querySelectorAll('.nav-item[data-route]').forEach(x=>x.classList.toggle('active',x.dataset.route===route.split('/')[0]));
     $('#ai-context').textContent=`Контекст: ${route.startsWith('vacancy')?'вакансия':route==='requisitions'?'заявки':route==='analytics'?'аналитика':route==='tasks'?'мои задачи':route==='calendar'?'календарь':route==='settings'?'настройки':'поиск'}`;
-    if(/^vacancy\/[^/]+\/edit$/.test(route))renderVacancyEditor68(route.split('/')[1]);else if(window.ProductMode?.render(route)){}else if(window.VacancySetup?.render(route)){}else if(window.AnalyticsWorkspace?.render(route)){}else if(window.RecruitWorkspaces?.render(route)){}else if(route==='search')renderSearch();else if(route==='tasks')renderTasks();else if(route==='calendar')renderCalendar();else if(route==='portfolio')renderPortfolio();else if(route.startsWith('vacancy/'))renderVacancy(route.split('/')[1]);else renderSearch();
+    if(/^vacancy\/[^/]+\/edit$/.test(route))renderVacancyEditor68(route.split('/')[1]);else if(/^vacancy\/draft-[a-z0-9-]+$/.test(route)&&vacancies[route.split('/')[1]])renderCreatedVacancy(route.split('/')[1]);else if(window.ProductMode?.render(route)){}else if(window.VacancySetup?.render(route)){}else if(window.AnalyticsWorkspace?.render(route)){}else if(window.RecruitWorkspaces?.render(route)){}else if(route==='search')renderSearch();else if(route==='tasks')renderTasks();else if(route==='calendar')renderCalendar();else if(route==='portfolio')renderPortfolio();else if(route.startsWith('vacancy/'))renderVacancy(route.split('/')[1]);else renderSearch();
     if(route.startsWith('vacancy/')&&!route.endsWith('/edit')&&!route.endsWith('/setup')){
       screen.querySelector('.vacancy-name-button')?.insertAdjacentHTML('afterend',`<button type="button" class="vacancy-settings-button" style="height:44px;min-height:44px;box-sizing:border-box;padding:0 15px;border-radius:14px" data-action="vacancy-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m10 2-.5 3-2 .9L4.8 4.8 2.8 8.2 5 10v4l-2.2 1.8 2 3.4L7.5 18l2 .9.5 3h4l.5-3 2-.9 2.7 1.2 2-3.4L19 14v-4l2.2-1.8-2-3.4-2.7 1.1-2-.9-.5-3z"/></svg><span>Настройки вакансии</span></button>`);
       screen.querySelector('.vacancy-head.compact')?.insertAdjacentHTML('beforeend',`<button type="button" data-action="ai-vacancy-automation" data-antd="Button" data-antd-props="color=purple variant=solid"><span class="ant-btn-icon"><span class="anticon">ИИ</span></span><span>Настройки воронки</span></button>`);mountPipelineLayout()
@@ -413,6 +511,7 @@
   }
 
   document.addEventListener('click',e=>{
+    const created=e.target.closest('[data-created-candidate]');if(created){window.CreationStore.select(created.dataset.createdCandidate);render();return;}
     if(!e.target.closest('.ve68-funnel-dropdown'))toggleVacancyFunnelMenu(false);
     const route=e.target.closest('[data-route]');if(route){routeTo(route.dataset.route);return}
     const a=e.target.closest('[data-action]');if(!a)return;const action=a.dataset.action;
@@ -454,6 +553,7 @@
       openModal('Редактировать вакансию','Позиция, описание и системные данные собраны в одном месте',vacancyEditForm(v,id),'Сохранить изменения',()=>{
         const values=window.VacancyEditorForm.collect(modal.querySelector('.vef-form'));if(!values)return;
         const result=window.VacancyEditorForm.save(vacancies,id,values);if(!result.ok)return;
+        if(vacancies[id]?.createdLocally&&!persistCreatedVacancies())result.persisted=false;
         modal.close();renderVacancyEditor68(id);showToast(result.persisted?'Изменения вакансии сохранены':'Изменения сохранены до закрытия страницы: локальное хранилище недоступно');
       });
       modal.classList.add('vacancy-editor-modal');modal.dataset.rerenderEditor='true';
@@ -508,7 +608,7 @@
       openModal(hiring?'Добавить в нанимающую команду':'Добавить рекрутера','Функция участия не расширяет права роли пользователя',`<div class="form-grid"><label class="field full">Пользователь<input placeholder="Начните вводить имя"></label><label class="field">Функция<select>${hiring?'<option>Нанимающий менеджер</option><option>Интервьюер</option><option>Согласующий</option>':'<option>Рекрутер</option><option>Ресечер</option><option>Координатор</option>'}</select></label><label class="field">Доступ<select><option>По роли и функции</option><option>С индивидуальным ограничением</option></select></label></div>`,'Добавить')
     }
     else if(action==='vacancy-access')openModal('Проверка доступа','Показывает итог роли, функции участия и индивидуальных ограничений',`<div class="form-grid"><label class="field full">Пользователь<select><option>Алексей Мельников · нанимающий менеджер</option><option>Ольга Селезнёва · интервьюер</option></select></label></div><div class="detail-block"><h3>Итоговый доступ</h3><p>✓ Видит профиль и безопасное резюме<br>✓ Заполняет назначенные формы<br>— Не видит зарплатные ожидания<br>— Не меняет этап кандидата</p></div>`,'Готово',()=>modal.close(),true)
-    else if(action==='new-vacancy'){modal.close();window.VacancySetup?.wizard()}
+    else if(action==='new-vacancy'){modal.close();routeTo('create/vacancy')}
     else if(action==='candidate-source')showToast('33 рекомендации из базы · откройте «Поиск» для полного списка')
     else if(action==='empty-stages')openModal('Этапы без кандидатов','Они остаются частью действующей версии воронки',`<div class="empty-stage-list">${stages.filter(([key])=>!systemStageKeys.has(key)&&!stageCounts[key]).map(([,label])=>`<span>${label}<b>0</b></span>`).join('')}</div>`,'Готово',()=>modal.close(),true)
     else if(action==='pipeline-overflow'){const hiddenKeys=new Set([...screen.querySelectorAll('.pipeline-stages [data-pipeline-item][hidden]')].map(x=>x.dataset.stage).filter(Boolean));openModal('Этапы, которые не поместились','В строке они спрятаны под «Ещё» — порядок воронки тот же',`<div class="pipeline-overflow-list">${stages.filter(([key])=>!systemStageKeys.has(key)&&(!hiddenKeys.size||hiddenKeys.has(key))).map(([key,label])=>`<button class="${selectedStage===key?'active':''}" data-action="stage" data-stage="${key}"><span>${label}</span><b>${stageCounts[key]}</b></button>`).join('')}</div>`,'Закрыть',()=>modal.close(),true)}
@@ -526,7 +626,7 @@
     else if(action==='move-candidate'){if(stagePanel.hidden)openStageChange(a);else closeStagePanel()}
     else if(action==='close-stage-panel')closeStagePanel()
     else if(action==='confirm-stage-change'){closeStagePanel();openStageChange()}
-    else if(action==='add-candidate')openModal('Добавить кандидата','Профиль будет добавлен на вакансию, а не создан заново при найденном дубле',`<div class="form-grid"><label class="field full">Источник<select><option>Загрузить резюме</option><option>Найти в базе ATS</option><option>Сохранить из браузерного плагина</option></select></label><label class="field">Этап<select data-antd-props="showSearch">${stages.map(s=>`<option>${s[1]}</option>`).join('')}</select></label><label class="field">Файл<input type="file"></label></div>`,'Добавить',()=>{modal.close();showToast('Кандидат добавлен на вакансию')});
+    else if(action==='add-candidate'){modal.close();routeTo('create/candidate')}
     else if(['quick-message','send-message'].includes(action))openModal('Написать кандидату','Канал и шаблон выбираются перед отправкой',`<div class="form-grid"><label class="field">Канал<select><option>hh.ru</option><option>Email</option><option>Telegram</option></select></label><label class="field">Шаблон<select><option>Приглашение на интервью</option><option>Без шаблона</option></select></label><label class="field full">Сообщение<textarea>Здравствуйте! Предлагаю выбрать удобное время для интервью.</textarea></label></div>`,'Отправить',()=>{modal.close();showToast('Сообщение отправлено и добавлено в историю')});
     else if(action==='copy-contact')showToast('Контакт скопирован');
     else if(action==='candidate-more')openDrawer('Дополнительная информация','Все редкие данные и действия — без перегрузки основной карточки',`<div class="detail-block"><h3>Текущие процессы</h3><p>Senior Android-разработчик · Ревью<br>Mobile Developer · Контакт</p></div><div class="detail-block"><h3>Личная заметка</h3><p>Видна автору, руководителю рекрутмента и администратору.</p><textarea style="width:100%;min-height:80px" placeholder="Напишите личную заметку"></textarea></div>`);
@@ -541,7 +641,7 @@
     else if(action==='override-ai'){window.CandidacyRuns.openReport(currentCandidate())}
     else if(action==='send-offer')openModal('Отправить оффер','PDF уже согласован; выберите канал отправки',`<div class="form-grid"><label class="field">Редакция<select><option>Редакция 3 · согласована</option></select></label><label class="field">Канал<select><option>Email</option><option>Telegram</option><option>Скачать PDF без отправки</option></select></label><label class="field full">Сообщение<textarea>Здравствуйте! Направляем вам оффер нашей команды.</textarea></label></div>`,'Оффер отправлен',()=>{modal.close();showToast('Статус изменён: оффер отправлен')});
     else if(['notetaker','download-offer','req-history','req-use-old','calendar-nav','vacancy-open'].includes(action))openModal(a.textContent.trim()||'Действие','Продолжение рабочего сценария',`<div class="detail-block"><h3>Настройки и последствия</h3><p>Этот шаг использует данные текущего объекта, сохраняет автора и время действия. Автоматические исходящие действия не запускаются без настроенной политики.</p></div>`,'Продолжить');
-    else if(action==='go-home')location.href='dashboard.html?public=509f70c12929';
+    else if(action==='go-home')location.href='dashboard.html?public=cb7a70f4cca9';
   });
   document.addEventListener('mousedown',e=>{if(e.target.closest('.rich-toolbar button'))e.preventDefault()});
   document.addEventListener('change',e=>{if(e.target.dataset.taskCheck){const t=tasks.find(x=>x.id===Number(e.target.dataset.taskCheck));if(t){t.done=e.target.checked;renderTasks();showToast(t.done?'Задача завершена':'Задача переоткрыта')}}if(e.target.dataset.q){queryRows[Number(e.target.dataset.i)][e.target.dataset.q]=e.target.value}if(e.target.dataset.searchSource){searchSources[e.target.dataset.searchSource]=e.target.checked}if(e.target.dataset.aiFunnelSelect!==undefined){selectedVacancyAiFunnel=e.target.value;$('#modal-body').innerHTML=vacancyAiSettingsBody();showToast(`Выбрана воронка «${VACANCY_AI_FUNNELS[selectedVacancyAiFunnel].name}»`)}});
@@ -561,14 +661,24 @@
     }
     if(e.key==='Escape'&&!stagePanel.hidden)closeStagePanel();
   });
-  $('#create-fab').addEventListener('click',()=>openModal('Создать','Выберите, что добавить в ATS',`<div class="grid-equal"><button class="detail-block" data-action="new-vacancy"><h3>Вакансия</h3><p>Собрать воронку и подключить площадку</p></button><button class="detail-block" data-action="new-requisition"><h3>Заявка</h3><p>Начать потребность с ИИ-диалога</p></button><button class="detail-block" data-action="new-task"><h3>Задача</h3><p>Назначить рекрутинговое действие</p></button><button class="detail-block" data-action="add-candidate"><h3>Кандидат</h3><p>Добавить резюме или найти в базе</p></button><button class="detail-block" data-action="new-meeting"><h3>Встреча</h3><p>Проверить слоты и пригласить</p></button></div>`,'Закрыть',()=>modal.close(),true));
+  window.CreateMenu?.install(document,{navigate:routeTo});refreshCreatedSidebar();
   $('#ai-fab').addEventListener('click',()=>{ai.hidden=!ai.hidden;if(!ai.hidden)$('#ai-input').focus()});
   $('#ai-form').addEventListener('submit',e=>{e.preventDefault();const input=$('#ai-input'),q=input.value.trim();if(!q)return;$('#ai-messages').insertAdjacentHTML('beforeend',`<div class="ai-message user">${esc(q)}</div><div class="ai-message"><b>Подготовил план изменения</b><p>Использую только доступные вам данные. Перед применением покажу затронутые объекты и не запущу письма или автоматизации.</p><div class="actions"><button class="btn" data-action="ai-cancel">Отмена</button><button class="btn primary" data-action="ai-apply">Применить</button></div></div>`);input.value='';$('#ai-messages').scrollTop=$('#ai-messages').scrollHeight});
   $('#ai-messages').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.action==='ai-apply'){showToast('Изменение применено после подтверждения');ai.hidden=true}else if(b.dataset.action==='ai-cancel'){b.closest('.ai-message').remove()}else{$('#ai-input').value=b.textContent;$('#ai-input').focus()}});
   window.addEventListener('cr-repaint',()=>render());
   window.addEventListener('cr-focus',e=>{selectedStage=e.detail.stage;selectedCandidate=candidatesFor(activeVacancyId,selectedStage).findIndex(c=>c.id===e.detail.id);candidateTab='overview';render();});
   window.addEventListener('cr-toast',e=>showToast(e.detail));
-  window.ATSPrototype={current:currentCandidate,stages:()=>stages,register:(id,name)=>{vacancies[id]={...vacancies.android,name,load:0,hires:0,waiting:0,progress:0};const custom=Object.fromEntries(Object.entries(vacancies).filter(([key])=>key.startsWith('draft-')));localStorage.setItem('sobesso-prototype-new-vacancies',JSON.stringify(custom));}};
+  window.ATSPrototype={current:currentCandidate,stages:()=>stages,catalog:creationCatalog,register:registerVacancy,route:routeTo,candidateContext,seedProfiles,
+    assignCandidate:(id,process)=>window.CreationStore.assign(id,process,creationCatalog()),
+    updateCandidateStage:(id,process)=>{const result=window.CreationStore.updateStage(id,process,creationCatalog());if(result?.ok)document.querySelector('#colleague-reference-frame')?.contentWindow?.dispatchEvent(new Event('colleague-context-refresh'));return result;},
+    createVacancyFromRequest:(fields,requestId)=>{
+      if(!fields||typeof fields!=='object'||!/^REQ-\d+$/.test(requestId||''))return false;
+      const existing=Object.entries(vacancies).find(([,v])=>v.sourceRequisition===requestId);
+      if(existing){routeTo('vacancy/'+existing[0]);return true;}
+      const text=key=>String(fields[key]??'').slice(0,12000);
+      pendingVacancyRequest={id:requestId,values:{name:text('title'),department:text('dept'),grade:text('grade'),positions:Number(fields.need)||1,priority:fields.pr==='Высокий'?1:fields.pr==='Низкий'?3:2,duties:text('duties'),requirements:text('reqs'),conditions:text('cond'),budget:[text('from'),text('to')].filter(Boolean).join(' — '),recruiterId:'',funnelId:''}};
+      routeTo('create/vacancy');if(location.hash==='#create/vacancy')render();return true;
+    }};
   window.addEventListener('hashchange',render);render();
-  if(location.hash==='#create'){location.hash='search';$('#create-fab').click()}
+  if(location.hash==='#create'){location.hash='search';const frame=document.querySelector('#search-reference-frame');const open=()=>{try{const doc=frame.contentDocument,trigger=doc.querySelector('.sd-side-create');if(trigger)window.CreateMenu.install(doc,{navigate:routeTo}).open(trigger);}catch{}};if(frame.contentDocument?.querySelector('.sd-side-create'))open();else frame.addEventListener('load',open,{once:true});}
 })();

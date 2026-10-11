@@ -56,7 +56,7 @@ window.RequestExperience=(()=>{
     builder={mode,step:0,form,data,sourceId:source?.id||null,savedId:null,chat:[{who:'ai',text:'Я помогу собрать заявку и сразу покажу, каких данных не хватает. Кого ищем и какой результат ждём от человека в первые полгода?'}]};
     renderBuilder()
   }
-  function open(){if(location.hash!=='#requisitions')location.hash='requisitions';start(null,'choice')}
+  function open(options={}){if(!options.keepRoute&&location.hash!=='#requisitions/legacy')location.hash='requisitions/legacy';start(null,'choice')}
 
   function builderHead(){const names=['Способ заполнения','Потребность','Профиль','Условия','Команда','Проверка'];const active=builder.mode==='choice'?0:builder.mode==='ai'?1:Math.min(builder.step+1,5);return `${top('Новая заявка','Черновик сохраняется в одном процессе: ИИ и форма используют общие данные.',button('Закрыть','cancel','secondary')+button('Сохранить черновик','save','secondary'))}${steps(names.map(name=>({title:name})),active,{small:true,cls:'rq-steps-top'})}`}
 
@@ -105,7 +105,7 @@ window.RequestExperience=(()=>{
     if(action==='ai-send'){const input=document.getElementById('rq-ai-input'),text=input.value.trim();if(!text)return;builder.chat.push({who:'user',text});const missing=['tasks','requirements','conditions'].find(key=>!builder.data[key]);if(missing)builder.data[missing]=text;builder.chat.push({who:'ai',text:missing?`Записал это в поле «${{tasks:'Задачи',requirements:'Требования',conditions:'Условия'}[missing]}». Проверьте предложенное значение справа или продолжите рассказ.`:'Контекст сохранил. Все предложенные изменения останутся черновиком, пока вы не подтвердите их в форме.'});renderBuilder();return}
   }
   function handleInput(event){const key=event.target.dataset.rqInput;if(key){filters[key]=event.target.value;if(key==='query')renderList();else renderList();return}const fieldKey=event.target.dataset.rqField;if(fieldKey&&builder){if(fieldKey==='form'){const form=read().forms.find(f=>f.name===event.target.value);if(form)builder.form=clone(form)}else builder.data[fieldKey]=event.target.value}}
-  function render(route){if(route!=='requisitions')return false;if(builder)renderBuilder();else renderList();return true}
+  function render(route){if(!['requisitions','requisitions/legacy'].includes(route))return false;if(builder)renderBuilder();else renderList();return true}
   document.addEventListener('click',handleClick);
   document.addEventListener('change',handleInput);
   document.addEventListener('input',event=>{if(event.target.dataset.rqField&&builder)handleInput(event)});

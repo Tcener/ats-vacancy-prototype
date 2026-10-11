@@ -63,9 +63,15 @@ window.CandidateNavigation = (() => {
       if (!route) return;
       link.dataset.cnRoute = route;
       link.classList.toggle('cn-nav-current', route === `vacancy/${context.vacancyId}`);
-      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=ee8046268b22#${route}`, state.frame.ownerDocument.location.href).href;
+      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=cb7a70f4cca9' : `ats-product.html?public=ccb0d82c83de#${route}`, state.frame.ownerDocument.location.href).href;
       link.target = '_top';
     });
+    window.CreateMenu?.install(doc,{navigate:context.navigate});
+    const ownNav=doc.querySelector('section[aria-label="Мои вакансии"]');
+    if(ownNav&&context.vacancyId?.startsWith('draft-')){
+      let link=ownNav.querySelector(`[data-cn-own-vacancy="${context.vacancyId}"]`);
+      if(!link){link=doc.createElement('a');link.dataset.cnOwnVacancy=context.vacancyId;link.dataset.cnRoute='vacancy/'+context.vacancyId;link.href='#vacancy/'+context.vacancyId;ownNav.append(link);}link.textContent=context.vacancyName;
+    }
   }
 
   function profile(state) {
@@ -92,14 +98,27 @@ window.CandidateNavigation = (() => {
     if (tab === 'history') content = '<h3>История и комментарии</h3><div class="cn-empty">История этого демопрофиля из поиска не переносилась.<br>Комментарии другого кандидата не показываются.</div>';
     else if (tab === 'ai') content = '<h3>ИИ-инструменты</h3><div class="cn-empty">Оценка конкретного процесса не запускалась.<br>Результаты другого кандидата не используются.</div>';
     else if (tab === 'chat') content = '<h3>Переписка</h3><div class="cn-empty">Сообщений этого кандидата в макете нет.<br>Письма и приглашения не отправляются.</div>';
+    else if(person.createdLocally)content=`<h3>Резюме</h3><div class="cn-search-skills">${(person.skills||[]).map(skill=>`<span>${esc(skill)}</span>`).join('')}</div>${person.resumes?.[0]?.fullText?`<div class="cn-note" style="white-space:pre-wrap;line-height:1.65;overflow-wrap:anywhere">${esc(person.resumes[0].fullText)}</div>`:'<div class="cn-empty">Файл резюме не загружен. Профиль заполнен вручную.</div>'}`;
     else content = `<h3>Резюме</h3><div class="cn-search-skills">${(person.skills || []).map(skill=>`<span>${esc(skill)}</span>`).join('')}</div>${jobs || '<div class="cn-empty">Опыт не указан</div>'}<h3 style="margin-top:22px">Образование</h3><p>${esc(person.education || 'Не указано')}</p><h3>Версии резюме</h3>${(person.resumes || []).map(resume=>`<p>${esc(resume.title)}</p>`).join('') || '<p>Резюме не указано</p>'}`;
     state.original.hidden = true; state.demo.hidden = false;
-    state.demo.innerHTML = `<nav class="cn-demo-tabs" aria-label="Разделы кандидата" role="tablist">${tabs.map(([id,label])=>`<button type="button" class="cn-tab" role="tab" data-cn-tab="${id}" aria-selected="${id === tab}" aria-controls="cn-demo-content">${label}</button>`).join('')}</nav><section class="cn-profile" aria-label="Блок: шапка кандидата"><div class="cn-profile-top">${searchAvatar(person, 'cn-search-profile-avatar')}<div class="cn-profile-copy"><h2>${esc(person.name)}</h2><p class="cn-role">${esc(person.position || person.role)}</p><p class="cn-meta">${esc(person.city)} · ${esc(state.context.stage)}</p><span class="cn-demo-badge">Вымышленный профиль из поиска</span><dl><dt>Телефон</dt><dd>Не указан</dd><dt>Эл. почта</dt><dd>${esc(person.contacts?.email || 'Не указана')}</dd><dt>Вакансия</dt><dd>${esc(state.context.vacancyName)}</dd></dl><p class="cn-search-consent">Согласие на обработку данных: ${esc(consent)}</p></div></div></section><section class="cn-content" id="cn-demo-content" role="tabpanel" tabindex="0">${content}</section>`;
+    state.demo.innerHTML = `<nav class="cn-demo-tabs" aria-label="Разделы кандидата" role="tablist">${tabs.map(([id,label])=>`<button type="button" class="cn-tab" role="tab" data-cn-tab="${id}" aria-selected="${id === tab}" aria-controls="cn-demo-content">${label}</button>`).join('')}</nav><section class="cn-profile" aria-label="Блок: шапка кандидата"><div class="cn-profile-top">${searchAvatar(person, 'cn-search-profile-avatar')}<div class="cn-profile-copy"><h2>${esc(person.name)}</h2><p class="cn-role">${esc(person.position || person.role)}</p><p class="cn-meta">${esc(person.city)} · ${esc(state.context.stage)}</p><span class="cn-demo-badge">${person.createdLocally?'Добавлен в этом браузере':'Вымышленный профиль из поиска'}</span><dl><dt>Телефон</dt><dd>${esc(person.createdLocally&&person.contacts?.phone||'Не указан')}</dd><dt>Эл. почта</dt><dd>${esc(person.contacts?.email || 'Не указана')}</dd>${person.createdLocally?`<dt>Зарплата</dt><dd>${esc(person.salary||'Не указана')}</dd>`:''}<dt>Вакансия</dt><dd>${esc(state.context.vacancyName)}</dd></dl><div class="cn-search-skills">${(person.tags||[]).map(tag=>`<span>${esc(tag)}</span>`).join('')}</div><p class="cn-search-consent">Согласие на обработку данных: ${esc(consent)}</p></div></div></section><section class="cn-content" id="cn-demo-content" role="tabpanel" tabindex="0">${content}</section>`;
   }
 
   function searchContext(state) {
     const candidate = state.context.searchCandidate;
-    state.rows.forEach(row => {row.hidden = !!candidate;});
+    const local=candidate?.createdLocally,ownVacancy=state.context.vacancyId?.startsWith('draft-'),records=state.context.localCandidates||[];
+    state.rows.forEach(row => {row.hidden = !!candidate&&(!local||ownVacancy);if(local)row.setAttribute('aria-pressed','false');});
+    state.doc.querySelectorAll('[data-cn-local-candidate]').forEach(row=>row.remove());
+    if(!candidate||local){
+      records.filter(record=>record.candidate.id!==candidate?.id).forEach(record=>{
+        const row=state.doc.createElement('button');row.type='button';row.className='cn-candidate-row cn-search-row';row.dataset.cnLocalCandidate=record.candidate.id;row.innerHTML=`${searchAvatar(record.candidate,'cn-search-avatar','span')}<span><b>${esc(record.candidate.name)}</b><small>${esc(record.candidate.position)}</small><small>${esc(record.stage)}</small></span>`;state.list.append(row);
+      });
+    }
+    const funnel=state.doc.querySelector('[aria-label="Этапы воронки"]');
+    let shownStages=stages;
+    if(local&&ownVacancy)shownStages=[['Все',records.length],...(state.context.pipeline||[]).filter(s=>s.enabled).map(s=>[s.label,records.filter(r=>r.stageId===s.id).length])];
+    else if((local||!candidate)&&records.length){shownStages=stages.map(([label,count],index)=>[label,String(count).includes('/')?count:Number(count)+(index===0?records.length:records.filter(r=>r.stage.toLocaleLowerCase('ru')===label.toLocaleLowerCase('ru')).length)]);for(const record of records)if(!shownStages.some(([label])=>label===record.stage))shownStages.push([record.stage,records.filter(r=>r.stage===record.stage).length]);}
+    if(funnel)funnel.innerHTML=shownStages.map(([label,count],index)=>`<button type="button" class="cn-stage ${index?'':'active'}" data-cn-stage="${index}" aria-pressed="${!index}"><span>${esc(label)}</span><span class="cn-count">${esc(count)}</span></button>`).join('');
     if (candidate) {
       if (!state.searchRow) {
         state.searchRow = state.doc.createElement('button');
@@ -113,7 +132,7 @@ window.CandidateNavigation = (() => {
       state.searchRow.innerHTML = `${searchAvatar(candidate, 'cn-search-avatar', 'span')}<span><b>${esc(candidate.name)}</b><small>${esc(candidate.position || candidate.role)}</small><small>${esc(state.context.stage)}</small></span>`;
     } else if (state.searchRow) state.searchRow.hidden = true;
     if (candidate || state.searchCandidateActive) {
-      const stageIndex = candidate ? stages.findIndex(([label])=>label.toLocaleLowerCase('ru') === String(state.context.stage).toLocaleLowerCase('ru')) : 0;
+      const stageIndex = candidate ? shownStages.findIndex(([label])=>label.toLocaleLowerCase('ru') === String(state.context.stage).toLocaleLowerCase('ru')) : 0;
       state.doc.querySelectorAll('[data-cn-stage]').forEach(button => {
         const selected = Number(button.dataset.cnStage) === Math.max(0, stageIndex);
         button.classList.toggle('active', selected); button.setAttribute('aria-pressed', String(selected));
@@ -166,13 +185,14 @@ window.CandidateNavigation = (() => {
       else state.context.navigate(route);
     };
     doc.addEventListener('click', event => {
+      const local=event.target.closest?.('[data-cn-local-candidate]');if(local?.dataset.cnLocalCandidate){event.preventDefault();state.context.selectLocalCandidate?.(local.dataset.cnLocalCandidate);return;}
       const target = event.target.closest?.('[data-cn-candidate], [data-cn-search-candidate], [data-cn-tab], [data-cn-stage], [data-cn-route]');
       if (!target) return;
       if (target.dataset.cnRoute && (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button)) return;
       event.preventDefault();
       if (target.dataset.cnRoute) go(target);
       else if (target.dataset.cnSearchCandidate) {state.tab = 'resume'; profile(state);}
-      else if (target.dataset.cnCandidate !== undefined) select(state, Number(target.dataset.cnCandidate));
+      else if (target.dataset.cnCandidate !== undefined) {if(state.context.searchCandidate?.createdLocally){state.context.leaveLocalCandidate?.();state.context.searchCandidate=null;state.tab='resume';searchContext(state);}select(state, Number(target.dataset.cnCandidate));}
       else if (target.dataset.cnTab) {state.tab = target.dataset.cnTab; profile(state); state.demo.querySelector(`[data-cn-tab="${state.tab}"]`)?.focus();}
       else if (target.dataset.cnStage !== undefined) doc.querySelectorAll('[data-cn-stage]').forEach(button => {const active = button === target; button.classList.toggle('active', active); button.setAttribute('aria-pressed', String(active));});
     }, true);

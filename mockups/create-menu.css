@@ -1,0 +1,16 @@
+/* Небольшое меню над «+ Создать»: без backdrop и модальной блокировки. */
+.create-menu{position:fixed;z-index:2500;width:296px;max-width:calc(100vw - 16px);padding:8px;overflow:auto;border:1px solid #ddd5ed;border-radius:18px;background:#fff;color:#1b1a20;box-shadow:0 14px 44px #21183226;font:500 14px/1.35 'Vela Sans','Manrope',Arial,sans-serif;box-sizing:border-box;text-align:left}
+.create-menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:70px;margin:0;padding:11px 10px;border:0;border-radius:12px;background:#fff;color:#1b1a20;font:inherit;text-align:left;cursor:pointer;box-sizing:border-box}
+.create-menu-item:hover{background:#f4effd}
+.create-menu-item:focus-visible{outline:2px solid #9d80ed;outline-offset:-2px;background:#f4effd}
+.create-menu-copy{display:grid;min-width:0;gap:4px}
+.create-menu-title{font-size:14px;font-weight:750;line-height:1.25}
+.create-menu-description{font-size:11px;line-height:1.35;color:#7b7487}
+.create-menu-icon{display:grid;place-items:center;flex:none;width:40px;height:40px;border-radius:12px}
+.create-menu-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.create-menu-icon.requisition{background:#ede5ff;color:#7047d9}
+.create-menu-icon.vacancy{background:#eff8cc;color:#647f23}
+.create-menu-icon.candidate{background:#ffe4f3;color:#d13d91}
+button.sd-side-create[data-create-menu-trigger]{width:calc(100% - 48px);padding:0 10px;border:0;color:#fff;text-align:center}
+.sd-sidebar-collapsed button.sd-side-create[data-create-menu-trigger]{width:100%}
+@media(max-width:900px){button.sd-side-create[data-create-menu-trigger]{width:100%}}

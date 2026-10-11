@@ -1,0 +1,23 @@
+/* Полноэкранное создание: общий стиль формы, без влияния на окна редактирования. */
+.vacancy-create{max-width:1180px;margin:0 auto;padding:24px 24px 36px;color:#1b1a20}
+.vacancy-create-head{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px}
+.vacancy-create-head h1{margin:5px 0 8px;font-size:28px;line-height:1.2;font-weight:850;letter-spacing:-.035em}
+.vacancy-create-head p{margin:0;color:#81788d;font-size:13px;line-height:1.5}
+.vacancy-create .ve68-kicker{color:#6b53d5;font-size:11px;font-weight:750;text-transform:uppercase;letter-spacing:.065em}
+.vacancy-create-form{display:grid;gap:18px}
+.vacancy-create .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px 18px}
+.vacancy-create .field{display:flex;flex-direction:column;min-width:0}
+.vacancy-create .field.vef-confidential{flex-direction:row}
+.vacancy-create .field.full{grid-column:1/-1}
+.vacancy-create-start>.vef-section{background:#f3f9e9!important;border-color:#dfeacb!important}
+.vacancy-create-start .vef-step{background:#6f8a3c}.vacancy-create-start .vef-tag{color:#627b34}
+.vacancy-create-policy{margin:18px 0 0;color:#7e8670;font-size:12px;line-height:1.6}
+.vacancy-create-errors{padding:14px 18px;border:1px solid #f1c2d8;border-radius:14px;background:#fff1f7;color:#a33263;font-size:13px;line-height:1.5}
+.vacancy-create-errors[hidden]{display:none}.vacancy-create-errors p{margin:0}.vacancy-create-errors p+p{margin-top:6px}
+.vacancy-create-footer{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 0 4px}
+.vacancy-create-footer>p{max-width:530px;margin:0;color:#898091;font-size:12px;line-height:1.6}
+.vacancy-create-footer>div{display:flex;gap:10px;flex:none}
+.vacancy-create .btn{min-height:44px;padding:11px 18px;border:1px solid #ded4f0;border-radius:13px;background:#fff;color:#332b41;font-size:13px;font-weight:650;cursor:pointer}
+.vacancy-create .btn.primary{background:#6b53d5;border-color:#6b53d5;color:#fff;box-shadow:0 5px 15px #6b53d520}
+.vacancy-create .btn:disabled{opacity:.55;cursor:wait}.vacancy-create .btn:focus-visible{outline:3px solid #6b53d530;outline-offset:2px}
+@media(max-width:760px){.vacancy-create{padding:18px 14px 28px}.vacancy-create-head{align-items:flex-start;gap:12px}.vacancy-create-head h1{font-size:24px}.vacancy-create .form-grid{grid-template-columns:1fr}.vacancy-create-footer{align-items:flex-start;flex-direction:column}.vacancy-create-footer>div{align-self:flex-end}.vacancy-create .vef-tag{display:none}}

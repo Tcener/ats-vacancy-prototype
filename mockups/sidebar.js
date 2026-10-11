@@ -5,10 +5,10 @@
    а страница только говорит, куда ведут ссылки и что подсвечено.
 
    base='' — внутри SPA, ссылки идут хешем;
-   base='ats-product.html?public=ee8046268b22' — с обычной страницы, ссылки уводят в SPA. */
+   base='ats-product.html?public=ccb0d82c83de' — с обычной страницы, ссылки уводят в SPA. */
 window.Sidebar = (() => {
   const NAV = [
-    { id: 'home', label: 'Главная', icon: 'home-20', href: 'dashboard.html?public=509f70c12929' },
+    { id: 'home', label: 'Главная', icon: 'home-20', href: 'dashboard.html?public=cb7a70f4cca9' },
     { id: 'search', label: 'Поиск', icon: 'search-20', route: 'search' },
     { id: 'tasks', label: 'Мои задачи', icon: 'check', route: 'tasks', count: 7 },
     { id: 'calendar', label: 'Календарь', icon: 'calendar-20', route: 'calendar' },
@@ -38,7 +38,7 @@ window.Sidebar = (() => {
   };
 
   const html = ({ base = '', active = '' } = {}) => `
-    <a class="brand" href="dashboard.html?public=509f70c12929" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a>
+    <a class="brand" href="dashboard.html?public=cb7a70f4cca9" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a>
     <nav class="main-nav" id="main-nav">${NAV.map(i => navItem(i, base, active)).join('')}</nav>
     <section class="vacancy-nav">
       <div class="vacancy-nav-title">${icon('folder-20')}<b>Мои вакансии</b>${icon('chevron-down-20')}</div>
@@ -68,8 +68,9 @@ window.Sidebar = (() => {
 
   /* Вне SPA кнопка «+» ведёт туда, где живёт создание. */
   document.addEventListener('click', e => {
+    if (window.CreateMenu?.isInstalled(document)) return;
     if (!e.target.closest('#create-fab') || document.getElementById('screen')) return;
-    location.href = 'ats-product.html?public=ee8046268b22#create';
+    location.href = 'ats-product.html?public=ccb0d82c83de#create';
   });
 
   const auto = document.querySelector('[data-sidebar]');

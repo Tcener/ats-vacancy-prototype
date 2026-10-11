@@ -1,0 +1,11 @@
+/* Локальные связки сохраняют исходную композицию импортированных экранов. */
+aside[aria-label="Основная навигация"]{width:276px;min-width:0;max-width:276px;flex-shrink:0!important;overflow:hidden}
+aside[aria-label="Основная навигация"] > div:last-child{min-width:0;max-width:100%;overflow:hidden}
+[data-colleague-candidate]:focus-visible,
+[data-prototype-create]:focus-visible {outline:3px solid #c9b8f7;outline-offset:3px}
+[data-colleague-candidate] {transition:background-color .15s,box-shadow .15s}
+[data-colleague-candidate]:hover {background:#faf8ff!important}
+[data-colleague-candidate] img {background:#eee7fc}
+[aria-label="Редактирование карточки кандидата"] input:focus,
+[aria-label="Редактирование карточки кандидата"] select:focus {outline:3px solid #efebfd;border-color:#8b74e8!important}
+@media(max-width:850px){[aria-label="Резюме выбранного кандидата"] section{padding:16px!important}}
