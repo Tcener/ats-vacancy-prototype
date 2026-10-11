@@ -1,0 +1,209 @@
+/* Обзор AI и автоматизаций: только содержимое модалки воронки.
+   Не затрагивает редакторы модулей, форм вакансий и другие таблицы макета. */
+.ve68-funnel-settings.vao-overview {
+  --vao-purple: #704ce8;
+  --vao-purple-soft: #f1ebff;
+  --vao-lime-soft: #f1f7e7;
+  display: grid;
+  gap: 18px;
+}
+.vao-overview .vao-overview-intro {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 18px;
+  border: 1px solid #e1d5ff;
+  border-radius: 22px;
+  background: linear-gradient(110deg, #eee6ff, #faf7ff);
+}
+.vao-overview .ve68-funnel-picker {
+  flex: 0 1 440px;
+  width: min(440px, 100%);
+  min-width: 0;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+.vao-overview .ve68-funnel-picker > span {
+  margin-bottom: 7px;
+  color: #6442be;
+  font-size: 12px;
+}
+.vao-overview .ve68-funnel-trigger {
+  min-height: 44px;
+  border-color: #d9c9ff;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 3px 10px #54379108;
+}
+.vao-overview .vao-overview-copy { min-width: 0; }
+.vao-overview .vao-overview-copy > b {
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e1d5ff;
+  color: #5835b6;
+  font-size: 12px;
+}
+.vao-overview .vao-overview-copy p {
+  margin: 7px 0 0;
+  color: #746780;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.vao-overview .ve68-stage-table {
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+.vao-overview .ve68-stage-table-head,
+.vao-overview .ve68-stage-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 24%) minmax(0, 1fr) minmax(0, 1fr);
+  min-width: 0;
+  gap: 10px;
+}
+.vao-overview .ve68-stage-table-head {
+  min-height: 36px;
+  padding: 0 12px 8px;
+  color: #787080;
+}
+.vao-overview .ve68-stage-table-head > span {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 0;
+  padding: 0 12px;
+  border-radius: 0;
+  background: none;
+}
+.vao-overview .ve68-stage-table-head > span:first-child { padding-left: 0; }
+.vao-overview .ve68-stage-table-head > span > b {
+  justify-content: flex-start;
+  gap: 6px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font-size: 12px;
+}
+.vao-overview .ve68-stage-table-head > span:nth-child(2) { color: #704ce8; }
+.vao-overview .ve68-stage-table-head > span:nth-child(3) { color: #60753d; }
+.vao-overview .ve68-stage-table-head i { font-size: 15px; font-style: normal; }
+.vao-overview [data-ai-funnel-rows] { display: grid; gap: 8px; }
+.vao-overview .ve68-stage-row {
+  min-height: 72px;
+  padding: 8px 10px;
+  border: 1px solid #ebe5f3;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 3px 12px #34203d04;
+}
+.vao-overview .ve68-stage-row:hover { border-color: #d9cbef; background: #fff; }
+.vao-overview .ve68-stage-name {
+  gap: 10px;
+  min-width: 0;
+  padding: 0 2px;
+  border-radius: 0;
+  background: none;
+}
+.vao-overview .ve68-stage-name::before { display: none; }
+.vao-overview .ve68-stage-name > .ve68-stage-marker {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--stage-color) 12%, white);
+  color: var(--stage-color);
+  font-size: 11px;
+  font-weight: 800;
+}
+.vao-overview .ve68-stage-name > b {
+  overflow: visible;
+  color: #232027;
+  font-size: 13px;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.vao-overview .ve68-stage-setting {
+  position: relative;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+}
+.vao-overview .vao-ai-cell { background: var(--vao-purple-soft); }
+.vao-overview .vao-automation-cell { background: var(--vao-lime-soft); }
+.vao-overview .ve68-stage-row:last-child :is(.ve68-stage-name, .ve68-stage-setting) { border-radius: 12px; }
+.vao-overview .ve68-stage-ai-copy { min-width: 0; gap: 3px; padding: 0; }
+.vao-overview .ve68-stage-ai-copy > b,
+.vao-overview .ve68-stage-setting .ve68-module-name {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #393045;
+  font-size: 12px;
+  line-height: 1.3;
+  font-weight: 750;
+  text-align: left;
+  white-space: normal;
+}
+.vao-overview .ve68-stage-setting .ve68-module-name:hover { background: none; color: #704ce8; text-decoration: underline; }
+.vao-overview .ve68-stage-setting em {
+  min-height: 18px;
+  padding: 0;
+  border-radius: 0;
+  background: none;
+  color: #8b8097;
+  font-size: 10px;
+  font-weight: 650;
+  white-space: normal;
+}
+.vao-overview .ve68-stage-setting em.is-active { background: none; color: #39784e; }
+.vao-overview .ve68-stage-setting em.is-active::before { content: "●"; margin-right: 4px; font-size: 7px; }
+.vao-overview .vao-automation-cell em { color: #7b8669; }
+.vao-overview .ve68-stage-ai-copy small { color: #7e896c; font-size: 10px; }
+.vao-overview .ve68-stage-setting button:not(.ve68-module-name) {
+  flex: none;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid #d2c2f8;
+  border-radius: 999px;
+  background: #fff;
+  color: #6340c4;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+.vao-overview .ve68-stage-setting .vao-ai-toggle:not(.is-active) { border-color: #704ce8; background: #704ce8; color: #fff; }
+.vao-overview .ve68-stage-setting .vao-ai-toggle:not(.is-active):hover { border-color: #5b37ce; background: #5b37ce; }
+.vao-overview .vao-automation-cell button:not(.ve68-module-name) { border-color: #d1ddbd; color: #5b7338; }
+.vao-overview .vao-automation-cell button:hover { border-color: #9bb675; background: #fafff3; color: #405a20; }
+.vao-overview .vao-empty-label { color: #a399ae; font-size: 11px; }
+.vao-overview .ve68-stage-ai-empty { background: #f9f7fc; }
+.vao-overview .vao-cell-label { display: none; }
+.vao-overview .ve68-ai-tooltip { left: 8px; max-width: min(280px, 90vw); }
+@media (max-width: 1040px) {
+  .vao-overview .ve68-stage-table-head,
+  .vao-overview .ve68-stage-row { grid-template-columns: minmax(155px, 22%) minmax(0, 1fr) minmax(0, 1fr); }
+  .vao-overview .ve68-stage-setting { flex-wrap: wrap; gap: 6px; }
+  .vao-overview .ve68-stage-setting button:not(.ve68-module-name) { min-height: 30px; }
+}
+@media (max-width: 760px) {
+  .vao-overview .vao-overview-intro { align-items: stretch; flex-direction: column; gap: 12px; }
+  .vao-overview .ve68-funnel-picker { flex: none; width: 100%; }
+  .vao-overview .ve68-stage-table-head { display: none; }
+  .vao-overview .ve68-stage-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; padding: 12px; }
+  .vao-overview .ve68-stage-name { grid-column: 1 / -1; }
+  .vao-overview .ve68-stage-setting { display: flex; align-content: flex-start; flex-wrap: wrap; gap: 8px; }
+  .vao-overview .vao-cell-label { display: block; flex: 0 0 100%; color: #806a9d; font-size: 10px; font-weight: 750; }
+  .vao-overview .vao-automation-cell .vao-cell-label { color: #718151; }
+  .vao-overview .ve68-stage-ai-copy { flex: 1 1 115px; }
+}

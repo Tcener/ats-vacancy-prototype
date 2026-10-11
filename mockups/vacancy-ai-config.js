@@ -3,7 +3,7 @@
 window.VacancyAiConfig = (() => {
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const clone=v=>JSON.parse(JSON.stringify(v)),saved={},templates=[];
-  let dialog,flow,onUpdate=()=>{};
+  let dialog,flow,onUpdate=()=>{},uploadSerial=0;
   const key=c=>`${c.vacancyId}:${c.funnelId}:${c.index}`;
   const kind=stage=>{const n=stage.toLowerCase();return n==='отклик'?'response':['скоринг','скрининг','автоскрининг'].includes(n)?'resume':n==='чат-бот'?'bot':/интервью/.test(n)?'transcription':''};
   const names={response:'Авторазбор откликов',resume:'AI разбор резюме',bot:'AI бот',transcription:'Транскрибация'};
@@ -24,8 +24,8 @@ window.VacancyAiConfig = (() => {
     criteria:[],criteriaSource:'custom',refusalMode:'score',threshold:8,parseTimes:[],
     channels:{chat:false,av:false},chatRequirements:[],resumeRequirements:[],fixedQuestions:[],fixedQuestionPosition:'end',voiceQuestions:[],deletedQuestions:[],faq:[],
     botThreshold:7,presentsAs:'ИИ',botName:'',botGender:'Мужской',tone:'На вы',allowRecruiter:false,
-    answerMinutes:'4',saveAudio:false,saveVideo:false,publicLink:false,confirmEmail:false,requestPhone:false,
-    welcome:'Здравствуйте! Давайте познакомимся. Я задам несколько вопросов о вашем опыте.',welcomeVideo:'',
+    answerMinutes:'4',saveAudio:false,saveVideo:false,skipVideo:false,publicLink:false,confirmEmail:false,requestPhone:false,
+    welcome:'Здравствуйте! Давайте познакомимся. Я задам несколько вопросов о вашем опыте.',welcomeVideo:'',welcomeVideoData:'',
     autoInvite:false,inviteMode:'real',inviteTimes:[],days:[],dailyLimit:'200',inviteStage:'Чат-бот',
     invitation:'Здравствуйте! Спасибо за интерес к вакансии {{ВАКАНСИЯ}}. Приглашаем на короткое интервью с AI-ассистентом. Мы подготовили {{КОЛВО_ВОПРОСОВ}} вопросов. Пройдите его в удобное время: {{ССЫЛКА_НА_ИНТЕРВЬЮ}}',
     followups:[],dialogPing:false,pingHours:'24',noReplyEnabled:false,noReplyDays:'14'
@@ -37,24 +37,36 @@ window.VacancyAiConfig = (() => {
     dialog.addEventListener('cancel',event=>{if(flow.overlay){event.preventDefault();if(flow.overlay==='catalog'&&flow.rule)flow.rule=null;else flow.overlay='';flow.error='';render()}});
     dialog.addEventListener('input',event=>{if(event.target.matches('[data-question-row][data-list="fixedQuestions"] [data-prop="answer"]')){const row=event.target.closest('[data-question-row]');row.querySelector('[data-fixed-score]').textContent=`${event.target.value.trim()?'Повлияет':'Не повлияет'} на итоговую оценку`}});
     dialog.addEventListener('change',event=>{
+      if(event.target.matches('[data-audio-rate]')){const audio=dialog.querySelector(`#${event.target.dataset.audioRate}`),rate=Number(event.target.value);if(audio&&[0.75,1,1.25,1.5,2].includes(rate))audio.playbackRate=rate;return}
       if(event.target.matches('[data-english-preset]')){capture();const q=flow.draft.voiceQuestions[Number(event.target.dataset.englishPreset)];q.preset=event.target.value;if(q.preset)q.text=englishPresets[q.preset];render()}
       if(event.target.matches('[data-refresh]')){capture();render()}
-      if(event.target.matches('[data-image]')){
-        const file=event.target.files[0],index=Number(event.target.dataset.image),current=flow;if(!file)return;
-        if(!file.type.startsWith('image/')){flow.error='Выберите файл изображения.';render();return}
-        capture();const reader=new FileReader();reader.onload=()=>{if(current!==flow||!flow.draft.voiceQuestions[index])return;flow.draft.voiceQuestions[index].image=reader.result;render()};reader.readAsDataURL(file);
-      }
-      if(event.target.matches('[data-welcome-video]')){capture();flow.draft.welcomeVideo=event.target.files[0]?.name||'';render()}
+      if(event.target.matches('[data-image]'))readBotFile(event.target.files?.[0],Number(event.target.dataset.image),'image');
+      if(event.target.matches('[data-welcome-video]'))readBotFile(event.target.files?.[0],null,'video');
     });
-    dialog.addEventListener('dragstart',event=>{const grip=event.target.closest('.joon-grip');if(!grip)return;capture();flow.dragIndex=Number(grip.dataset.index);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',String(flow.dragIndex))});
-    dialog.addEventListener('dragover',event=>{if(flow.dragIndex===undefined)return;const target=event.target.closest('[data-requirement], [data-joon-group]');if(target){event.preventDefault();event.dataTransfer.dropEffect='move'}});
-    dialog.addEventListener('drop',event=>{if(flow.dragIndex===undefined)return;const target=event.target.closest('[data-requirement], [data-joon-group]');if(!target)return;event.preventDefault();const from=flow.dragIndex,to=target.hasAttribute('data-requirement')?Number(target.dataset.requirement):null,required=target.closest('[data-joon-group]').dataset.joonGroup==='required';moveRequirement(from,to,required);flow.dragIndex=undefined;render()});
-    dialog.addEventListener('dragend',()=>{if(flow)flow.dragIndex=undefined});
+    dialog.addEventListener('dragstart',event=>{const native=event.target.closest('[data-bot-drag-list]');if(native){capture();flow.botDrag={list:native.dataset.botDragList,index:Number(native.dataset.index)};event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',String(flow.botDrag.index));return}const grip=event.target.closest('.joon-grip');if(!grip)return;capture();flow.dragIndex=Number(grip.dataset.index);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',String(flow.dragIndex))});
+    dialog.addEventListener('dragover',event=>{if(flow.botDrag){const target=event.target.closest('[data-requirement], [data-question-row]');if(target?.dataset.list===flow.botDrag.list){event.preventDefault();event.dataTransfer.dropEffect='move'}return}if(flow.dragIndex===undefined)return;const target=event.target.closest('[data-requirement], [data-joon-group]');if(target){event.preventDefault();event.dataTransfer.dropEffect='move'}});
+    dialog.addEventListener('drop',event=>{if(flow.botDrag){const target=event.target.closest('[data-requirement], [data-question-row]');if(target?.dataset.list!==flow.botDrag.list)return;event.preventDefault();const {list,index}=flow.botDrag,to=Number(target.dataset.requirement??target.dataset.questionRow),items=flow.draft[list];if(index!==to&&items[index]&&items[to])items.splice(to,0,items.splice(index,1)[0]);flow.botDrag=null;render();return}if(flow.dragIndex===undefined)return;const target=event.target.closest('[data-requirement], [data-joon-group]');if(!target)return;event.preventDefault();const from=flow.dragIndex,to=target.hasAttribute('data-requirement')?Number(target.dataset.requirement):null,required=target.closest('[data-joon-group]').dataset.joonGroup==='required';moveRequirement(from,to,required);flow.dragIndex=undefined;render()});
+    dialog.addEventListener('dragend',()=>{if(flow){flow.dragIndex=undefined;flow.botDrag=null}});
   }
   function open(context,update){
     init();onUpdate=update;
-    flow={context,kind:kind(context.stage),view:kind(context.stage)==='resume'?'choice':kind(context.stage)==='bot'?'bot':'criteria',step:0,draft:clone(saved[key(context)]||defaults()),error:'',overlay:'',catalogGroup:true,resetScroll:true};
+    const previous=saved[key(context)],draft={...defaults(),...clone(previous||{})};draft.channels={chat:false,av:false,...draft.channels};
+    flow={context,kind:kind(context.stage),view:kind(context.stage)==='resume'?'choice':kind(context.stage)==='bot'?'bot':'criteria',step:previous&&(draft.channels.chat||draft.channels.av)?1:0,draft,error:'',overlay:'',catalogGroup:true,resetScroll:true,botMode:draft.channels.chat?'chat':'av',sections:{description:false},pendingUploads:0};
     render();if(!dialog.open)dialog.showModal();
+  }
+  function readBotFile(file,index,type){
+    if(!file)return;capture();const current=flow,question=type==='image'?flow.draft.voiceQuestions[index]:null;
+    const allowed=type==='image'?['image/png','image/jpeg','image/webp','image/gif']:['video/mp4','video/webm','video/quicktime'];
+    const limit=(type==='image'?5:20)*1024*1024;
+    if(!allowed.includes(file.type)||!Number.isFinite(file.size)||file.size<=0||file.size>limit){flow.error=type==='image'?'Выберите PNG, JPEG, WebP или GIF до 5 МБ.':'Выберите MP4, WebM или MOV до 20 МБ.';render();return}
+    if(type==='image'&&!question)return;
+    const token=++uploadSerial;if(question)question.imageUploadToken=token;else flow.videoUploadToken=token;
+    flow.pendingUploads++;const reader=new FileReader();
+    const active=()=>current===flow&&dialog.open&&(question?flow.draft.voiceQuestions.includes(question)&&question.imageUploadToken===token:flow.videoUploadToken===token);
+    const complete=()=>{if(current===flow)flow.pendingUploads=Math.max(0,flow.pendingUploads-1)};
+    reader.onload=()=>{complete();if(!active())return;capture();if(question)question.image=reader.result;else{flow.draft.welcomeVideo=file.name;flow.draft.welcomeVideoData=reader.result}flow.error='';render()};
+    reader.onerror=()=>{complete();if(active()){capture();flow.error='Не удалось прочитать файл. Попробуйте выбрать его ещё раз.';render()}};
+    reader.readAsDataURL(file);
   }
   function toggle(context,update){
     if(isOn(context)){saved[key(context)].enabled=false;update();notify(`${names[kind(context.stage)]}: отключено`);return}
@@ -64,12 +76,20 @@ window.VacancyAiConfig = (() => {
   function responseSettings(){return saved[`${flow.context.vacancyId}:${flow.context.funnelId}:${flow.context.responseIndex}`]}
   function generatedCriteria(){
     const text=window.Publications?.profile(flow.context.vacancyId)?.text||'';
-    return [['Требования',true],['Будет плюсом',false]].flatMap(([heading,required])=>{
-      const part=(text.match(new RegExp(`${heading}:\\s*\\n([\\s\\S]*?)(?:\\n\\n|$)`,'i'))||[])[1]||'';
-      return part.split('\n').filter(l=>l.trim().startsWith('•')).flatMap(l=>l.replace(/^\s*•\s*/,'').split(';').map(title=>title.trim().replace(/[.;]$/,'')).filter(Boolean).map(title=>({title,required:required&&!/плюс/i.test(title),critical:false,type:'text'})));
+    const headings=[...text.matchAll(/^(Требования|Будет плюсом|Обязанности|Условия|Как устроена работа|О продукте)\s*:[\t ]*(?:\n)?/gmi)];
+    return headings.flatMap((heading,index)=>{
+      if(!/^(Требования|Будет плюсом)$/i.test(heading[1]))return [];
+      const required=/^Требования$/i.test(heading[1]);
+      const part=text.slice(heading.index+heading[0].length,headings[index+1]?.index??text.length);
+      // Отдельное поле требований допускает обычный текст, строки и списки.
+      // Обязанности и условия в критерии оценки не попадают.
+      return part.split('\n').flatMap(line=>line.replace(/^\s*(?:[•*\-]|\d+[.)])\s*/,'').split(';')
+        .map(title=>title.trim().replace(/[.;]$/,''))).filter(Boolean)
+        .map(title=>({title,required:required&&!/плюс/i.test(title),critical:false,type:'text'}));
     });
   }
   function capture(){
+    dialog.querySelectorAll('[data-sobesso-section]').forEach(el=>flow.sections[el.dataset.sobessoSection]=el.hasAttribute('open'));
     if(flow.overlay==='rule')window.NativeAiRequirements.read(flow.rule,dialog);
     if(flow.overlay==='catalog'&&flow.rule){const editor=dialog.querySelector('.joon-catalog-editor');if(editor)window.NativeAiRequirements.read(flow.rule,editor)}
     const replace=dialog.querySelector('[data-template-replace]');if(replace)flow.templateReplace=replace.checked;
@@ -96,6 +116,15 @@ window.VacancyAiConfig = (() => {
     const action=b.dataset.aiConfigAction,list=b.dataset.list,index=Number(b.dataset.index);
     if(action==='cancel'){dialog.close();return}
     capture();flow.error='';
+    if(action==='bot-mode'){flow.botMode=b.dataset.mode;flow.resetScroll=true}
+    if(action==='bot-format'){flow.step=0;flow.resetScroll=true}
+    if(action==='bot-segment')put(flow.draft,b.dataset.field,b.dataset.value);
+    if(action==='bot-review')flow.overlay='bot-review';
+    if(action==='bot-save'){saveBot();return}
+    if(action==='image-remove'){const q=flow.draft.voiceQuestions[index];if(q){q.image='';q.imageUploadToken=++uploadSerial}}
+    if(action==='welcome-video-remove'){flow.draft.welcomeVideo='';flow.draft.welcomeVideoData='';flow.videoUploadToken=++uploadSerial}
+    if(action==='insert-variable'){const selected=dialog.querySelector('[data-bot-variable]')?.value;if(selected)flow.draft.invitation+=` ${selected}`}
+    if(action==='invite-template'){flow.draft.invitation=b.dataset.template==='hh'?'Здравствуйте! Вы откликнулись на вакансию {{ВАКАНСИЯ}}. Для знакомства с командой ответьте на {{КОЛВО_ВОПРОСОВ}} вопросов: {{ССЫЛКА_НА_ИНТЕРВЬЮ}}':'Здравствуйте! Приглашаем вас на короткое интервью по вакансии {{ВАКАНСИЯ}}. В интервью {{КОЛВО_ВОПРОСОВ}} вопросов. Ссылка: {{ССЫЛКА_НА_ИНТЕРВЬЮ}}';notify('Выбран демонстрационный шаблон приглашения')}
     if(action==='close-overlay'){flow.overlay='';flow.rule=null;render();return}
     if(action==='catalog'){flow.overlay='catalog';flow.rule=null;flow.catalogGroup=b.dataset.group!=='desired'}
     if(action==='catalog-group'){flow.catalogGroup=b.dataset.group==='required';if(flow.rule){flow.rule.required=flow.catalogGroup;if(!flow.catalogGroup)flow.rule.critical=false}}
@@ -147,7 +176,7 @@ window.VacancyAiConfig = (() => {
     if(action==='questions-generate'){
       const req=flow.draft.chatRequirements.length?flow.draft.chatRequirements:generatedCriteria();
       for(const r of req.slice(0,5)){const text=`Расскажите на примере вашего проекта: ${r.title.charAt(0).toLowerCase()+r.title.slice(1)}`;if(!flow.draft[list].some(q=>q.text===text))flow.draft[list].push({text,answer:'Оценить конкретный пример, личную роль и результат. Общие слова без примера — недостаточное подтверждение.',type:'normal',image:''})}
-      notify('Подготовлены демонстрационные вопросы, без обращения к AI');
+      if(!req.length)flow.error='Сначала добавьте требования или заполните описание вакансии.';else notify('Подготовлены демонстрационные вопросы, без обращения к AI');
     }
     if(action==='answer-generate'){if(!flow.draft[list][index].text.trim())flow.error='Сначала заполните вопрос.';else{flow.draft[list][index].answer='Низкий уровень: общие слова без примера. Средний: описан конкретный подход. Высокий: пример из опыта, объяснение выбора, сложностей и результата.';notify('Добавлен пример подсказки, без реального AI')}}
     if(action==='question-generate'){
@@ -164,7 +193,7 @@ window.VacancyAiConfig = (() => {
     if(action==='variable')flow.draft.invitation+=` ${b.dataset.variable}`;
     if(action==='message-template')flow.draft.invitation='Здравствуйте! Спасибо за отклик на {{ВАКАНСИЯ}}. Приглашаем ответить на {{КОЛВО_ВОПРОСОВ}} вопросов: {{ССЫЛКА_НА_ИНТЕРВЬЮ}}';
     if(action==='followup-add')flow.draft.followups.push({hours:'24',text:'Здравствуйте! Напоминаем о приглашении на интервью: {{ССЫЛКА_НА_ИНТЕРВЬЮ}}'});
-    if(action==='back')flow.step=Math.max(0,flow.step-1);
+    if(action==='back'){flow.step=Math.max(0,flow.step-1);flow.resetScroll=true}
     if(action==='next'){next();return}
     render();
   }
@@ -173,8 +202,40 @@ window.VacancyAiConfig = (() => {
     if(flow.draft[list].some(v=>!v.title.trim()||/:\s*$/.test(v.title))){flow.error='Заполните требования или удалите пустые строки.';return false}
     for(const r of flow.draft[list])if(r.params){const error=window.NativeAiRequirements.validate(r);if(error){flow.error=error;return false}}return true;
   }
-  const steps=()=>['format',...(flow.draft.channels.chat?['requirements']:[]),'questions','settings','invite','review'];
-  const stepNames={requirements:'Требования',questions:'Вопросы',settings:'Настройки',invite:'Приглашения',review:'Проверка'};
+  const answerDurations=['1','1.5','2','2.5','3','3.5','4','5'];
+  const noReplyPeriods=['0.041666667','0.083333333','1','2','3','5','7','14','30'];
+  const positiveInteger=(value,max=10000)=>Number.isFinite(Number(value))&&Number.isInteger(Number(value))&&Number(value)>=1&&Number(value)<=max;
+  function validateBot(){
+    const d=flow.draft;
+    if(!d.channels.chat&&!d.channels.av)return 'Выберите чат-бота, аудио/видео или оба формата.';
+    if(!positiveInteger(d.botThreshold,10))return 'Проходной балл должен быть целым числом от 1 до 10.';
+    if(d.channels.chat){
+      if(!validRequirements('chatRequirements'))return flow.error;
+      if(d.resumeRequirements.some(r=>!r.title.trim()))return 'Заполните требования для скоринга резюме или удалите пустые строки.';
+      if(d.fixedQuestions.some(q=>!q.text.trim()))return 'Заполните фиксированные вопросы или удалите пустые строки.';
+      if(!['begin','end'].includes(d.fixedQuestionPosition))return 'Выберите начало или конец интервью для фиксированных вопросов.';
+      if(!['Человек','ИИ'].includes(d.presentsAs)||!['Мужской','Женский'].includes(d.botGender)||!['На вы','На ты'].includes(d.tone))return 'Проверьте основные настройки чат-бота.';
+      if(d.dialogPing&&!positiveInteger(d.pingHours))return 'Срок напоминания должен быть целым числом от 1 до 10 000 часов.';
+    }
+    if(d.channels.av){
+      if(!d.voiceQuestions.length)return 'Добавьте хотя бы один вопрос для аудио/видео-интервью.';
+      if(d.voiceQuestions.some(q=>!q.text.trim()))return 'Заполните вопросы для интервью или удалите пустые строки.';
+      if(!answerDurations.includes(String(d.answerMinutes)))return 'Выберите время на ответ из списка от 1 до 5 минут.';
+      if(d.voiceQuestions.some(q=>q.type==='english'&&q.preset&&!Object.hasOwn(englishPresets,q.preset)))return 'Выберите английский вопрос из списка или введите свой текст.';
+    }
+    if(d.faq.some(q=>!q.question.trim()||!q.answer.trim()))return 'Для базы знаний нужны и вопрос, и ответ.';
+    if(d.autoInvite){
+      if(!d.invitation.trim()||(String(d.dailyLimit).trim()&&!positiveInteger(d.dailyLimit)))return 'Заполните приглашение; лимит — целое число от 1 до 10 000 или пустое поле без лимита.';
+      if(!['real','schedule'].includes(d.inviteMode))return 'Выберите режим отправки приглашений.';
+      if(d.inviteMode==='schedule'&&(!d.inviteTimes.length||d.inviteTimes.some(t=>!/^([01]\d|2[0-3]):[0-5]\d$/.test(t))))return 'Укажите корректное время отправки приглашений.';
+      if(!flow.context.stages?.includes(d.inviteStage))return 'Выберите существующий этап для отправки приглашений.';
+      if(d.followups.some(q=>!positiveInteger(q.hours)||!q.text.trim()))return 'У каждого повторного письма нужны текст и целый срок от 1 до 10 000 часов.';
+    }
+    if(d.noReplyEnabled&&!noReplyPeriods.includes(String(d.noReplyDays)))return 'Выберите период отсутствия ответа из списка.';
+    if(flow.pendingUploads)return 'Дождитесь завершения загрузки выбранного файла.';
+    return '';
+  }
+  function saveBot(){flow.error=validateBot();if(flow.error){flow.resetScroll=true;render();return}finish()}
   function next(){
     if(flow.view==='criteria'){
       if(!validRequirements('criteria')){render();return}
@@ -182,23 +243,11 @@ window.VacancyAiConfig = (() => {
       if(flow.draft.parseTimes.some(v=>!v))flow.error='Укажите время разбора или удалите пустой интервал.';
       if(!flow.error)finish();else render();return;
     }
-    const step=steps()[flow.step],d=flow.draft;
-    if(step==='format'&&!d.channels.chat&&!d.channels.av)flow.error='Выберите чат-бота, аудио/видео или оба формата.';
-    if(step==='requirements'&&!validRequirements('chatRequirements')){render();return}
-    if(step==='requirements'&&d.resumeRequirements.some(r=>!r.title.trim()))flow.error='Заполните требования для скоринга резюме или удалите пустые строки.';
-    if(step==='questions'){
-      if(d.channels.av&&!d.voiceQuestions.length)flow.error='Добавьте хотя бы один вопрос для аудио/видео-интервью.';
-      if((d.channels.av&&d.voiceQuestions.some(q=>!q.text.trim()))||(d.channels.chat&&d.fixedQuestions.some(q=>!q.text.trim())))flow.error='Заполните тексты вопросов или удалите пустые строки.';
-      if(d.faq.some(q=>!q.question.trim()||!q.answer.trim()))flow.error='Для базы знаний нужны и вопрос, и ответ.';
+    if(flow.step===0){
+      if(!flow.draft.channels.chat&&!flow.draft.channels.av){flow.error='Выберите чат-бота, аудио/видео или оба формата.';render();return}
+      flow.step=1;flow.botMode=flow.draft.channels.chat?'chat':'av';flow.resetScroll=true;render();return;
     }
-    if(step==='invite'){
-      if(d.autoInvite&&(!d.invitation.trim()||Number(d.dailyLimit)<1))flow.error='Заполните приглашение и положительный лимит диалогов.';
-      if(d.autoInvite&&d.inviteMode==='schedule'&&(!d.inviteTimes.length||d.inviteTimes.some(v=>!v)))flow.error='Укажите хотя бы одно время отправки приглашений.';
-      if(d.followups.some(v=>Number(v.hours)<1||!v.text.trim()))flow.error='У каждого напоминания нужны срок от 1 часа и текст.';
-      if((d.dialogPing&&Number(d.pingHours)<1)||(d.noReplyEnabled&&Number(d.noReplyDays)<=0))flow.error='Срок ожидания должен быть положительным.';
-    }
-    if(flow.error){render();return}
-    if(step==='review'){finish();return}flow.step++;render();
+    saveBot();
   }
   function finish(){saved[key(flow.context)]={...clone(flow.draft),enabled:true};dialog.close();onUpdate();notify(`${names[flow.kind]}: настройки сохранены, включено`)}
   function orderButtons(list,i){const indices=neighbours(list,i);return `<div class="ve68-native-order">${icon('↑','up',`data-list="${list}" data-index="${i}" aria-label="Поднять строку ${i+1}" ${i===indices[0]?'disabled':''}`)}${icon('↓','down',`data-list="${list}" data-index="${i}" aria-label="Опустить строку ${i+1}" ${i===indices[indices.length-1]?'disabled':''}`)}</div>`}
@@ -217,35 +266,88 @@ window.VacancyAiConfig = (() => {
     }).join('')||'<p class="joon-empty">Требований пока нет. Добавьте своё или перенесите из вакансии.</p>'}</div>`;
   }
   function times(list){return `<div class="ve68-native-times">${flow.draft[list].map((t,i)=>`<label>Время <input type="time" data-time-list="${list}" aria-label="Время ${i+1}" value="${esc(t)}">${icon('×','remove',`data-list="${list}" data-index="${i}" aria-label="Удалить время ${i+1}"`)}</label>`).join('')}${btn('+ Ещё одно время','time-add',`data-list="${list}"`)}</div>`}
-  function threshold(){return `<div class="ve68-native-score" role="group" aria-label="Проходной балл">${Array.from({length:10},(_,i)=>btn(i+1,'score',`data-index="${i+1}" aria-pressed="${Number(flow.draft.botThreshold)===i+1}"`,Number(flow.draft.botThreshold)===i+1?'selected':'')).join('')}</div>`}
+  function threshold(){return `<div class="ve68-native-score" role="group" aria-label="Проходной балл">${Array.from({length:10},(_,i)=>btn(i+1,'score',`data-index="${i+1}" aria-label="Проходной балл ${i+1}" aria-pressed="${Number(flow.draft.botThreshold)===i+1}"`,Number(flow.draft.botThreshold)<=i+1?'selected':'')).join('')}</div><p class="sobesso-score-help">Кандидат проходит при оценке <b>${esc(flow.draft.botThreshold)}–10</b>. Оценка сама не отправляет отказ — исходы настраиваются в автоматизациях этапа.</p>`}
   function criteriaBody(){
     const d=flow.draft;
     const group=(required,title,help)=>`<section class="joon-group" data-joon-group="${required?'required':'desired'}"><h4>${title}</h4><p class="joon-help">${help}</p>${joonRows(required)}</section>`;
     return `<section class="joon-requirements-card"><header class="joon-requirements-head"><h3>Требования</h3><div class="joon-requirements-actions">${joonButton('plus','Добавить требование','catalog','','add')}${joonButton('transfer','перенести из вакансии','generate','data-list="criteria"')}${joonButton('layers','выбрать шаблон','templates')}${joonButton('save','сохранить в шаблон','template-save')}</div></header>${group(true,'Обязательные','Каждое совпадение заметно повышает оценку кандидата — эти требования весят больше всего. Отметьте требование <b>критичным</b> (булавкой) — тогда несоответствие сразу отклоняет кандидата.')}${group(false,'Желательные','Совпадение добавляет к оценке, но с меньшим весом. Не отсеивают, а помогают ранжировать кандидатов.')}</section><section class="joon-settings-card"><p class="joon-eyebrow">Автоматизация разбора</p><h3>Общие настройки</h3><h4>В каком случае отказывать кандидату</h4><div class="ve68-native-radio"><label><input type="radio" name="refusal-mode" data-bind="refusalMode" data-refresh value="required" ${d.refusalMode==='required'?'checked':''}>По обязательным требованиям</label><label><input type="radio" name="refusal-mode" data-bind="refusalMode" data-refresh value="score" ${d.refusalMode==='score'?'checked':''}>По проходному баллу</label></div>${d.refusalMode==='score'?`<p class="joon-help">Отказ уходит, если итоговая оценка кандидата ниже выбранного балла. Обязательные требования дают 80% оценки, желательные — 20%.</p><label class="ve68-config-field joon-threshold">Проходной балл<input type="range" min="1" max="10" step="1" data-bind="threshold" data-refresh value="${esc(d.threshold)}"><b>${esc(d.threshold)} / 10</b></label>`:''}${flow.kind==='response'?`<h4>Автоматический разбор откликов с вакансии</h4>${times('parseTimes')}`:''}</section><p class="joon-demo-note">Демонстрационный макет: генерация, справочники и шаблоны локальные. Движок Джуна не подключён. Оценка сама не отправляет отказ — действия настраиваются в автоматизациях этапа.</p>`;
   }
   function choice(){const s=responseSettings(),available=!!s?.criteria?.length;return `<p class="ve68-config-intro">Как AI должен разбирать резюме на этапе скоринга?</p><div class="ve68-config-choices"><button class="ve68-config-choice" data-ai-config-action="reuse" ${available?'':'disabled'}><b>Разбирать по тем же критериям, что и отклики</b><span>${available?`${s.criteria.length} требований, режим оценки и проходной балл из авторазбора откликов`:'Сначала сохраните требования в модуле «Авторазбор откликов».'}</span></button><button class="ve68-config-choice" data-ai-config-action="custom"><b>Настроить</b><span>Собственные обязательные и желательные требования.</span></button></div>`}
-  function chatRequirements(){return section('Требования для интервью',requirementRows('chatRequirements')+`<div class="ve68-native-toolbar">${btn('+ Добавить требование','add-requirement','data-list="chatRequirements"')}${btn('✦ Сгенерировать','generate','data-list="chatRequirements"','purple')}</div>`,'По этим требованиям кандидату будут заданы вопросы.')+section('Требования для скоринга резюме',requirementRows('resumeRequirements')+`<div class="ve68-native-toolbar">${btn('+ Добавить требование','add-requirement','data-list="resumeRequirements"')}${btn('✦ Сгенерировать','generate','data-list="resumeRequirements"')}</div>`,'По этим требованиям вопрос не задаётся — только оценка резюме.')}
   const englishPresets={self:'Tell me about yourself',project:'Describe your current project',goals:'Career goals and motivations',challenge:'Challenging technical situation'};
-  function questions(list){
+  const sobessoVariables=[['{{ВАКАНСИЯ}}','Название вакансии'],['{{КОЛВО_ВОПРОСОВ}}','Количество вопросов'],['{{ССЫЛКА_НА_ИНТЕРВЬЮ}}','Ссылка на интервью']];
+  const sobessoAudioFiles={'sobesso-question-demo.wav':'assets/audio/sobesso-question-demo.wav?public=f2c17c90dc93','english-demo.wav':'assets/audio/english-demo.wav?public=f86c3ef63775','welcome-demo.wav':'assets/audio/welcome-demo.wav?public=95a7bb487785'};
+  const trashSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const botTrash=(list,index,label)=>`<button type="button" class="ve68-config-icon sobesso-trash" data-ai-config-action="remove" data-list="${list}" data-index="${index}" aria-label="${esc(label)}">${trashSvg}</button>`;
+  const botGrip=(list,index)=>`<span class="sobesso-grip" draggable="true" data-bot-drag-list="${list}" data-index="${index}" title="Перетащить строку" aria-hidden="true">⠿</span>`;
+  function botSection(id,title,body,help=''){
+    return `<details class="ve68-native-section sobesso-section" data-sobesso-section="${id}" ${flow.sections[id]===false?'':'open'}><summary><h3>${title}</h3><span class="sobesso-chevron" aria-hidden="true"></span></summary><div class="sobesso-section-body">${help?`<p class="ve68-native-help">${help}</p>`:''}${body}</div></details>`;
+  }
+  function botSwitch(path,label,disabled=false,hint=''){
+    return `<label class="sobesso-switch-row ${disabled?'is-disabled':''}"><span>${esc(label)}${hint?`<small>${esc(hint)}</small>`:''}</span><input type="checkbox" role="switch" data-bind="${path}" data-refresh ${at(flow.draft,path)?'checked':''} ${disabled?'disabled':''}><span class="sobesso-switch" aria-hidden="true"></span></label>`;
+  }
+  function botSegments(path,label,values){
+    return `<div class="sobesso-segment-field"><span>${esc(label)}</span><div class="sobesso-segments" role="group" aria-label="${esc(label)}">${values.map(value=>btn(esc(value),'bot-segment',`data-field="${path}" data-value="${esc(value)}" aria-pressed="${at(flow.draft,path)===value}"`,at(flow.draft,path)===value?'selected':'')).join('')}</div></div>`;
+  }
+  function botRequirements(list){
+    return `<div class="sobesso-requirements">${flow.draft[list].map((r,i)=>`<div class="sobesso-requirement" data-requirement="${i}" data-list="${list}">${botGrip(list,i)}<div class="sobesso-requirement-main"><select data-condition aria-label="Условие требования ${i+1}">${opt(['Подходит если','Не подходит если'],r.condition)}</select><textarea data-title rows="2" aria-label="Требование ${i+1}" placeholder="Опишите требование к опыту или навыкам">${esc(r.title)}</textarea></div>${orderButtons(list,i)}${botTrash(list,i,`Удалить требование ${i+1}`)}</div>`).join('')||'<p class="sobesso-empty">Добавьте требования вручную или сгенерируйте их из описания вакансии.</p>'}</div><div class="ve68-native-toolbar">${btn('+ Добавить требование','add-requirement',`data-list="${list}"`)}${btn('✦ Сгенерировать','generate',`data-list="${list}"`,'purple')}</div>`;
+  }
+  function botChatRequirements(){
+    return botSection('requirements','Требования',`<h4>Требования для интервью</h4><p class="ve68-native-help">По этим требованиям кандидату будут заданы вопросы.</p>${botRequirements('chatRequirements')}<div class="sobesso-divider"></div><h4>Требования для скоринга резюме</h4><p class="ve68-native-help">По этим требованиям вопрос не задаётся — оценивается только резюме.</p>${botRequirements('resumeRequirements')}`);
+  }
+  function botAudio(id,file,label){
+    const source=sobessoAudioFiles[file];
+    return `<div class="sobesso-audio"><audio id="${id}" controls preload="metadata" src="${source}" aria-label="${esc(label)}"></audio><label class="sobesso-speed">Скорость<select data-audio-rate="${id}" aria-label="Скорость: ${esc(label)}">${opt([['0.75','0,75×'],['1','1×'],['1.25','1,25×'],['1.5','1,5×'],['2','2×']],'1')}</select></label><a class="sobesso-audio-download" href="${source}" download aria-label="Скачать демонстрационную озвучку">↓</a></div><p class="sobesso-demo-small">Демонстрационная запись. Она не озвучивает введённый вами текст; движок Собесо не подключён.</p>`;
+  }
+  function botQuestions(list){
     const voice=list==='voiceQuestions';
-    return (!voice?field('fixedQuestionPosition','Задать фиксированные вопросы в','select',[['end','конце интервью'],['begin','начале интервью']]):'')+`<div class="ve68-native-questions">${flow.draft[list].map((q,i)=>{
+    const top=voice?`<div class="ve68-native-toolbar sobesso-top-tools">${btn('+ Обычный вопрос','question-add',`data-list="${list}"`)}${btn('+ Вопрос на знание английского 🇬🇧','question-add',`data-list="${list}" data-type="english"`)}${btn('✦ Перегенерировать вопросы','questions-generate',`data-list="${list}"`,'purple')}${btn('Показать удалённые вопросы','deleted')}</div>`:field('fixedQuestionPosition','Задать фиксированные вопросы в','select',[['begin','начале интервью'],['end','конце интервью']]);
+    const rows=flow.draft[list].map((q,i)=>{
       const english=q.type==='english';
-      const image=voice?`${q.image?`<img class="ve68-native-question-image" src="${esc(q.image)}" alt="Изображение к вопросу">`:''}<label class="ve68-native-upload">+ Загрузить изображение<input type="file" accept="image/*" data-image="${i}" aria-label="Изображение к вопросу ${i+1}"></label>`:'';
-      const preset=english?`<label class="ve68-config-field">Выберите заготовленный вопрос<select data-english-preset="${i}">${opt([['','Выберите вопрос'],...Object.entries(englishPresets)],q.preset||'')}</select></label>`:'';
-      const answer=!english?`<label class="ve68-config-field">${voice?'Правильный ответ или подсказка для оценки':'Ожидаемый ответ (необязательно)'}<textarea rows="3" data-prop="answer" placeholder="${voice?'Опишите признаки хорошего и слабого ответа':'Без ожидаемого ответа вопрос не влияет на итоговую оценку'}">${esc(q.answer)}</textarea></label>${voice?`<div class="ve68-native-toolbar">${btn('✦ Сгенерировать вопрос и ответ','question-generate',`data-list="${list}" data-index="${i}"`)}${btn('✦ Сгенерировать ответ','answer-generate',`data-list="${list}" data-index="${i}"`)}</div>`:`<p class="ve68-native-help" data-fixed-score>${q.answer?.trim()?'Повлияет':'Не повлияет'} на итоговую оценку</p>`}`:'';
-      return `<section class="ve68-native-question" data-question-row="${i}" data-list="${list}"><div class="ve68-native-question-head"><b>${english?'Вопрос на знание английского 🇬🇧':`Вопрос ${i+1}/${flow.draft[list].length}`}</b>${orderButtons(list,i)}${icon('×','remove',`data-list="${list}" data-index="${i}" aria-label="Удалить вопрос ${i+1}"`)}</div>${image}${preset}<label class="ve68-config-field">Текст вопроса<textarea data-prop="text" rows="3" placeholder="Что вы хотите спросить у кандидата?">${esc(q.text)}</textarea></label>${answer}${voice?'<p class="ve68-config-demo">Озвучка появится после подключения движка. В макете аудио не генерируется.</p>':''}</section>`;
-    }).join('')||'<p class="ve68-native-empty">Вопросы пока не добавлены</p>'}</div><div class="ve68-native-toolbar">${btn('+ '+(voice?'Обычный вопрос':'Добавить вопрос'),'question-add',`data-list="${list}"`)}${voice?btn('+ Вопрос на знание английского 🇬🇧','question-add',`data-list="${list}" data-type="english"`):''}${btn('✦ '+(voice?'Сгенерировать вопросы':'Из требований'),'questions-generate',`data-list="${list}"`)}${voice?btn('Показать удалённые вопросы','deleted'):''}</div>`;
+      const image=voice?`<div class="sobesso-image-upload">${q.image?`<img class="ve68-native-question-image" src="${esc(q.image)}" alt="Изображение к вопросу ${i+1}">${btn('Удалить изображение','image-remove',`data-index="${i}"`,'small')}`:''}<label class="ve68-native-upload">${q.image?'Заменить изображение':'+ Загрузить изображение'}<input type="file" accept="image/png,image/jpeg,image/webp,image/gif" data-image="${i}" aria-label="Изображение к вопросу ${i+1}"></label><small>PNG, JPEG, WebP или GIF · до 5 МБ · только в этом макете</small></div>`:'';
+      const preset=english?`<label class="ve68-config-field">Выберите заготовленный вопрос<select data-english-preset="${i}">${opt([['','Свой вопрос'],...Object.entries(englishPresets)],q.preset||'')}</select></label>`:'';
+      const speech=voice&&!english?`<label class="ve68-config-field">Текст для озвучки <span>Необязательно. Можно уточнить произношение и обозначить ударения.</span><textarea data-prop="speechText" rows="2" placeholder="Если оставить пустым — используется текст вопроса">${esc(q.speechText||'')}</textarea></label>`:'';
+      const answer=!english?`<label class="ve68-config-field">${voice?'Правильный ответ или подсказка для оценки':'Ожидаемый ответ (необязательно)'}<textarea rows="3" data-prop="answer" placeholder="${voice?'Опишите признаки хорошего и слабого ответа':'Без ожидаемого ответа вопрос не влияет на итоговую оценку'}">${esc(q.answer)}</textarea></label>${voice?`<div class="ve68-native-toolbar">${btn('✦ Сгенерировать вопрос и ответ','question-generate',`data-list="${list}" data-index="${i}"`,'purple')}${btn('✦ Сгенерировать ответ','answer-generate',`data-list="${list}" data-index="${i}"`)}</div>`:`<p class="sobesso-score-status" data-fixed-score>${q.answer?.trim()?'Повлияет':'Не повлияет'} на итоговую оценку</p>`}`:'';
+      return `<article class="ve68-native-question sobesso-question" data-question-row="${i}" data-list="${list}"><div class="ve68-native-question-head">${botGrip(list,i)}<b>${i+1}/${flow.draft[list].length}${english?' · Вопрос на знание английского 🇬🇧':''}</b>${orderButtons(list,i)}${botTrash(list,i,`Удалить вопрос ${i+1}`)}</div>${image}${preset}<label class="ve68-config-field">Текст вопроса<textarea data-prop="text" rows="3" placeholder="Что вы хотите спросить у кандидата?">${esc(q.text)}</textarea></label>${voice?botAudio(`sobesso-question-audio-${i}`,english?'english-demo.wav':'sobesso-question-demo.wav',`Озвучка вопроса ${i+1}`):''}${speech}${answer}</article>`;
+    }).join('');
+    const bottom=voice?'':`<div class="ve68-native-toolbar">${btn('+ Добавить вопрос','question-add',`data-list="${list}"`)}${btn('✦ Из требований','questions-generate',`data-list="${list}"`,'purple')}</div>`;
+    return top+`<div class="ve68-native-questions">${rows||'<p class="sobesso-empty">Вопросов пока нет. Добавьте вопрос или подготовьте примеры по требованиям вакансии.</p>'}</div>`+bottom;
   }
-  function faqBody(){return `<p class="ve68-native-help">После интервью AI ищет ответ в базе знаний, в том числе в этих вопросах и ответах.</p>${btn('Подробнее о базе знаний','knowledge')}<div class="ve68-native-questions">${flow.draft.faq.map((q,i)=>`<section class="ve68-native-question" data-faq-row="${i}"><div class="ve68-native-question-head"><b>Вопрос ${i+1}</b>${icon('×','remove',`data-list="faq" data-index="${i}" aria-label="Удалить вопрос базы знаний ${i+1}"`)}</div><label class="ve68-config-field">Вопрос кандидата<textarea rows="2" data-faq-question>${esc(q.question)}</textarea></label><label class="ve68-config-field">Ответ<textarea rows="3" data-faq-answer>${esc(q.answer)}</textarea></label></section>`).join('')}</div><div class="ve68-native-toolbar">${btn('+ Добавить вопрос','faq-add')}${btn('✦ Сгенерировать','faq-generate')}</div>`}
-  function botSettings(){const d=flow.draft;return section('Проходной балл',threshold())+(d.channels.chat?section('Основные настройки чат-бота',`<div class="ve68-native-fields">${field('presentsAs','Бот представляется кандидату как','select',['Человек','ИИ'])}${field('botName','Имя бота (опционально)')}${field('botGender','Пол бота','select',['Мужской','Женский'])}${field('tone','Тон общения','select',['На вы','На ты'])}</div>${check('allowRecruiter','Разрешить кандидату звать рекрутера')}`):'')+(d.channels.av?section('Настройки аудио/видео-интервью',`${field('answerMinutes','Время на один ответ','select',[['1','1 минута'],['1.5','1 минута 30 секунд'],['2','2 минуты'],['2.5','2 минуты 30 секунд'],['3','3 минуты'],['3.5','3 минуты 30 секунд'],['4','4 минуты'],['5','5 минут']])}${check('saveAudio','Сохранять аудио запись ответа')}${check('saveVideo','Сохранять видео запись ответа')}${check('publicLink','Публичная ссылка — самостоятельная регистрация кандидатов')}${check('confirmEmail','Подтверждение email при регистрации')}${check('requestPhone','Запрашивать телефон кандидата')}`)+section('Брендирование',`${field('welcome','Приветственное сообщение','textarea')}<p class="ve68-native-help">Озвучка генерируется после сохранения в движке интервью.</p><label class="ve68-native-upload">+ Загрузить видео-кружок<input type="file" accept="video/*" data-welcome-video aria-label="Видео-кружок приветствия"></label>${d.welcomeVideo?`<p>${esc(d.welcomeVideo)} · только локальный пример, не отправляется</p>`:''}`):'')}
-  function invitation(){const d=flow.draft;return section('Автоматическая отправка приглашения на интервью',`${check('autoInvite','Включить авто отправку')}<div class="ve68-native-fields">${field('inviteMode','Режим отправки','select',[['real','В реальном времени (каждые 5 мин)'],['schedule','Раз в день']])}${field('dailyLimit','Максимум диалогов в день','number')}</div>${d.inviteMode==='schedule'?`<label class="ve68-config-field">Время отправки<input type="time" data-time-list="inviteTimes" aria-label="Время отправки приглашений" value="${esc(d.inviteTimes[0]||'09:00')}"></label>`:''}<h4>Дни недели для отправки</h4><div class="ve68-native-days">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(day=>`<label><input type="checkbox" data-day value="${day}" ${d.days.includes(day)?'checked':''}><span>${day}</span></label>`).join('')}</div><p class="ve68-native-help">Пустой выбор = любой день недели</p>${field('inviteStage','Кандидатам с этого этапа отправлять приглашения','select',flow.context.stages||['Отклик','Новый Кандидат','Скоринг','Чат-бот'])}<h4>Шаблон сообщения</h4><div class="ve68-native-toolbar">${btn('Выбрать готовый шаблон','message-template')}${['{{ВАКАНСИЯ}}','{{КОЛВО_ВОПРОСОВ}}','{{ССЫЛКА_НА_ИНТЕРВЬЮ}}'].map(v=>btn(v,'variable',`data-variable="${v}"`,'small')).join('')}</div>${field('invitation','Текст приглашения','textarea')}<div class="ve68-native-questions">${d.followups.map((r,i)=>`<section class="ve68-native-question" data-followup="${i}"><div class="ve68-native-question-head"><b>Если не начнет интервью</b>${icon('×','remove',`data-list="followups" data-index="${i}" aria-label="Удалить повторное письмо ${i+1}"`)}</div><label class="ve68-config-field">Отправить через (часов)<input type="number" min="1" value="${esc(r.hours)}"></label><label class="ve68-config-field">Текст письма<textarea>${esc(r.text)}</textarea></label></section>`).join('')}</div>${btn('+ Если не начнет интервью, отправить ещё одно письмо','followup-add')}`)+(d.channels.chat?section('Пинги кандидатам во время диалога',`${check('dialogPing','Отправлять напоминание')}${field('pingHours','Если кандидат не отвечает (часов)','number')}`):'')+section('Перевести в статус «Провал»',`${check('noReplyEnabled','Включить правило для отсутствия ответа')}${field('noReplyDays','Если кандидат не отвечает дольше','select',[['0.041666667','1 часа'],['0.083333333','2 часов'],['1','1 дня'],['2','2 дней'],['3','3 дней'],['5','5 дней'],['7','1 недели'],['14','2 недель'],['30','1 месяца']])}`,'Отключено по умолчанию. Ручное решение рекрутера имеет приоритет.')+'<p class="ve68-config-demo">Приглашения и записи в этом макете не создаются. Переходы после интервью настраиваются в автоматизациях этапа.</p>'}
+  function botFaq(){
+    const content=`<div class="sobesso-info-strip"><span aria-hidden="true">ⓘ</span><p>После интервью кандидат может задать вопросы. Бот ищет ответы в базе знаний, в том числе в этих вопросах и ответах.${btn('Подробнее о базе знаний','knowledge','','small')}</p></div><div class="ve68-native-toolbar">${btn('✦ Сгенерировать','faq-generate','','purple')}${btn('+ Добавить вопрос','faq-add')}</div><div class="ve68-native-questions">${flow.draft.faq.map((q,i)=>`<article class="ve68-native-question sobesso-question" data-faq-row="${i}"><div class="ve68-native-question-head"><b>Вопрос ${i+1}</b>${botTrash('faq',i,`Удалить вопрос базы знаний ${i+1}`)}</div><label class="ve68-config-field">Вопрос кандидата<textarea rows="2" data-faq-question>${esc(q.question)}</textarea></label><label class="ve68-config-field">Ответ<textarea rows="3" data-faq-answer>${esc(q.answer)}</textarea></label></article>`).join('')}</div>`;
+    return botSection('faq','Часто задаваемые вопросы о вакансии',content);
+  }
+  function botChatSettings(){
+    return botSection('chat-settings','Основные настройки',`<h4>Проходной балл</h4>${threshold()}${botSegments('presentsAs','Бот представляется кандидату как',['Человек','ИИ'])}${field('botName','Имя бота (опционально)')}<div class="sobesso-setting-grid">${botSegments('botGender','Пол бота',['Мужской','Женский'])}${botSegments('tone','Тон общения',['На вы','На ты'])}</div>${botSwitch('allowRecruiter','Разрешить кандидату звать рекрутера')}`);
+  }
+  function botAvSettings(){
+    return botSection('av-settings','Настройки интервью',`<h4>Проходной балл</h4>${threshold()}${field('answerMinutes','Время на один ответ','select',[['1','1 минута'],['1.5','1 минута 30 секунд'],['2','2 минуты'],['2.5','2 минуты 30 секунд'],['3','3 минуты'],['3.5','3 минуты 30 секунд'],['4','4 минуты'],['5','5 минут']])}${botSwitch('saveAudio','Сохранять аудиозапись ответа')}${botSwitch('saveVideo','Сохранять видеозапись ответа')}${botSwitch('skipVideo','Разрешить кандидату пропустить запись видео',!flow.draft.saveVideo,!flow.draft.saveVideo?'Доступно при включённой видеозаписи':'')}${botSwitch('publicLink','Публичная ссылка — самостоятельная регистрация кандидатов')}${botSwitch('confirmEmail','Подтверждение email при регистрации')}${botSwitch('requestPhone','Запрашивать телефон кандидата')}`);
+  }
+  function botInvitations(){
+    const d=flow.draft;
+    const limit=`<label class="ve68-config-field">Максимум диалогов в день<input type="number" min="1" max="10000" placeholder="Безлимита" data-bind="dailyLimit" value="${esc(d.dailyLimit)}"></label>`;
+    const templates=`<div class="sobesso-message-tools"><details class="sobesso-template-menu"><summary>Шаблоны Собесо <span aria-hidden="true">⌄</span></summary><div>${btn('Приглашение на интервью','invite-template','data-template="sobesso"')}</div></details><details class="sobesso-template-menu"><summary>Шаблоны hh.ru <span aria-hidden="true">⌄</span></summary><div>${btn('Ответ на отклик','invite-template','data-template="hh"')}</div></details><label class="sobesso-variable">Переменная<select data-bot-variable aria-label="Переменная сообщения">${opt(sobessoVariables,sobessoVariables[0][0])}</select></label>${btn('Вставить','insert-variable','','small')}</div>`;
+    const followups=d.followups.map((r,i)=>`<article class="ve68-native-question sobesso-question" data-followup="${i}"><div class="ve68-native-question-head"><b>Если не начнёт интервью — письмо ${i+1}</b>${botTrash('followups',i,`Удалить повторное письмо ${i+1}`)}</div><label class="ve68-config-field">Отправить через (часов)<input type="number" min="1" max="10000" value="${esc(r.hours)}"></label><label class="ve68-config-field">Текст письма<textarea rows="3">${esc(r.text)}</textarea></label></article>`).join('');
+    return botSection('invitations','Автоматическая отправка приглашения на интервью',`${botSwitch('autoInvite','Включить автоотправку')}<p class="sobesso-demo-small">${d.autoInvite?'Настройки будут применены только после сохранения. Макет не отправляет сообщения.':'Автоотправка отключена. Можно заранее подготовить настройки и текст.'}</p><div class="sobesso-setting-grid">${field('inviteMode','Режим отправки','select',[['real','В реальном времени (каждые 5 мин)'],['schedule','Раз в день']])}${limit}</div>${d.inviteMode==='schedule'?`<div class="sobesso-schedule">${(d.inviteTimes.length?d.inviteTimes:['09:00']).map((time,i)=>`<label class="ve68-config-field">Время отправки ${i+1}<input type="time" data-time-list="inviteTimes" aria-label="Время отправки приглашений ${i+1}" value="${esc(time)}"></label>`).join('')}</div>`:''}<h4>Дни недели для отправки</h4><div class="ve68-native-days">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(day=>`<label><input type="checkbox" data-day value="${day}" ${d.days.includes(day)?'checked':''}><span>${day}</span></label>`).join('')}</div><p class="ve68-native-help">Пустой выбор — любой день недели.</p>${field('inviteStage','Кандидатам с этого этапа отправлять приглашения','select',flow.context.stages||['Отклик','Новый Кандидат','Скоринг','Чат-бот'])}<h4>Шаблон сообщения</h4>${templates}${field('invitation','Текст приглашения','textarea')}<div class="ve68-native-questions">${followups}</div>${btn('+ Если не начнёт интервью, отправить ещё одно письмо','followup-add')}`);
+  }
+  function botPings(){
+    return botSection('pings','Пинги кандидатам во время диалога',`${botSwitch('dialogPing','Отправлять напоминание')}${field('pingHours','Если кандидат не отвечает (часов)','number')}`,'Напоминание внутри начавшегося чата, отдельно от повторного приглашения.');
+  }
+  function botNoReply(){
+    return botSection('no-reply','Перевести в статус «Провал»',`${botSwitch('noReplyEnabled','Включить правило для отсутствия ответа')}${field('noReplyDays','Если кандидат не отвечает дольше','select',[['0.041666667','1 часа'],['0.083333333','2 часов'],['1','1 дня'],['2','2 дней'],['3','3 дней'],['5','5 дней'],['7','1 недели'],['14','2 недель'],['30','1 месяца']])}`,'Отключено по умолчанию. Ручное решение рекрутера имеет приоритет; переходы после интервью настраиваются в автоматизациях этапа.');
+  }
+  function botBranding(){
+    const d=flow.draft;
+    return botSection('branding','Брендирование',`${field('welcome','Приветственное сообщение','textarea')}${botAudio('sobesso-welcome-audio','welcome-demo.wav','Озвучка приветствия')}<p class="ve68-native-help">В Собесо новая озвучка появляется через несколько минут после сохранения. В этом макете воспроизводится только демонстрационный пример.</p><div class="sobesso-info-strip"><span aria-hidden="true">ⓘ</span><p>Можно добавить видео-кружок с приветствием, например подготовленный в Telegram. Файл останется только в памяти этой страницы.</p></div>${d.welcomeVideoData?`<video class="sobesso-welcome-video" src="${esc(d.welcomeVideoData)}" controls playsinline aria-label="Предпросмотр видео-приветствия"></video>`:''}${d.welcomeVideo?`<p class="sobesso-file-name">${esc(d.welcomeVideo)}${btn('Удалить видео','welcome-video-remove','','small')}</p>`:''}<label class="ve68-native-upload">${d.welcomeVideo?'Заменить видео-кружок':'+ Загрузить видео-кружок'}<input type="file" accept="video/mp4,video/webm,video/quicktime" data-welcome-video aria-label="Видео-кружок приветствия"></label><p class="sobesso-demo-small">MP4, WebM или MOV · до 20 МБ. Просмотр зависит от поддерживаемых браузером форматов.</p>`);
+  }
+  function botBody(){
+    const d=flow.draft;
+    if(flow.step===0)return '<p class="ve68-config-intro">Выберите один или оба формата. Настройки каждого формата сохраняются независимо от открытой вкладки.</p><div class="ve68-config-choices">'+['chat','av'].map(c=>`<label class="ve68-config-channel"><input type="checkbox" data-bind="channels.${c}" ${d.channels[c]?'checked':''}><span><b>${c==='chat'?'Чат-бот':'Аудио/видео'}</b><small>${c==='chat'?'Диалог по требованиям, фиксированные вопросы и ответы о вакансии.':'Вопросы с изображениями, озвучкой и настройкой записи.'}</small></span></label>`).join('')+'</div>';
+    const chat=flow.botMode==='chat',profile=window.Publications?.profile(flow.context.vacancyId),description=profile?.text||'Описание пока не заполнено. Его можно добавить в карточке вакансии.';
+    const tabs=d.channels.chat&&d.channels.av?`<div class="sobesso-mode-tabs" role="tablist" aria-label="Формат интервью">${['chat','av'].map(mode=>`<button type="button" role="tab" aria-selected="${flow.botMode===mode}" class="${flow.botMode===mode?'selected':''}" data-ai-config-action="bot-mode" data-mode="${mode}">${mode==='chat'?'Чат-бот':'Аудио/видео'}</button>`).join('')}</div>`:`<span class="sobesso-mode-badge">${chat?'Чат-бот':'Аудио/видео'}</span>`;
+    const intro=`<div class="sobesso-page-intro">${tabs}<span class="sobesso-draft-label">Черновик · сохранится после подтверждения</span></div>${botSection('description','Описание вакансии',`<p class="ve68-native-help">Описание берётся из текущей вакансии и используется при подготовке вопросов.</p><div class="sobesso-vacancy-description">${esc(description)}</div>`)} `;
+    return intro+(chat?botChatRequirements()+botSection('fixed-questions','Фиксированные вопросы',botQuestions('fixedQuestions'),'Эти вопросы дополняют вопросы по требованиям. Без ожидаемого ответа вопрос не влияет на итоговую оценку.')+botFaq()+botChatSettings()+botInvitations()+botPings()+botNoReply():botAvSettings()+botInvitations()+botNoReply()+botSection('voice-questions','Вопросы для интервью',botQuestions('voiceQuestions'))+botFaq()+botBranding())+'<p class="sobesso-editor-note">Демонстрационный макет: генерация локальная, приглашения не отправляются, рабочие движки не подключены. Настройки сохраняются в памяти страницы.</p>';
+  }
   function review(){const d=flow.draft,rows=[['Формат',[d.channels.chat?'Чат-бот':'',d.channels.av?'Аудио/видео':''].filter(Boolean).join(' + ')],['Требования для интервью',d.channels.chat?d.chatRequirements.length:'—'],['Требования для скоринга резюме',d.channels.chat?d.resumeRequirements.length:'—'],['Фиксированные вопросы',d.channels.chat?d.fixedQuestions.length:'—'],['Вопросы аудио/видео',d.channels.av?d.voiceQuestions.length:'—'],['База знаний',`${d.faq.length} вопросов`],['Проходной балл',`${d.botThreshold} из 10`],['Авто приглашения',d.autoInvite?'Включены':'Отключены'],['Напоминания о приглашении',d.followups.length],['Отсутствие ответа',d.noReplyEnabled?({0.041666667:'1 час',0.083333333:'2 часа',1:'1 день',2:'2 дня',3:'3 дня',5:'5 дней',7:'1 неделя',14:'2 недели',30:'1 месяц'}[d.noReplyDays]||`${d.noReplyDays} дней`):'Без автоматического провала']];return `<div class="ve68-config-review"><h3>Проверьте настройки перед включением</h3><dl>${rows.map(([label,v])=>`<div><dt>${label}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></div>`}
-  function botBody(){const d=flow.draft,step=steps()[flow.step];
-    if(step==='format')return '<p class="ve68-config-intro">Выберите один или оба формата. Затем настройте требования, вопросы и поведение бота.</p><div class="ve68-config-choices">'+['chat','av'].map(c=>`<label class="ve68-config-channel"><input type="checkbox" data-bind="channels.${c}" ${d.channels[c]?'checked':''}><span><b>${c==='chat'?'Чат-бот':'Аудио/видео'}</b><small>${c==='chat'?'Диалог по требованиям и фиксированным вопросам.':'Вопросы с подсказками для оценки и настройкой записи.'}</small></span></label>`).join('')+'</div>';
-    if(step==='requirements')return chatRequirements();
-    if(step==='questions')return (d.channels.chat?section('Фиксированные вопросы',questions('fixedQuestions'),'Эти вопросы бот задаст дополнительно к вопросам по требованиям.'):'')+(d.channels.av?section('Вопросы для аудио/видео-интервью',questions('voiceQuestions')):'')+section('Часто задаваемые вопросы о вакансии',faqBody());
-    return step==='settings'?botSettings():step==='invite'?invitation():review();
-  }
   const catalog=[['Своё требование',[['text','Своё требование текстом']]],['Опыт и карьера',[['experience','Опыт работы'],['tenure','Не смотрим бегунов'],['gap','Перерыв в работе'],['companies-count','Кол-во мест работы'],['freelance','Фрилансеры'],['courses','После курсов']]],['Компании',[['industry','Отрасль'],['company','Компания']]],['Локация',[['country','Страна'],['city','Город'],['metro','Метро'],['timezone','Часовой пояс'],['work-format','Формат работы']]],['О кандидате',[['salary','Зарплата'],['age','Возраст'],['citizenship','Гражданство'],['education','Уровень образования'],['gender','Пол'],['photo','Фото кандидата'],['hh-test','hh-тест'],['hh-comments','Комментарии в hh'],['position','Желаемая должность']]]];
   function catalogEditor(){
     if(flow.overlay!=='catalog'||!flow.rule)return '';
@@ -260,14 +362,16 @@ window.VacancyAiConfig = (() => {
     if(flow.overlay==='template-name'){title='Сохранить в шаблон';body=`<label class="ve68-config-field">Название шаблона<input data-template-name placeholder="Например: Android Senior"></label>${btn('Сохранить шаблон','template-confirm','','primary')}`}
     if(flow.overlay==='knowledge'){title='База знаний AI-бота';body='<p>Ответы о вакансии дополняют общие сведения о компании. Кандидат может задать вопросы после интервью.</p><p class="ve68-native-help">В макете редактируются вопросы и ответы этой вакансии. Общая база знаний компании сюда не копируется.</p>'}
     if(flow.overlay==='deleted'){title='Удалённые вопросы';body=flow.draft.deletedQuestions.length?flow.draft.deletedQuestions.map((q,i)=>`<section class="ve68-native-question"><p>${esc(q.text)||'Пустой вопрос'}</p>${btn('Восстановить','restore',`data-index="${i}"`)}</section>`).join(''):'<p>Удалённых вопросов нет.</p>'}
+    if(flow.overlay==='bot-review'){title='Проверка настройки интервью';body=review()+`<p class="sobesso-demo-small">Подтверждение включает только локальный модуль макета; сообщения и реальные интервью не запускаются.</p><div class="ve68-native-toolbar">${btn('Вернуться к настройкам','close-overlay')}${btn('Сохранить и включить','bot-save','','primary')}</div>`}
     return `<div class="ve68-native-overlay ${flow.overlay==='catalog'?'joon-catalog-overlay':flow.overlay==='templates'?'joon-template-overlay':''}"><section role="dialog" aria-modal="true" aria-label="${title}"><header><h3>${title}</h3>${icon('×','close-overlay','aria-label="Закрыть дополнительное окно"')}</header>${flow.error&&!(flow.overlay==='catalog'&&flow.rule)?`<p role="alert" class="ve68-config-error">${esc(flow.error)}</p>`:''}${body}</section>${catalogEditor()}</div>`;
   }
   function render(){
-    const bot=flow.view==='bot',choiceView=flow.view==='choice',step=bot?steps()[flow.step]:'';
+    const bot=flow.view==='bot',choiceView=flow.view==='choice';
     const scrollTop=flow.resetScroll?0:dialog.querySelector('.ve68-config-body')?.scrollTop||0;
     const overlayScroll=dialog.querySelector('.ve68-native-overlay > section')?.scrollTop||0;flow.resetScroll=false;
     dialog.classList.toggle('ve68-joon-dialog',flow.view==='criteria');
-    dialog.innerHTML=`<header ${flow.overlay?'inert':''}><div><h2 id="ve68-config-title">${bot&&step==='format'?'AI бот · формат общения':names[flow.kind]}</h2><p>${esc(flow.context.vacancyName)} · ${esc(flow.context.stage)}</p></div>${icon('×','cancel','aria-label="Закрыть настройку AI"')}</header><div class="ve68-config-body" ${flow.overlay?'inert':''}>${bot&&flow.step>0?`<nav class="ve68-config-steps" aria-label="Шаги настройки">${steps().slice(1).map((name,i)=>`<span class="${flow.step===i+1?'current':flow.step>i+1?'complete':''}">${i+1}. ${stepNames[name]}</span>`).join('')}</nav>`:''}${flow.error&&!flow.overlay?`<p class="ve68-config-error" role="alert">${esc(flow.error)}</p>`:''}${choiceView?choice():bot?botBody():criteriaBody()}</div><footer ${flow.overlay?'inert':''}>${btn('Отмена','cancel')}${bot&&flow.step>0?btn('Назад','back'):''}${!choiceView?btn(bot?(step==='format'?'Подтвердить выбор':step==='review'?'Сохранить и включить':'Далее'):'Сохранить и включить','next','','primary'):''}</footer>${overlay()}`;
+    dialog.classList.toggle('ve68-sobesso-dialog',bot);
+    dialog.innerHTML=`<header ${flow.overlay?'inert':''}><div><h2 id="ve68-config-title">${bot?(flow.step===0?'AI бот · формат общения':flow.botMode==='chat'?'Настройки чат-бота':'Настройки аудио/видео-интервью'):names[flow.kind]}</h2><p>${esc(flow.context.vacancyName)} · ${esc(flow.context.stage)}</p></div>${icon('×','cancel','aria-label="Закрыть настройку AI"')}</header><div class="ve68-config-body" ${flow.overlay?'inert':''}>${flow.error&&!flow.overlay?`<p class="ve68-config-error" role="alert">${esc(flow.error)}</p>`:''}${choiceView?choice():bot?botBody():criteriaBody()}</div><footer ${flow.overlay?'inert':''}>${btn('Отмена','cancel')}${bot&&flow.step>0?`<span class="sobesso-footer-spacer"></span>${btn('Изменить форматы','bot-format')}${btn('Проверить','bot-review')}`:''}${!choiceView?btn(bot&&flow.step===0?'Подтвердить выбор':'Сохранить и включить','next','','primary'):''}</footer>${overlay()}`;
     const body=dialog.querySelector('.ve68-config-body');if(body)body.scrollTop=scrollTop;
     if(flow.overlay){dialog.querySelector(flow.overlay==='catalog'&&flow.rule?'.joon-catalog-editor input, .joon-catalog-editor button':'.ve68-native-overlay input, .ve68-native-overlay button')?.focus({preventScroll:true});const pane=dialog.querySelector('.ve68-native-overlay > section');if(pane)pane.scrollTop=overlayScroll}
   }

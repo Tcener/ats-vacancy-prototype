@@ -514,7 +514,7 @@ fieldset:disabled .antd-native-select{background:#fff;color:var(--ant-color-text
 .ant-dropdown-flat.ant-dropdown-menu .pm-option.ant-dropdown-menu-item{display:block;height:auto;white-space:normal;text-align:left}
 @media(max-width:1180px){.pm-menu.ant-dropdown-menu{width:296px}}
 
-/* ── 68: публикации на работных сайтах (publications.js?public=8ad87eaa814a) ──
+/* ── 68: публикации на работных сайтах (publications.js?public=1608c66e9f48) ──
    Alert с описанием у antd рассчитан на страницу: отступ 20×24 и значок 24. В карточке
    публикации и в окнах таких плашек бывает две подряд — ужимаем до размера строки блока. */
 :is(.pub-section, .pub-modal, .pub-close-block) .ant-alert{--ant-alert-with-description-padding:11px 14px;--ant-alert-with-description-icon-size:17px}

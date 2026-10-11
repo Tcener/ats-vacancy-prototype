@@ -1,0 +1,130 @@
+/* Нативный редактор Собесо: изолирован от Джуна и остальных модальных окон ATS. */
+.ve68-sobesso-dialog{width:min(1160px,calc(100vw - 48px));border-radius:24px;background:#f6f6f6;font-family:Inter,system-ui,sans-serif}
+.ve68-sobesso-dialog>header{padding:26px 30px 22px;background:#fff;border-bottom:1px solid #ececec}
+.ve68-sobesso-dialog h2{font-size:25px;letter-spacing:-.03em;font-weight:800}
+.ve68-sobesso-dialog header p{font-size:13px;color:#777;margin-top:7px}
+.ve68-sobesso-dialog .ve68-config-body{max-height:calc(100vh - 220px);padding:24px 28px;background:#f6f6f6;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.ve68-sobesso-dialog>footer{padding:16px 26px;background:#fff;gap:10px;flex-wrap:wrap}
+.ve68-sobesso-dialog .sobesso-footer-spacer{flex:1}
+.ve68-sobesso-dialog .ve68-config-btn{border:1px solid #e8e5ec;border-radius:999px;padding:10px 18px;background:#f6f5f8;color:#1b1a20;min-height:39px;font-size:13px;font-weight:600;box-shadow:none}
+.ve68-sobesso-dialog .ve68-config-btn:hover{background:#eee9fa;border-color:#d7caef}
+.ve68-sobesso-dialog .ve68-config-btn.primary{background:#18171b;border-color:#18171b;color:#fff}
+.ve68-sobesso-dialog .ve68-config-btn.primary:hover{background:#38333f}
+.ve68-sobesso-dialog .ve68-config-btn.purple{background:#efebfc;border-color:#e5ddf8;color:#6545cd}
+.ve68-sobesso-dialog .ve68-config-btn.small{min-height:31px;font-size:12px;padding:6px 12px}
+.ve68-sobesso-dialog .ve68-config-icon{display:inline-flex;align-items:center;justify-content:center;background:#f0eff3;border:0;color:#6d6878;border-radius:50%;width:32px;height:32px;min-width:32px;font-size:20px;padding:0}
+.ve68-sobesso-dialog .ve68-config-icon:hover{background:#e6e0f2}
+.ve68-sobesso-dialog .ve68-config-btn:disabled,.ve68-sobesso-dialog .ve68-config-icon:disabled{opacity:.35;cursor:not-allowed}
+.ve68-sobesso-dialog button:focus-visible,.ve68-sobesso-dialog summary:focus-visible,.ve68-sobesso-dialog a:focus-visible{outline:3px solid #b19aee;outline-offset:3px}
+.ve68-sobesso-dialog .ve68-config-intro{font-size:16px;color:#59535f;max-width:800px;line-height:1.6}
+.ve68-sobesso-dialog .ve68-config-channel{background:#fff;border:1px solid #e7e2ef;padding:24px;border-radius:20px}
+.ve68-sobesso-dialog .ve68-config-channel b{font-size:19px;color:#1b1a20}
+.ve68-sobesso-dialog .ve68-config-channel small{font-size:13px;line-height:1.55;color:#76717e}
+.ve68-sobesso-dialog .ve68-config-channel:has(input:checked){background:#f0eaff;border-color:#9d81e8;box-shadow:0 0 0 2px #704ce811}
+.ve68-sobesso-dialog .sobesso-page-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;flex-wrap:wrap}
+.ve68-sobesso-dialog .sobesso-mode-tabs{display:inline-flex;gap:5px;padding:5px;background:#eae7ef;border-radius:999px}
+.ve68-sobesso-dialog .sobesso-mode-tabs button{border:0;background:none;border-radius:999px;padding:10px 24px;font:600 14px Inter,system-ui,sans-serif;color:#6a6272}
+.ve68-sobesso-dialog .sobesso-mode-tabs button.selected{background:#fff;color:#1c1922;box-shadow:0 2px 6px #27202e12}
+.ve68-sobesso-dialog .sobesso-mode-badge{display:inline-flex;background:#eee8fb;color:#6744d1;font-size:13px;font-weight:600;border-radius:999px;padding:8px 15px}
+.ve68-sobesso-dialog .sobesso-draft-label{color:#807887;font-size:12px}
+.ve68-sobesso-dialog .sobesso-section{padding:0;margin:0 0 18px;border:1px solid #eeecef;border-radius:20px;background:#fff;box-shadow:0 2px 8px #16122002;overflow:visible}
+.ve68-sobesso-dialog .sobesso-section:nth-of-type(even){background:#fff}
+.ve68-sobesso-dialog .sobesso-section>summary{display:flex;align-items:center;justify-content:space-between;gap:20px;list-style:none;cursor:pointer;padding:22px 26px;min-height:70px;box-sizing:border-box;user-select:none}
+.ve68-sobesso-dialog .sobesso-section>summary::-webkit-details-marker{display:none}
+.ve68-sobesso-dialog .sobesso-section h3{font-size:19px;font-weight:750;margin:0;color:#19171d;line-height:1.35;letter-spacing:-.02em}
+.ve68-sobesso-dialog .sobesso-section h4{font-size:15px;font-weight:650;margin:2px 0 11px;line-height:1.4}
+.ve68-sobesso-dialog .sobesso-chevron{width:8px;height:8px;border-right:2px solid #6e6875;border-bottom:2px solid #6e6875;transform:rotate(45deg);margin:0 5px 5px 0;flex-shrink:0}
+.ve68-sobesso-dialog .sobesso-section[open] .sobesso-chevron{transform:rotate(225deg);margin-top:7px}
+.ve68-sobesso-dialog .sobesso-section-body{padding:0 26px 26px}
+.ve68-sobesso-dialog .ve68-native-help{font-size:13px;line-height:1.6;color:#817a89;margin:0 0 16px}
+.ve68-sobesso-dialog .sobesso-divider{height:1px;background:#eeeaf1;margin:25px 0}
+.ve68-sobesso-dialog .sobesso-vacancy-description{font-size:14px;line-height:1.7;color:#4f4956;white-space:pre-wrap;background:#f5f5f6;padding:20px;border-radius:14px;max-height:240px;overflow:auto}
+.ve68-sobesso-dialog .ve68-config-field{display:flex;flex-direction:column;gap:8px;margin:0 0 18px;font-size:14px;font-weight:500;color:#3d3744;line-height:1.4}
+.ve68-sobesso-dialog .ve68-config-field>span{font-size:12px;font-weight:400;color:#89828f;line-height:1.5}
+.ve68-sobesso-dialog input:not([type=checkbox]),.ve68-sobesso-dialog select,.ve68-sobesso-dialog textarea{font:14px/1.55 Inter,system-ui,sans-serif;border:1px solid transparent;border-radius:12px;background-color:#f4f4f5;color:#25212a;padding:12px 15px;box-sizing:border-box;width:100%;min-height:44px}
+.ve68-sobesso-dialog select{padding-right:38px;cursor:pointer}
+.ve68-sobesso-dialog textarea{resize:vertical;min-height:70px}
+.ve68-sobesso-dialog input:focus,.ve68-sobesso-dialog select:focus,.ve68-sobesso-dialog textarea:focus{outline:3px solid #704ce818;border-color:#a18acb;background-color:#f9f7fd}
+.ve68-sobesso-dialog .sobesso-setting-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 26px}
+.ve68-sobesso-dialog .ve68-native-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:16px 0 0}
+.ve68-sobesso-dialog .sobesso-top-tools{margin:0 0 20px}
+.ve68-sobesso-dialog .sobesso-requirements{display:grid;gap:12px}
+.ve68-sobesso-dialog .sobesso-requirement{display:grid;grid-template-columns:18px minmax(0,1fr) 32px 32px;align-items:center;gap:10px;padding:12px 0}
+.ve68-sobesso-dialog .sobesso-requirement-main{display:grid;grid-template-columns:170px minmax(0,1fr);gap:12px;align-items:center}
+.ve68-sobesso-dialog .sobesso-requirement-main textarea{height:74px;min-height:74px;font-size:14px}
+.ve68-sobesso-dialog .sobesso-requirement-main select{font-size:13px;min-height:42px;padding-left:12px}
+.ve68-sobesso-dialog .sobesso-grip{color:#b5afbc;cursor:grab;user-select:none;font-size:23px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:18px;flex-shrink:0}
+.ve68-sobesso-dialog .sobesso-grip:active{cursor:grabbing}
+.ve68-sobesso-dialog .ve68-native-order{display:flex;flex-direction:column;gap:4px}
+.ve68-sobesso-dialog .ve68-native-order .ve68-config-icon{width:26px;height:26px;min-width:26px;font-size:16px;background:#f7f5f9}
+.ve68-sobesso-dialog .sobesso-trash{color:#e14350;background:#fff2f4}
+.ve68-sobesso-dialog .sobesso-trash:hover{background:#ffe5e9}
+.ve68-sobesso-dialog .sobesso-trash svg{width:20px;height:20px}
+.ve68-sobesso-dialog .sobesso-empty{padding:20px;margin:0;color:#88818f;font-size:13px;background:#f7f6f8;border-radius:13px;line-height:1.6}
+.ve68-sobesso-dialog .ve68-native-score{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0 12px}
+.ve68-sobesso-dialog .ve68-native-score .ve68-config-btn{display:inline-flex;align-items:center;justify-content:center;padding:0;width:44px;height:44px;min-height:44px;border:0;border-radius:50%;background:#f0f0f2;color:#87818d;font-size:16px;font-weight:650}
+.ve68-sobesso-dialog .ve68-native-score .ve68-config-btn.selected{background:#19181d;color:#fff}
+.ve68-sobesso-dialog .ve68-native-score .ve68-config-btn[aria-pressed=true]{box-shadow:0 0 0 3px #9a81df44}
+.ve68-sobesso-dialog .sobesso-score-help{font-size:12px;color:#8a8292;line-height:1.6;margin:0 0 24px}
+.ve68-sobesso-dialog .sobesso-segment-field{display:flex;flex-direction:column;gap:11px;font-size:14px;color:#3c3645;margin:0 0 20px}
+.ve68-sobesso-dialog .sobesso-segments{display:flex;align-self:flex-start;gap:0;background:#f0f0f2;border-radius:999px;padding:4px}
+.ve68-sobesso-dialog .sobesso-segments .ve68-config-btn{border:0;background:transparent;min-height:35px;padding:8px 20px;color:#88818f}
+.ve68-sobesso-dialog .sobesso-segments .ve68-config-btn.selected{background:#1a191d;color:#fff}
+.ve68-sobesso-dialog .sobesso-switch-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 44px;align-items:center;gap:20px;min-height:49px;font-size:14px;color:#3b3543;cursor:pointer;line-height:1.5;margin:0 0 4px}
+.ve68-sobesso-dialog .sobesso-switch-row>span:first-child{display:flex;flex-direction:column;gap:3px}
+.ve68-sobesso-dialog .sobesso-switch-row small{font-size:12px;color:#9b93a3}
+.ve68-sobesso-dialog .sobesso-switch-row input{position:absolute;width:1px;height:1px;opacity:0;right:20px}
+.ve68-sobesso-dialog .sobesso-switch{position:relative;width:42px;height:25px;border-radius:999px;background:#d8d4dd;transition:background .15s}
+.ve68-sobesso-dialog .sobesso-switch:after{position:absolute;content:"";width:19px;height:19px;left:3px;top:3px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #0002;transition:transform .15s}
+.ve68-sobesso-dialog .sobesso-switch-row input:checked+.sobesso-switch{background:#7752de}
+.ve68-sobesso-dialog .sobesso-switch-row input:checked+.sobesso-switch:after{transform:translateX(17px)}
+.ve68-sobesso-dialog .sobesso-switch-row input:focus-visible+.sobesso-switch{outline:3px solid #bba5ec;outline-offset:3px}
+.ve68-sobesso-dialog .sobesso-switch-row.is-disabled{color:#b5afbc;cursor:not-allowed}
+.ve68-sobesso-dialog .sobesso-switch-row.is-disabled .sobesso-switch{opacity:.45}
+.ve68-sobesso-dialog .ve68-native-questions{display:grid;gap:16px;margin:18px 0 0}
+.ve68-sobesso-dialog .sobesso-question{background:#fff;border:1px solid #ece8f0;border-radius:16px;padding:22px}
+.ve68-sobesso-dialog .ve68-native-question-head{font-size:14px;gap:12px;margin:0 0 20px;align-items:center}
+.ve68-sobesso-dialog .ve68-native-question-head b{font-size:14px;font-weight:600}
+.ve68-sobesso-dialog .ve68-native-question-head .ve68-native-order{flex-direction:row}
+.ve68-sobesso-dialog .sobesso-score-status{color:#958b9e;background:#f5f2fa;padding:9px 12px;border-radius:10px;margin:0;font-size:12px}
+.ve68-sobesso-dialog .sobesso-image-upload{margin:0 0 17px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:14px;background:#f7f6f8;border-radius:12px}
+.ve68-sobesso-dialog .sobesso-image-upload small{color:#a097a9;font-size:11px}
+.ve68-sobesso-dialog .ve68-native-question-image{width:auto;max-width:100%;max-height:180px;margin:0;border-radius:10px}
+.ve68-sobesso-dialog .ve68-native-upload{display:inline-flex;position:relative;align-items:center;justify-content:center;background:#eeeaf7;border:1px solid #e8e0f3;border-radius:999px;color:#6a4ab6;font-size:13px;padding:9px 14px;min-height:36px;box-sizing:border-box;cursor:pointer;gap:10px}
+.ve68-sobesso-dialog .ve68-native-upload input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;min-height:0;padding:0}
+.ve68-sobesso-dialog .ve68-native-upload:focus-within{outline:3px solid #c4b2e9;outline-offset:3px}
+.ve68-sobesso-dialog .sobesso-audio{display:grid;grid-template-columns:minmax(0,1fr) 94px 30px;align-items:center;gap:12px;margin:12px 0 7px;max-width:690px}
+.ve68-sobesso-dialog .sobesso-audio audio{width:100%;height:42px}
+.ve68-sobesso-dialog .sobesso-speed{font-size:10px;color:#8f859b;display:grid;gap:3px}
+.ve68-sobesso-dialog .sobesso-speed select{min-height:33px;padding:6px 28px 6px 10px;font-size:12px;background-position:right 9px center}
+.ve68-sobesso-dialog .sobesso-audio-download{display:inline-flex;justify-content:center;align-items:center;width:30px;height:30px;border-radius:50%;background:#f0eafa;color:#7250c0;text-decoration:none;font-weight:700;font-size:20px}
+.ve68-sobesso-dialog .sobesso-demo-small{font-size:11px;line-height:1.6;color:#9c93a7;margin:7px 0 17px}
+.ve68-sobesso-dialog .sobesso-info-strip{display:flex;align-items:flex-start;gap:12px;padding:15px 18px;border-radius:13px;background:#edf2ff;color:#496393;margin-bottom:18px;line-height:1.6;font-size:13px}
+.ve68-sobesso-dialog .sobesso-info-strip>span{color:#6384c5;font-size:19px;line-height:1.2}
+.ve68-sobesso-dialog .sobesso-info-strip p{margin:0}
+.ve68-sobesso-dialog .sobesso-info-strip .ve68-config-btn{margin:6px 0 0 10px;color:#5b74a4;background:#f5f8ff;border-color:#dfe7f7}
+.ve68-sobesso-dialog .ve68-native-days{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.ve68-sobesso-dialog .ve68-native-days label{position:relative;cursor:pointer}
+.ve68-sobesso-dialog .ve68-native-days input{position:absolute;opacity:0;width:1px;height:1px}
+.ve68-sobesso-dialog .ve68-native-days span{display:flex;align-items:center;justify-content:center;min-width:45px;min-height:38px;border-radius:999px;background:#f0f0f2;color:#8c8495;font-size:13px;padding:3px 10px;box-sizing:border-box}
+.ve68-sobesso-dialog .ve68-native-days input:checked+span{background:#19181d;color:#fff}
+.ve68-sobesso-dialog .ve68-native-days input:focus-visible+span{outline:3px solid #bba5ec;outline-offset:3px}
+.ve68-sobesso-dialog .sobesso-message-tools{display:flex;align-items:flex-end;flex-wrap:wrap;gap:10px;margin-bottom:15px}
+.ve68-sobesso-dialog .sobesso-template-menu{position:relative}
+.ve68-sobesso-dialog .sobesso-template-menu>summary{list-style:none;padding:11px 17px;border-radius:999px;background:#f1eef6;color:#6f637f;cursor:pointer;font-size:13px;font-weight:500;min-height:41px;box-sizing:border-box}
+.ve68-sobesso-dialog .sobesso-template-menu>summary::-webkit-details-marker{display:none}
+.ve68-sobesso-dialog .sobesso-template-menu>div{position:absolute;left:0;top:calc(100% + 7px);min-width:250px;padding:8px;border:1px solid #e7deef;background:#fff;border-radius:14px;box-shadow:0 12px 30px #30203b20;z-index:8}
+.ve68-sobesso-dialog .sobesso-template-menu>div .ve68-config-btn{display:block;width:100%;text-align:left;background:#faf8fe;border:0;border-radius:9px}
+.ve68-sobesso-dialog .sobesso-variable{font-size:11px;color:#8c8495;display:grid;gap:5px;min-width:210px;flex:1;max-width:300px}
+.ve68-sobesso-dialog .sobesso-variable select{font-size:13px;min-height:41px}
+.ve68-sobesso-dialog .sobesso-schedule{max-width:390px}
+.ve68-sobesso-dialog .sobesso-welcome-video{display:block;max-width:280px;width:100%;max-height:280px;border-radius:24px;background:#16121c;margin:16px 0}
+.ve68-sobesso-dialog .sobesso-file-name{display:flex;align-items:center;gap:12px;font-size:12px;color:#80768c;overflow-wrap:anywhere;flex-wrap:wrap}
+.ve68-sobesso-dialog .sobesso-editor-note{padding:7px 6px;color:#a095ab;font-size:11px;line-height:1.7;margin:5px 0}
+.ve68-sobesso-dialog .ve68-config-error{background:#fff0f2;color:#b4384a;border:1px solid #f2ccd2;border-radius:14px;padding:14px 18px;font-size:14px}
+.ve68-sobesso-dialog .ve68-native-overlay>section{background:#fff;border-radius:22px;max-width:840px;width:calc(100% - 36px);padding:25px;box-sizing:border-box}
+.ve68-sobesso-dialog .ve68-config-review{background:#faf8ff;border:1px solid #e8e1f3;border-radius:16px;padding:20px}
+.ve68-sobesso-dialog .ve68-config-review h3{font-size:18px;margin:0 0 15px}
+.ve68-sobesso-dialog .ve68-config-review dl>div{padding:9px 0;font-size:13px;gap:20px}
+@media(max-width:800px){.ve68-sobesso-dialog{width:calc(100vw - 24px);max-height:calc(100vh - 24px)}.ve68-sobesso-dialog>header{padding:21px 22px}.ve68-sobesso-dialog .ve68-config-body{padding:18px;max-height:calc(100vh - 225px)}.ve68-sobesso-dialog .sobesso-section>summary{padding:20px}.ve68-sobesso-dialog .sobesso-section-body{padding:0 20px 20px}.ve68-sobesso-dialog .sobesso-requirement-main{grid-template-columns:1fr}.ve68-sobesso-dialog .sobesso-setting-grid{grid-template-columns:1fr;gap:0}.ve68-sobesso-dialog .sobesso-question{padding:17px}.ve68-sobesso-dialog .sobesso-audio{grid-template-columns:minmax(0,1fr) 75px 28px;gap:6px}.ve68-sobesso-dialog .ve68-native-score{gap:6px}.ve68-sobesso-dialog .ve68-native-score .ve68-config-btn{width:36px;height:36px;min-height:36px;font-size:14px}.ve68-sobesso-dialog .ve68-config-choices{grid-template-columns:1fr}}
+@media(max-width:520px){.ve68-sobesso-dialog>footer{padding:12px;gap:7px}.ve68-sobesso-dialog>footer .ve68-config-btn{padding:8px 11px;font-size:11px}.ve68-sobesso-dialog .sobesso-footer-spacer{display:none}.ve68-sobesso-dialog h2{font-size:21px}.ve68-sobesso-dialog .sobesso-requirement{grid-template-columns:14px minmax(0,1fr) 25px 28px;gap:6px}.ve68-sobesso-dialog .ve68-native-order .ve68-config-icon{width:24px;height:24px;min-width:24px}.ve68-sobesso-dialog .sobesso-trash{width:28px;height:28px;min-width:28px}.ve68-sobesso-dialog .sobesso-section h3{font-size:17px}.ve68-sobesso-dialog .sobesso-mode-tabs button{padding:9px 17px}.ve68-sobesso-dialog .sobesso-audio{grid-template-columns:1fr 28px}.ve68-sobesso-dialog .sobesso-speed{grid-row:2;max-width:90px}.ve68-sobesso-dialog .sobesso-audio-download{grid-column:2;grid-row:1}}

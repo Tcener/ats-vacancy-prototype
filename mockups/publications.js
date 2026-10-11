@@ -115,7 +115,14 @@ window.Publications = (() => {
   };
   /* Вакансия, созданная в демо, — своё название и пустой текст: обязательные поля покажутся
      незаполненными, а не подставятся из чужой вакансии. */
-  const profile = (id) => ({ ...(PROFILE[id] || { title: ctx.v?.name || 'Вакансия', grade: ctx.v?.grade || 'Middle', city: 'Москва', format: 'Гибрид', employment: 'Полная занятость', salaryTo: '', skills: '', text: '' }), id });
+  const profile = (id) => {
+    const vacancy = ctx.id === id ? ctx.v : null;
+    const base = PROFILE[id] || { title: vacancy?.name || 'Вакансия', grade: vacancy?.grade || 'Middle', city: 'Москва', format: 'Гибрид', employment: 'Полная занятость', salaryTo: '', skills: '', text: '' };
+    // Редактор обновляет источник текста, но не отправляет изменения на площадки
+    // и не превращает внутренний бюджет в публичную зарплату.
+    return { ...base, id, ...(vacancy ? { title: vacancy.name || base.title, grade: vacancy.grade || base.grade,
+      ...(Object.prototype.hasOwnProperty.call(vacancy, 'description') ? { text: vacancy.description } : {}) } : {}) };
+  };
   /* Справочник «подразделение → профессиональная роль hh.ru» из настроек соответствия.
      Для Platform соответствия нет: обязательное поле hh.ru рекрутер выбирает сам. */
   const HH_ROLE = { android: 'Программист, разработчик', ios: 'Программист, разработчик', designer: 'Дизайнер, художник', analyst: 'Аналитик' };

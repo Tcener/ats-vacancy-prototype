@@ -1,0 +1,48 @@
+/* Отдельная форма вакансии: не влияет на настройки AI и публикаций. */
+#modal.vacancy-editor-modal:has(.vef-form){width:min(1020px,calc(100vw - 32px));border:1px solid #e9e1fa;border-radius:28px;background:#fff}
+#modal.vacancy-editor-modal:has(.vef-form)>header{padding:24px 28px 20px;background:#f3edff;border-color:#e9e1fa}
+#modal.vacancy-editor-modal:has(.vef-form)>header h2{font-size:25px;font-weight:850;letter-spacing:-.03em}
+#modal.vacancy-editor-modal:has(.vef-form)>.modal-body{padding:20px 24px 24px;background:#f8f5ff!important}
+#modal.vacancy-editor-modal:has(.vef-form)>footer{background:#fff;border-color:#e9e1fa}
+#modal.vacancy-editor-modal:has(.vef-form)>footer .btn.primary{background:#6B53D5;border-color:#6B53D5;box-shadow:0 5px 15px #6B53D520}
+.vef-form{display:grid;gap:18px}
+.ve68-edit-form.vef-form>.vef-section{padding:22px;border:1px solid #e4daf9;border-radius:22px;background:#fff;box-shadow:0 3px 16px #39266406}
+.ve68-edit-form.vef-form>.vef-position{background:#f2edff;border-color:#dfd2ff}
+.ve68-edit-form.vef-form>.vef-description{background:#fff0f8;border-color:#f2d8e9}
+.ve68-edit-form.vef-form>.vef-system{background:#f3f9e9;border-color:#dfeacb}
+.vef-section-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.vef-section-head>div{flex:1;min-width:0}
+.vef-section-head h3{margin:0;color:#1b1a20;font-size:19px;font-weight:850;letter-spacing:-.025em}
+.vef-section-head p{margin:4px 0 0;color:#777080;font-size:12px;line-height:1.45}
+.vef-step{display:grid;place-items:center;flex:0 0 38px;height:38px;border-radius:13px;color:#fff;background:#6B53D5;font-size:12px;font-weight:850}
+.vef-description .vef-step{background:#FF6FB8}.vef-system .vef-step{background:#6f8a3c}
+.vef-tag{flex:none;max-width:150px;padding:7px 10px;border-radius:999px;background:#fff9;color:#7257ac;font-size:10px;font-weight:750;text-align:center}
+.vef-description .vef-tag{color:#bd4b82}.vef-system .vef-tag{color:#627b34}
+.ve68-edit-form.vef-form .form-grid{gap:15px 18px}
+.ve68-edit-form.vef-form .field{gap:7px;color:#51485e;font-size:12px;font-weight:650;min-width:0}
+.ve68-edit-form.vef-form .field small{display:block;color:#898092;font-size:11px;font-weight:450;line-height:1.45}
+.ve68-edit-form.vef-form input,.ve68-edit-form.vef-form select,.ve68-edit-form.vef-form textarea{min-height:46px;padding:12px 14px;border:1px solid #ded4f0;border-radius:13px;color:#24212a;background:#fff;font-size:14px;font-weight:450;transition:box-shadow .16s,border-color .16s}
+.ve68-edit-form.vef-form :is(input,select,textarea):focus-visible{outline:0;border-color:#9276ed;box-shadow:0 0 0 3px #6B53D518}
+.ve68-edit-form.vef-form select{padding-right:32px;background-color:#fff9;cursor:pointer}
+.ve68-edit-form.vef-form .vef-confidential{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid #dfd2ff;border-radius:14px;background:#ffffff82}
+.ve68-edit-form.vef-form .vef-confidential input{flex:0 0 19px;width:19px;min-height:19px;height:19px;padding:0;accent-color:#6B53D5}
+.vef-text-blocks{display:grid;gap:13px}
+.ve68-edit-form.vef-form .vef-text-block{padding:15px;border:1px solid #ecddea;border-radius:17px;background:#fffc;gap:12px}
+.vef-text-title{display:flex;align-items:center;gap:11px}
+.vef-text-title b{display:block;color:#31283b;font-size:15px;font-weight:800}.vef-text-title small{margin-top:3px}
+.vef-text-icon{display:grid;place-items:center;flex:0 0 32px;height:32px;border-radius:10px;background:#ede4ff;color:#6B53D5;font-size:17px;font-weight:800}
+.vef-text-requirements .vef-text-icon{background:#ffe0ef;color:#ce4d8b}.vef-text-conditions .vef-text-icon{background:#e7f4ca;color:#6f8a3c}
+.ve68-edit-form.vef-form textarea.vef-description-input{min-height:116px;line-height:1.6;resize:vertical}
+.vef-description-note{margin:14px 1px 0;color:#8c7385;font-size:11px;line-height:1.55}
+.ve68-edit-form.vef-form .vacancy-passport-grid>div{padding:13px 15px;border:1px solid #e1e8d6;background:#ffffff9c}
+.ve68-edit-form.vef-form .vacancy-passport-grid dt{color:#7f8674}.ve68-edit-form.vef-form .vacancy-passport-grid dd{font-size:12px}
+@media(max-width:650px){
+  #modal.vacancy-editor-modal:has(.vef-form){width:calc(100vw - 16px);border-radius:20px}
+  #modal.vacancy-editor-modal:has(.vef-form)>header{padding:18px}
+  #modal.vacancy-editor-modal:has(.vef-form)>header h2{font-size:21px}
+  #modal.vacancy-editor-modal:has(.vef-form)>.modal-body{padding:12px}
+  .ve68-edit-form.vef-form>.vef-section{padding:16px}
+  .vef-section-head{gap:10px;flex-wrap:wrap}.vef-section-head h3{font-size:17px}
+  .vef-tag{display:none}.ve68-edit-form.vef-form .form-grid{grid-template-columns:1fr}
+  .ve68-edit-form.vef-form .vacancy-passport-grid{grid-template-columns:1fr}
+}
