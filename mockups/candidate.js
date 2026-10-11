@@ -8,22 +8,22 @@ const esc = HF.esc;
 
 const CANDIDATES = [
   {id:'c1', name:'Смирнова Анастасия', pos:'Product Manager · Аналитические продукты · B2B & E-Commerce',
-   src:'Другой источник', stage:'Новые', vacancy:'БАЗА (База)', phone:'+7 926 000-00-01',
+   src:'Другой источник', stage:'Новые', vacancy:'БАЗА (База)', phone:'+7 000 000-00-00',
    email:'a.smirnova@example.com', tg:'a_smirnova', init:'СА'},
   {id:'c2', name:'Сухов Даниил', pos:'Product Manager / Product Owner', src:'Другой источник',
-   stage:'Новые', vacancy:'БАЗА (База)', phone:'+7 926 000-00-02', email:'d.sukhov@example.com', tg:'d_sukhov', init:'СД'},
+   stage:'Новые', vacancy:'БАЗА (База)', phone:'+7 000 000-00-00', email:'d.sukhov@example.com', tg:'d_sukhov', init:'СД'},
   {id:'c3', name:'Адамов Богдан', pos:'QA Engineer · May 2026 — Jul 2026', src:'Другой источник',
-   stage:'Отправлено письмо', vacancy:'QA Automation', phone:'+7 926 000-00-03', email:'b.adamov@example.com', tg:'b_adamov', init:'АБ'},
+   stage:'Отправлено письмо', vacancy:'QA Automation', phone:'+7 000 000-00-00', email:'b.adamov@example.com', tg:'b_adamov', init:'АБ'},
   {id:'c4', name:'Аникеев Роман Витальевич', pos:'Backend-разработчик · Сбер', src:'Джун (отклики)',
-   stage:'Новые', vacancy:'Backend-разработчик', phone:'+7 926 000-00-04', email:'r.anikeev@example.com', tg:'r_anikeev', init:'АР', age:'28 лет (9 июля 1998)'},
+   stage:'Новые', vacancy:'Backend-разработчик', phone:'+7 000 000-00-00', email:'r.anikeev@example.com', tg:'r_anikeev', init:'АР', age:'28 лет (9 июля 1998)'},
   {id:'c5', name:'Маргарян Лусине', pos:'Fullstack-разработчик · SoftConstruct', src:'Джун (отклики)',
-   stage:'Интервью с HR', vacancy:'Fullstack-разработчик (Node)', phone:'+7 926 000-00-05', email:'l.margaryan@example.com', tg:'l_margaryan', init:'МЛ', age:'35 лет (5 марта 1991)'},
+   stage:'Интервью с HR', vacancy:'Fullstack-разработчик (Node)', phone:'+7 000 000-00-00', email:'l.margaryan@example.com', tg:'l_margaryan', init:'МЛ', age:'35 лет (5 марта 1991)'},
   {id:'c6', name:'Соколов Михаил', pos:'ИТ-консалтинг · Мобильные ТелеСистемы (МТС)', src:'Джун (отклики)',
-   stage:'Оценка заказчиком', vacancy:'Data Analyst', phone:'+7 926 000-00-06', email:'m.sokolov@example.com', tg:'m_sokolov', init:'СМ', age:'25 лет (20 ноября 2000)'},
+   stage:'Оценка заказчиком', vacancy:'Data Analyst', phone:'+7 000 000-00-00', email:'m.sokolov@example.com', tg:'m_sokolov', init:'СМ', age:'25 лет (20 ноября 2000)'},
   {id:'c7', name:'Ковалёва Ирина', pos:'Data Scientist · ML в ритейле', src:'HeadHunter',
-   stage:'Техническое собеседование', vacancy:'Data scientist', phone:'+7 926 000-00-07', email:'i.kovaleva@example.com', tg:'i_kovaleva', init:'КИ', age:'31 год (2 апреля 1995)'},
+   stage:'Техническое собеседование', vacancy:'Data scientist', phone:'+7 000 000-00-00', email:'i.kovaleva@example.com', tg:'i_kovaleva', init:'КИ', age:'31 год (2 апреля 1995)'},
   {id:'c8', name:'Тимофеев Артём', pos:'DevOps-инженер · Kubernetes, Terraform', src:'Рекомендация',
-   stage:'Выставлен оффер', vacancy:'DevOps-инженер', phone:'+7 926 000-00-08', email:'a.timofeev@example.com', tg:'a_timofeev', init:'ТА', age:'29 лет (14 января 1997)'},
+   stage:'Выставлен оффер', vacancy:'DevOps-инженер', phone:'+7 000 000-00-00', email:'a.timofeev@example.com', tg:'a_timofeev', init:'ТА', age:'29 лет (14 января 1997)'},
 ];
 
 const EVENTS = [

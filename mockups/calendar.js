@@ -106,7 +106,7 @@ const EVENTS = {
 
 /* Приглашённые на интервью — почты сотрудников, а не кандидата:
    кандидату приглашение уходит письмом, в событие он не попадает */
-const GUESTS = ['polina@refni.ru', 'kuznetsov@refni.ru'];
+const GUESTS = ['demo-409f6456@example.com', 'demo-d42b76a9@example.com'];
 
 const key = (y, m, d) => `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 
@@ -161,7 +161,7 @@ const eventCard = (y, m, d, e) => {
        <button class="hf-btn hf-btn--ghost hf-btn--s cl-ev-remove" type="button">Удалить</button>`
     : `<button class="hf-btn hf-btn--secondary hf-btn--s" type="button">Редактировать</button>
        <button class="hf-btn hf-btn--secondary hf-btn--s" type="button">Отменить событие</button>
-       <a class="hf-btn hf-btn--secondary hf-btn--s" href="applicants.html">Перейти к кандидату</a>`;
+       <a class="hf-btn hf-btn--secondary hf-btn--s" href="applicants.html?public=f9f0d4daad85">Перейти к кандидату</a>`;
 
   return `
     <div class="cl-pop cl-pop--event" data-od-id="calendar-event-card">

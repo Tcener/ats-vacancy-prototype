@@ -40,13 +40,18 @@
   const save=()=>{try{localStorage.setItem('hf-vacancy-portfolio-v1',JSON.stringify(prefs));}catch(_){}};
   save();
   const date=value=>value?new Date(value+'T12:00:00').toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}):'—';
-  const vacancyHref=r=>`ats-product.html#vacancy/${r.id==='designer'?'designer':r.id==='analyst'?'analyst':r.id==='go'?'backend':r.id==='ios'?'ios':'android'}`;
-  const statusChip=r=>`<span class="vp-status ${r.status}">${statuses[r.status]}</span>${r.sla<0?'<span class="vp-risk">Просрочен SLA</span>':''}`;
+  const vacancyHref=r=>`ats-product.html?public=3183591b8132#vacancy/${r.id==='go'?'backend':r.id}`;
+  /* Прогноз закрытия и SLA считаются до выхода на работу: без своей ATS этой
+     части пути не видно, и показывать по ней числа нельзя. */
+  const thinMode=()=>!!window.ProductMode?.thin?.();
+  const noData='<span class="vp-sub" title="Считается до выхода на работу — этой части пути в этом режиме не видно">—</span>';
+  const statusChip=r=>`<span class="vp-status ${r.status}">${statuses[r.status]}</span>${!thinMode()&&r.sla<0?'<span class="vp-risk">Просрочен SLA</span>':''}`;
   const slaValue=r=>r.status==='hold'?'Заморожен':r.sla===null?'Не начат':r.sla<0?`−${Math.abs(r.sla)} дн.`:`${r.sla} дн.`;
-  const attentionText=r=>r.sla<0?'Срок закрытия просрочен':!r.recruiter?'Нужно назначить рекрутера':r.status==='hold'?'Поиск приостановлен':r.sla<=5?'Скоро истекает SLA':`До SLA ${r.sla} дней`;
-  const attentionTone=r=>r.sla<0?'risk':!r.recruiter?'assign':r.status==='hold'?'hold':r.sla<=5?'soon':'normal';
+  const attentionText=r=>thinMode()?(!r.recruiter?'Нужно назначить рекрутера':r.status==='hold'?'Поиск приостановлен':'В работе'):r.sla<0?'Срок закрытия просрочен':!r.recruiter?'Нужно назначить рекрутера':r.status==='hold'?'Поиск приостановлен':r.sla<=5?'Скоро истекает SLA':`До SLA ${r.sla} дней`;
+  const attentionTone=r=>thinMode()?(!r.recruiter?'assign':r.status==='hold'?'hold':'normal'):r.sla<0?'risk':!r.recruiter?'assign':r.status==='hold'?'hold':r.sla<=5?'soon':'normal';
   const positionsWord=n=>n%10===1&&n%100!==11?'ставка':n%10>=2&&n%10<=4&&(n%100<12||n%100>14)?'ставки':'ставок';
   const cell=(r,id)=>{
+    if(thinMode()&&(id==='progress'||id==='sla'))return noData;
     if(id==='name')return `<a class="vp-name" href="${vacancyHref(r)}">${esc(r.name)}</a><span class="vp-sub">${r.start?'Поиск с '+date(r.start):'Поиск ещё не начат'}</span>`;
     if(id==='status')return statusChip(r);
     if(id==='progress')return `<div title="Демонстрационный индикатор прогресса воронки, не вероятность найма"><div class="vp-progress"><i style="width:${r.progress}%"></i></div><span class="vp-sub vp-number">${r.progress}%</span></div>`;
@@ -76,8 +81,8 @@
     <section id="sb-day" aria-label="Мой рабочий день"></section>
     <section id="vp-home-analytics" class="vp-home-analytics" aria-label="Ключевые показатели найма"></section>
     <div class="vp-portfolio-heading"><h2>Вакансии команды</h2><div class="vp-actions"><div class="vp-view-switch" role="group" aria-label="Вид списка вакансий"><button type="button" data-view="table" class="active" aria-pressed="true"><span class="vp-view-icon table" aria-hidden="true"></span>Таблица</button><button type="button" data-view="cards" aria-pressed="false"><span class="vp-view-icon cards" aria-hidden="true"></span>Карточки</button><button type="button" data-view="list" aria-pressed="false"><span class="vp-view-icon list" aria-hidden="true"></span>Список</button></div><button class="vp-btn" id="vp-columns">${icon('options-2-24')}Столбцы</button></div></div>
-    <div class="vp-filters" aria-label="Фильтры вакансий"><input id="vp-query" placeholder="Найти вакансию…" aria-label="Найти вакансию"><select id="vp-recruiter" aria-label="Рекрутер">${options('recruiter','Все рекрутеры')}<option value="unassigned">Не назначен</option></select><select id="vp-department" aria-label="Департамент">${options('department','Все департаменты')}</select><select id="vp-status" aria-label="Статус вакансии"><option value="">Все статусы</option>${Object.entries(statuses).map(([id,label])=>`<option value="${id}">${label}</option>`).join('')}<option value="risk">Просрочен SLA</option></select><button class="vp-btn" id="vp-reset" hidden>Сбросить фильтры</button></div>
-    <div class="vp-meta"><span id="vp-count" role="status" aria-live="polite"></span><span id="vp-sort-note"></span></div><div id="vp-content"></div><div class="vp-foot"><span>Демонстрационные данные · 3 сентября 2026</span><a href="dashboard.html#view=reference" id="vp-reference">Оригинал Хантфлоу ↗</a></div>`;
+    <div class="vp-filters" aria-label="Фильтры вакансий"><input id="vp-query" placeholder="Найти вакансию…" aria-label="Найти вакансию"><select id="vp-recruiter" aria-label="Рекрутер" data-antd-props="showSearch">${options('recruiter','Все рекрутеры')}<option value="unassigned">Не назначен</option></select><select id="vp-department" aria-label="Департамент" data-antd-props="showSearch">${options('department','Все департаменты')}</select><select id="vp-status" aria-label="Статус вакансии"><option value="">Все статусы</option>${Object.entries(statuses).map(([id,label])=>`<option value="${id}">${label}</option>`).join('')}<option value="risk">Просрочен SLA</option></select><button class="vp-btn" id="vp-reset" hidden>Сбросить фильтры</button></div>
+    <div class="vp-meta"><span id="vp-count" role="status" aria-live="polite"></span><span id="vp-sort-note"></span></div><div id="vp-content"></div><div class="vp-foot"><span>Демонстрационные данные · 3 сентября 2026</span><a href="dashboard.html?public=509f70c12929#view=reference" id="vp-reference">Оригинал Хантфлоу <span aria-hidden="true">↗</span></a></div>`;
   const analyticsCatalog={
     ttf:{name:'Time to Fill',value:'42 дня',delta:'−6 дней',tone:'purple'},
     tto:{name:'Time to Offer',value:'18 дней',delta:'−2 дня',tone:'green'},
@@ -90,11 +95,12 @@
     const custom=readStored('sb-custom-metrics-v1',[]).reduce((map,metric)=>{map[metric.id]={name:metric.name,value:metric.value,delta:metric.delta||'Новая',tone:'purple'};return map},{});
     const catalog={...analyticsCatalog,...custom};
     const requested=readStored('sb-analytics-pins-v1',['ttf','tto','offer','csi']);
-    const selected=[...new Set(requested)].map(id=>catalog[id]).filter(Boolean).slice(0,4);
-    document.getElementById('vp-home-analytics').innerHTML=`<div class="vp-analytics-head"><div><span>Аналитика найма</span><h2>Ключевые показатели</h2></div><a href="ats-product.html#analytics">Настроить в аналитике →</a></div><div class="vp-analytics-grid">${selected.map(metric=>`<a class="vp-analytics-card ${metric.tone}" href="ats-product.html#analytics"><span>${esc(metric.name)}</span><strong>${esc(metric.value)}</strong><small>${esc(metric.delta)} к прошлому периоду</small><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></i></a>`).join('')}</div>`;
+    const legacySelected=[...new Set(requested)].map(id=>catalog[id]).filter(Boolean).slice(0,4);
+    const selected=window.AnalyticsWorkspace?.homeMetrics()||legacySelected;
+    document.getElementById('vp-home-analytics').innerHTML=`<div class="vp-analytics-head"><div><span>Аналитика найма</span><h2>Ключевые показатели</h2></div><a href="ats-product.html?public=3183591b8132#analytics">Настроить в аналитике <span aria-hidden="true">→</span></a></div><div class="vp-analytics-grid">${selected.map(metric=>`<a class="vp-analytics-card ${metric.tone}" href="ats-product.html?public=3183591b8132#analytics"><span>${esc(metric.name)}</span><strong>${esc(metric.value)}</strong><small>${esc(metric.delta)} к прошлому периоду</small><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></i></a>`).join('')}</div>`;
   };
   renderHomeAnalytics();
-  const cardHtml=r=>`<article class="vp-card ${attentionTone(r)}"><header><div><a class="vp-card-name" href="${vacancyHref(r)}">${esc(r.name)}</a><p>${esc(r.department)} · ${esc(r.grade)} · ${esc(r.location)}</p></div><div class="vp-card-status">${statusChip(r)}</div></header><div class="vp-card-owner"><span class="vp-person-avatar">${r.recruiter?r.recruiter.split(' ').map(x=>x[0]).join('').slice(0,2):'—'}</span><div><small>Рекрутер</small><b>${esc(r.recruiter||'Не назначен')}</b></div><div class="vp-card-progress"><small>Прогноз закрытия</small><span><i style="width:${r.progress}%"></i></span><b>${r.progress}%</b></div></div><div class="vp-card-metrics"><div><small>Кандидаты</small><b>${r.candidates}</b></div><div><small>Ставки</small><b>${r.positions}</b></div><div><small>SLA</small><b class="${r.sla<0?'is-late':''}">${slaValue(r)}</b></div></div><footer><span>${r.start?'Поиск с '+date(r.start):'Поиск не начат'}</span><span>${r.deadline?'Закрыть до '+date(r.deadline):attentionText(r)}</span><a href="${vacancyHref(r)}" aria-label="Открыть вакансию ${esc(r.name)}">Открыть →</a></footer></article>`;
+  const cardHtml=r=>`<article class="vp-card ${attentionTone(r)}"><header><div><a class="vp-card-name" href="${vacancyHref(r)}">${esc(r.name)}</a><p>${esc(r.department)} · ${esc(r.grade)} · ${esc(r.location)}</p></div><div class="vp-card-status">${statusChip(r)}</div></header><div class="vp-card-owner"><span class="vp-person-avatar">${r.recruiter?r.recruiter.split(' ').map(x=>x[0]).join('').slice(0,2):'—'}</span><div><small>Рекрутер</small><b>${esc(r.recruiter||'Не назначен')}</b></div><div class="vp-card-progress"><small>Прогноз закрытия</small><span><i style="width:${r.progress}%"></i></span><b>${r.progress}%</b></div></div><div class="vp-card-metrics"><div><small>Кандидаты</small><b>${r.candidates}</b></div><div><small>Ставки</small><b>${r.positions}</b></div><div><small>SLA</small><b class="${r.sla<0?'is-late':''}">${slaValue(r)}</b></div></div><footer><span>${r.start?'Поиск с '+date(r.start):'Поиск не начат'}</span><span>${r.deadline?'Закрыть до '+date(r.deadline):attentionText(r)}</span><a href="${vacancyHref(r)}" aria-label="Открыть вакансию ${esc(r.name)}">Открыть <span aria-hidden="true">→</span></a></footer></article>`;
   const listHtml=r=>`<a class="vp-visual-row ${attentionTone(r)}" href="${vacancyHref(r)}"><span class="vp-row-accent" aria-hidden="true"></span><span class="vp-row-main"><small>${esc(r.department)} · ${esc(r.grade)} · ${r.positions} ${r.positions===1?'ставка':'ставки'}</small><strong>${esc(r.name)}</strong><span>${esc(r.location)} · ${r.start?'поиск с '+date(r.start):'поиск ещё не начат'}</span></span><span class="vp-row-status">${statusChip(r)}</span><span class="vp-row-owner"><small>Рекрутер</small><b>${esc(r.recruiter||'Не назначен')}</b></span><span class="vp-row-attention"><small>Контроль</small><b>${attentionText(r)}</b></span><span class="vp-row-candidates"><small>Кандидаты</small><b>${r.candidates}</b></span><span class="vp-row-arrow" aria-hidden="true">›</span></a>`;
   const renderPortfolio=()=>{
     const shown=prefs.order.filter(id=>prefs.visible.includes(id)).map(id=>columns.find(c=>c.id===id));
@@ -115,14 +121,28 @@
     document.getElementById('vp-reset').hidden=!Object.values(filters).some(Boolean);
     document.getElementById('vp-columns').hidden=viewMode!=='table';
     document.querySelectorAll('[data-view]').forEach(button=>{const active=button.dataset.view===viewMode;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
+    markScroll();
   };
+  /* Таблица шире окна: без подсказки обрез справа читался как обрыв вёрстки.
+     Тень у правого края висит на #vp-content (он не прокручивается) и гаснет,
+     когда таблицу домотали до конца. */
+  const markScroll=()=>{
+    const content=document.getElementById('vp-content');
+    const wrap=content?.querySelector('.vp-table-wrap');
+    if(!content)return;
+    if(!wrap){content.classList.remove('vp-more-right');return;}
+    const more=wrap.scrollLeft+wrap.clientWidth<wrap.scrollWidth-1;
+    content.classList.toggle('vp-more-right',more);
+    if(!wrap.dataset.scrollWatch){wrap.dataset.scrollWatch='1';wrap.addEventListener('scroll',markScroll,{passive:true});}
+  };
+  window.addEventListener('resize',()=>markScroll());
   const dialog=document.createElement('dialog');
   dialog.className='vp-dialog';dialog.id='vp-column-dialog';dialog.setAttribute('aria-labelledby','vp-dialog-title');
-  dialog.innerHTML=`<header><h2 id="vp-dialog-title">Столбцы таблицы</h2><button class="vp-btn" id="vp-close" aria-label="Закрыть настройки столбцов">×</button></header><p>Выберите поля и расположите их в удобном порядке. Название вакансии всегда закреплено слева.</p><input class="vp-column-search" id="vp-column-search" placeholder="Найти столбец…" aria-label="Найти столбец"><div class="vp-column-list" id="vp-column-list"></div><footer><button class="vp-btn" id="vp-defaults">По умолчанию</button><div><button class="vp-btn" id="vp-cancel">Отмена</button><button class="vp-btn primary" id="vp-apply">Применить</button></div></footer>`;
+  dialog.innerHTML=`<header><h2 id="vp-dialog-title">Столбцы таблицы</h2><button class="vp-btn" id="vp-close" data-antd-props="type=text icon" aria-label="Закрыть настройки столбцов">×</button></header><p>Выберите поля и расположите их в удобном порядке. Название вакансии всегда закреплено слева.</p><input class="vp-column-search" id="vp-column-search" placeholder="Найти столбец…" aria-label="Найти столбец"><div class="vp-column-list" id="vp-column-list"></div><footer><button class="vp-btn" id="vp-defaults">По умолчанию</button><div><button class="vp-btn" id="vp-cancel">Отмена</button><button class="vp-btn primary" id="vp-apply">Применить</button></div></footer>`;
   document.body.appendChild(dialog);
   const renderColumns=()=>{
     const q=document.getElementById('vp-column-search').value.toLowerCase();
-    document.getElementById('vp-column-list').innerHTML=draft.order.map((id,i)=>{const c=columns.find(c=>c.id===id);return `<div class="vp-column-row" ${c.label.toLowerCase().includes(q)?'':'hidden'}><label><input type="checkbox" data-column="${id}" ${draft.visible.includes(id)?'checked':''} ${id==='name'?'disabled':''}>${c.label}${id==='name'?'<small>закреплён</small>':''}</label><button class="vp-btn" data-up="${id}" aria-label="Выше: ${c.label}" ${i<2?'disabled':''}>↑</button><button class="vp-btn" data-down="${id}" aria-label="Ниже: ${c.label}" ${i===0||i===draft.order.length-1?'disabled':''}>↓</button></div>`;}).join('');
+    document.getElementById('vp-column-list').innerHTML=draft.order.map((id,i)=>{const c=columns.find(c=>c.id===id);return `<div class="vp-column-row" ${c.label.toLowerCase().includes(q)?'':'hidden'}><label><input type="checkbox" data-column="${id}" ${draft.visible.includes(id)?'checked':''} ${id==='name'?'disabled':''}>${c.label}${id==='name'?'<small>закреплён</small>':''}</label><button class="vp-btn" data-up="${id}" data-antd-props="type=text size=small icon" aria-label="Выше: ${c.label}" ${i<2?'disabled':''}>↑</button><button class="vp-btn" data-down="${id}" data-antd-props="type=text size=small icon" aria-label="Ниже: ${c.label}" ${i===0||i===draft.order.length-1?'disabled':''}>↓</button></div>`;}).join('');
   };
   const openColumns=e=>{opener=e?.currentTarget||document.getElementById('vp-columns');draft={order:[...prefs.order],visible:[...prefs.visible]};document.getElementById('vp-column-search').value='';renderColumns();dialog.showModal();};
   document.getElementById('vp-columns').addEventListener('click',openColumns);

@@ -3,7 +3,7 @@
    оттуда dictRow. */
 
 const TIMEZONES = ['GMT+03:00 Москва', 'GMT+05:00 Екатеринбург', 'GMT+07:00 Новосибирск'];
-const DOMAINS = ['refni.ru'];
+const DOMAINS = ['example.com'];
 
 /* Подразделение — не отдельная сущность настроек, а пункт справочника:
    роут у «Оргструктуры» тот же, что у любого другого справочника,
@@ -192,7 +192,7 @@ const paneNotifications = () => `
 const paneIntegrations = () => `
   <section class="st-integration" data-od-id="integration-kontur-talk">
     <div class="st-integration-head">
-      <img class="st-integration-logo" src="assets/kontur-talk.svg"
+      <img class="st-integration-logo" src="assets/kontur-talk.svg?public=3edaad928357"
            width="32" height="32" alt="Контур.Толк">
       <h3 class="st-h3">Видеовстречи Контур.Толк</h3>
     </div>

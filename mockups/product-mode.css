@@ -1,0 +1,88 @@
+/* Три режима работы: переключатель прототипа и заглушки разделов. */
+
+/* ── Переключатель в боковой панели ─────────────────────────────── */
+/* Это инструмент демо, а не часть продукта, поэтому он спрятан под «Создать»
+   и выглядит как бледная подпись: имя режима и стрелка, без рамки и фона.
+   Полное описание режима — во всплывающей подсказке и в открытом меню. */
+/* z-index выше, чем у кнопки ИИ: она флекс-элемент ряда «Создать» со своим z-index 35,
+   и открытое меню уходило под неё. */
+#pm-slot{position:absolute;left:12px;right:12px;bottom:6px;z-index:40;font-family:Arial,Helvetica,sans-serif;line-height:normal}
+.pm-switch{display:block;width:100%;padding:3px 6px;border:0;border-radius:6px;background:transparent;color:var(--subtle);font-size:11px;text-align:center;opacity:.55;transition:opacity .15s}
+.pm-switch:hover,.pm-switch.is-open{opacity:1}
+.pm-switch-top,.pm-switch-slot{display:none}
+.pm-switch-name{display:inline;font-weight:400}
+.pm-switch-name::after{content:' ▾';font-size:9px}
+.pm-menu{position:absolute;left:0;bottom:calc(100% + 6px);width:296px;padding:6px;border:2px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 14px 34px rgba(23,23,23,.16)}
+.pm-option{display:block;width:100%;margin-bottom:2px;padding:8px 10px;border:0;border-radius:9px;background:transparent;text-align:left}
+.pm-option:hover{background:var(--soft)}
+.pm-option.is-on{background:var(--accent-soft)}
+.pm-option b{display:block;font-size:13px}
+.pm-option.is-on b{color:var(--accent-dark)}
+.pm-option small{display:block;margin:1px 0 3px;color:var(--accent);font-size:11px}
+.pm-option span{display:block;color:var(--muted);font-size:11px;line-height:1.35}
+.pm-menu-note{margin:4px 6px 4px;padding-top:7px;border-top:1px solid var(--line-soft);color:var(--subtle);font-size:11px;line-height:1.4}
+.pm-switch-short{display:none}
+/* На узком экране меню переезжает в body и теряет палитру, объявленную на панели. */
+body>.pm-menu{--accent:#6B53D5;--accent-dark:#5F35C4;--accent-soft:#F0E7FE;--line:#d8d2e3;--line-soft:#e7e3eb;--text:#292929;--muted:#747474;--subtle:#999;--soft:#fafafa;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:normal}
+.nav-item.pm-dim,.ws-menu button.pm-dim{color:var(--subtle)}
+
+/* Свёрнутая панель: от переключателя остаётся короткое имя режима.
+   Меню в колонку не помещается — его кладёт поверх страницы product-mode.js. */
+@media(max-width:1180px){
+  #pm-slot{left:4px;right:4px}
+  .pm-switch{padding:2px}
+  .pm-switch-name{display:none}
+  .pm-switch-short{display:block;font-size:9px;line-height:1.15;overflow-wrap:anywhere}
+}
+
+/* ── Заглушка раздела ───────────────────────────────────────────── */
+.pm-head{margin:0 0 14px}
+.pm-head h1{margin:0;font-size:21px}
+.pm-head p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.pm-stub{max-width:760px;padding:26px 28px;border:2px solid var(--line);border-radius:18px;background:#fff}
+.pm-stub-badge{display:inline-block;padding:3px 10px;border:1px solid var(--accent);border-radius:11px;color:var(--accent-dark);font-size:11px}
+.pm-stub h2{margin:10px 0 0;font-size:19px}
+.pm-stub-lead{margin:6px 0 0;color:#3f3f3f;font-size:14px;line-height:1.5}
+.pm-stub-list{margin:14px 0 0;padding:0;list-style:none}
+.pm-stub-list li{position:relative;padding:4px 0 4px 24px;color:#3f3f3f;font-size:13px}
+.pm-stub-list li::before{content:"";position:absolute;left:3px;top:12px;width:11px;height:2px;border-radius:2px;background:#c6c0d1}
+.pm-stub-note{margin:12px 0 0;color:var(--muted);font-size:12px}
+.pm-stub-foot{display:flex;gap:8px;margin-top:18px}
+.pm-btn{min-height:32px;padding:0 14px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:13px}
+.pm-btn:hover{border-color:var(--accent);color:var(--accent-dark)}
+.pm-btn.primary{border-color:var(--accent);background:var(--accent);color:#fff}
+.pm-btn.primary:hover{background:var(--accent-dark);color:#fff}
+
+/* мелкая заглушка внутри чужого виджета */
+.pm-stub.mini{max-width:none;margin-top:10px;padding:16px 18px;border-style:dashed;background:var(--soft)}
+.pm-stub.mini h3{margin:0;font-size:14px}
+.pm-stub.mini p{margin:5px 0 0;color:var(--muted);font-size:12.5px;line-height:1.45}
+
+/* ── Сравнение трёх режимов ─────────────────────────────────────── */
+.pm-diff{margin-top:18px;padding-top:16px;border-top:1px solid var(--line-soft)}
+.pm-matrix{width:100%;border-collapse:collapse;font-size:12.5px}
+.pm-matrix th,.pm-matrix td{padding:7px 9px;border-bottom:1px solid var(--line-soft);text-align:left}
+.pm-matrix thead th{color:var(--muted);font-size:11px;font-weight:600}
+.pm-matrix th:not(:first-child),.pm-matrix td:not(:first-child){width:104px;text-align:center}
+.pm-matrix .is-now{background:var(--accent-soft)}
+.pm-matrix thead .is-now{color:var(--accent-dark)}
+.pm-yes{color:var(--good)}
+.pm-no{color:var(--subtle)}
+.pm-part{color:var(--warn)}
+.pm-matrix-note{margin:12px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+
+/* ── Погашенная метрика в аналитике ─────────────────────────────── */
+.an-kpi-card.pm-blank{background:var(--soft)}
+.pm-blank-body{padding:10px 0 2px}
+.pm-blank-body b{display:block;color:var(--subtle);font-size:26px;line-height:1}
+.pm-blank-body p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.4}
+
+/* Погашенный виджет ужимается по содержимому: иначе на его месте
+   остаётся пустое поле в половину экрана. */
+.an-dashboard-grid .an-widget:has(.pm-stub.mini){align-self:start;min-height:0}
+/* Остался один показатель из двух — занимает всю ширину, а не половину. */
+.an-quality-grid:has(>button:only-child) button{grid-column:1/-1}
+
+/* Погашенная метрика на Главной — та же мысль, чужая карточка */
+.vp-analytics-card.pm-blank{display:block;background:#fafafa;pointer-events:none}
+.vp-analytics-card.pm-blank small{display:block;margin-top:10px;color:#747474;text-align:left;line-height:1.4}

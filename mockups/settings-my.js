@@ -54,7 +54,7 @@ const paneProfile = () => `
     <label class="hf-field"><span class="hf-label">Моя должность</span>
       <input class="hf-input" type="text" value="Ведущий рекрутер"></label>
     <label class="hf-field"><span class="hf-label">Телефон для связи</span>
-      <input class="hf-input" type="tel" value="+7 916 000-00-00"></label>
+      <input class="hf-input" type="tel" value="+7 000 000-00-00"></label>
     <label class="hf-field"><span class="hf-label">Язык</span>
       <select class="hf-select"><option>Русский</option><option>English</option></select></label>
     <label class="hf-field"><span class="hf-label">Мой часовой пояс</span>
@@ -63,8 +63,8 @@ const paneProfile = () => `
   </div>
 
   <div class="st-my-block" data-od-id="profile-accounts">
-    ${profileRow('Рабочая почта для входа', 'es@refni.ru', 'Изменить')}
-    ${profileRow('Эл. почта для уведомлений', 'es@refni.ru', 'Изменить')}
+    ${profileRow('Рабочая почта для входа', 'demo-839bbff8@example.com', 'Изменить')}
+    ${profileRow('Эл. почта для уведомлений', 'demo-839bbff8@example.com', 'Изменить')}
     ${profileRow('Двухфакторная аутентификация',
     'Двухфакторная аутентификация не включена', 'Включить')}
   </div>
@@ -92,7 +92,7 @@ const paneProfile = () => `
    такой же строкой, что и чужое. */
 
 const MAILBOXES = [
-  'va@refni.ru', 'ep@refni.ru', 'rv@refni.ru', 'zm@refni.ru', 'mo@refni.ru',
+  'demo-368fec51@example.com', 'demo-30cbae55@example.com', 'demo-e67e6469@example.com', 'demo-923d0025@example.com', 'demo-a0f5676e@example.com',
 ];
 
 const paneConnections = () => `
@@ -150,7 +150,7 @@ const paneMagic = () => `
    в боевом аккаунте, и это удобно: оба состояния строки видно рядом. */
 
 const MY_JOB_SITES = [
-  ['HeadHunter', 'ad@refni.ru'],
+  ['HeadHunter', 'demo-20430abd@example.com'],
   ['Avito', null],
   ['SuperJob', null],
   ['Зарплата.ру', null],

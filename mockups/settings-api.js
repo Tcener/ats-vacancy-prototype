@@ -43,9 +43,9 @@ const API_TOKENS = [
 
 /* Вебхуки: в списке видно только адрес. Всё остальное — в карточке */
 const API_HOOKS = [
-  'https://api.refni.ru/huntflow/webhook',
-  'https://bi.refni.ru/hooks/huntflow/8f2c41d0-0e77-4a3b-9d16-2b5f1c7ae904',
-  'https://bot.refni.ru/hf/events',
+  'https://example.com/huntflow/webhook',
+  'https://example.com/hooks/huntflow/8f2c41d0-0e77-4a3b-9d16-2b5f1c7ae904',
+  'https://example.com/hf/events',
 ];
 
 /* Семь семейств событий — весь словарь того, о чём Хантфлоу
@@ -133,8 +133,8 @@ Object.assign(DIALOGS, {
         разработчику. Ссылка действует 3 рабочих дня</p>
       <div class="st-api-token-row">
         <input class="hf-input st-api-token-link" type="text" readonly
-               value="https://refni.huntflow.ru/token_request/8f2c41d00e774a3b9d162b5f1c7ae90463d1">
-        <a class="hf-btn hf-btn--secondary" href="token-request.html">Открыть</a>
+               value="https://example.com/token_request/demonstration-only">
+        <a class="hf-btn hf-btn--secondary" href="token-request.html?public=93c6d3c2132f">Открыть</a>
       </div>`,
     foot: `
       <button class="hf-btn hf-btn--primary hf-btn--l" type="button">Копировать</button>
@@ -151,7 +151,7 @@ Object.assign(DIALOGS, {
       <div class="st-api-cols">
         <div>
           <label class="hf-field"><span class="hf-label">URL</span>
-            <input class="hf-input" type="text" value="https://api.refni.ru/huntflow/webhook"></label>
+            <input class="hf-input" type="text" value="https://example.com/huntflow/webhook"></label>
           <label class="hf-field"><span class="hf-label">Секретный ключ</span>
             <input class="hf-input" type="text" value="••••••••••••••••"></label>
           <div class="hf-field st-api-events-field">

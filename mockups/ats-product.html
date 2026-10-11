@@ -1,50 +1,64 @@
+
+
 <!doctype html>
 <html lang="ru">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Собессо — интерактивный прототип ATS</title>
-  <link rel="icon" href="assets/mark-sobesso.ico">
-  <link rel="stylesheet" href="ats-product.css?v=20260909-pipeline-align-v1">
-  <link rel="stylesheet" href="deep-workspaces.css?v=20260908-settings-final">
-  <link rel="stylesheet" href="request-experience.css?v=20260909-requests-v2">
-  <link rel="stylesheet" href="analytics-workspace.css?v=20260910-analytics-v1">
-  <script src="workspace-catalog.js?v=20260908-settings-final" defer></script>
-  <script src="deep-workspaces.js?v=20260909-requests-v2" defer></script>
-  <script src="request-experience.js?v=20260909-requests-v2" defer></script>
-  <script src="analytics-workspace.js?v=20260910-analytics-v1" defer></script>
-  <script src="ats-product.js?v=20260909-pipeline-responsive-v1" defer></script>
+  <title>Собесо — интерактивный прототип ATS</title>
+  <link rel="icon" href="assets/mark-sobesso.ico?public=d81725158c3e">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+  <style>
+    @import url("ats-product.css?public=1508b9db1af4") layer(legacy);
+    @import url("deep-workspaces.css?public=ddd82043e014") layer(legacy);
+    @import url("request-experience.css?public=2a6add637222") layer(legacy);
+    @import url("analytics-workspace.css?public=27e1804f3008") layer(legacy);
+    @import url("vacancy-setup.css?public=fb7e02867e63") layer(legacy);
+    @import url("candidacy-runs.css?public=2390ffbe2772") layer(legacy);
+    @import url("sidebar.css?public=bdff972d7b78") layer(legacy);
+    @import url("product-mode.css?public=80a910fc2bf4") layer(legacy);
+    @import url("publications.css?public=92e68de4b6b4") layer(legacy);
+    @import url("brand-sobesso.css?public=5b47f61ed15b") layer(legacy);
+  </style>
+  
+  <link rel="stylesheet" href="antd/antd-sobesso.css?public=b0a9c58a9248">
+  <link rel="stylesheet" href="antd/antd-layer.css?public=a6b0ff5a9ff3">
+  <link rel="stylesheet" href="antd/screen-overrides.css?public=321fdd45c40e">
+  <link rel="stylesheet" href="vacancy-redesign.css?public=e647cc8bbcec">
+  <link rel="stylesheet" href="analytics-dev-route.css?public=9774d1a9fa8b">
+  <script src="antd/antd-layer.js?public=37f66eaf4ef4"></script>
+  <script src="vacancy-setup.js?public=b7f63f1e5c9a" defer></script>
+  <script src="candidacy-runs.js?public=489751cf5451" defer></script>
+  <script src="product-mode.js?public=02147ed60137" defer></script>
+  <script src="sidebar.js?public=fe5815709469" defer></script>
+  <script src="workspace-catalog.js?public=de55ae3ffe3d" defer></script>
+  <script src="deep-workspaces.js?public=e9e15d83f60e" defer></script>
+  <script src="request-experience.js?public=3f153b88a20b" defer></script>
+  <script src="analytics-workspace.js?public=46dcff71de1c" defer></script>
+  
+  <script src="publications.js?public=8ad87eaa814a" defer></script>
+  <script src="vacancy-ai-requirements.js?public=2b2c2505cf7a" defer></script>
+  <script src="vacancy-ai-config.js?public=14b8da53505c" defer></script>
+  <script src="vacancy-automation-model.js?public=db7d336cf6ca" defer></script>
+  <script src="vacancy-automation-config.js?public=8382e7fc8805" defer></script>
+  <script src="candidate-navigation.js?public=ea4a7a498d7c" defer></script>
+  <script src="ats-product.js?public=0667f2f70629" defer></script>
 </head>
 <body>
+  <iframe class="candidate-reference-frame" id="candidate-reference-frame" title="Актуальная карточка кандидата" hidden></iframe>
+  <iframe class="analytics-reference-frame" id="analytics-reference-frame" title="Аналитика Собесо — макет из Dev" data-antd="none" hidden></iframe>
   <div class="app-shell">
-    <aside class="sidebar" aria-label="Основная навигация">
-      <a class="brand" href="dashboard.html" aria-label="Собессо — главная"><img src="assets/logo-sobesso.png" alt="Собессо"></a>
-      <nav class="main-nav" id="main-nav">
-        <a class="nav-item" href="dashboard.html"><svg class="nav-icon"><use href="assets/icons.svg#home-20"></use></svg><span>Главная</span></a>
-        <button class="nav-item" data-route="search"><svg class="nav-icon"><use href="assets/icons.svg#search-20"></use></svg><span>Поиск</span></button>
-        <button class="nav-item" data-route="tasks"><svg class="nav-icon"><use href="assets/icons.svg#check"></use></svg><span>Мои задачи</span><span class="nav-count">7</span></button>
-        <button class="nav-item" data-route="calendar"><svg class="nav-icon"><use href="assets/icons.svg#calendar-20"></use></svg><span>Календарь</span></button>
-        <button class="nav-item" data-route="analytics"><svg class="nav-icon"><use href="assets/icons.svg#graph-20"></use></svg><span>Аналитика</span></button>
-        <button class="nav-item" data-route="requisitions"><svg class="nav-icon"><use href="assets/icons.svg#edit-2-20"></use></svg><span>Заявки</span><span class="nav-count">3</span></button>
-        <button class="nav-item" data-route="settings"><svg class="nav-icon"><use href="assets/icons.svg#settings"></use></svg><span>Настройки</span></button>
-      </nav>
-      <section class="vacancy-nav">
-        <div class="vacancy-nav-title"><svg class="nav-icon"><use href="assets/icons.svg#folder-20"></use></svg><b>Мои вакансии</b><svg class="nav-icon"><use href="assets/icons.svg#chevron-down-20"></use></svg></div>
-        <button data-route="vacancy/android">Senior Android-разработчик</button>
-        <button data-route="vacancy/designer">Senior Product Designer</button>
-        <button data-route="vacancy/analyst">Data Analyst</button>
-        <button data-route="vacancy/backend">Backend-разработчик Go</button>
-        <button data-route="vacancy/ios">Senior iOS-разработчик</button>
-        <button class="archive" data-route="portfolio"><svg class="nav-icon"><use href="assets/icons.svg#archive-2-20"></use></svg>Архив</button>
-      </section>
-      <div class="fab-row"><button class="fab" id="create-fab" aria-label="Создать">+</button><button class="fab ai" id="ai-fab" aria-label="Открыть ИИ-ассистента">AI</button></div>
-    </aside>
+    <aside data-sidebar></aside>
     <main class="main-sheet" id="screen" tabindex="-1"></main>
   </div>
   <dialog class="modal" id="modal" aria-labelledby="modal-title"><header><div><h2 id="modal-title"></h2><p id="modal-subtitle"></p></div><button class="icon-btn" data-close-modal aria-label="Закрыть">×</button></header><div class="modal-body" id="modal-body"></div><footer id="modal-footer"></footer></dialog>
   <aside class="drawer" id="drawer" hidden><header><div><h2 id="drawer-title"></h2><p id="drawer-subtitle"></p></div><button class="icon-btn" data-close-drawer aria-label="Закрыть">×</button></header><div class="drawer-body" id="drawer-body"></div></aside>
   <aside class="stage-change-popover" id="stage-change-panel" data-stage-panel hidden aria-label="Смена этапа подбора"></aside>
-  <aside class="ai-panel" id="ai-panel" hidden><header><div><b>ИИ-ассистент Собессо</b><small id="ai-context">Контекст: текущий экран</small></div><button class="icon-btn" data-close-ai aria-label="Закрыть">×</button></header><div class="ai-messages" id="ai-messages"><div class="ai-message">Опишите, что нужно найти, объяснить или настроить. Перед изменением я покажу план и попрошу подтверждение.</div><div class="ai-suggestions"><button>Покажи риски SLA</button><button>Найди сильных кандидатов</button><button>Настрой этот экран</button></div></div><form class="ai-compose" id="ai-form"><input id="ai-input" placeholder="Напишите задачу обычным языком"><button>↑</button></form></aside>
+  <aside class="ai-panel" id="ai-panel" hidden><header><div><b>ИИ-ассистент Собесо</b><small id="ai-context">Контекст: текущий экран</small></div><button class="icon-btn" data-close-ai aria-label="Закрыть">×</button></header><div class="ai-messages" id="ai-messages"><div class="ai-message">Опишите, что нужно найти, объяснить или настроить. Перед изменением я покажу план и попрошу подтверждение.</div><div class="ai-suggestions"><button>Покажи риски SLA</button><button>Найди сильных кандидатов</button><button>Настрой этот экран</button></div></div><form class="ai-compose" id="ai-form"><input id="ai-input" placeholder="Напишите задачу обычным языком"><button>↑</button></form></aside>
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+<script src="public-demo-notice.js?public=00271a9db372" defer></script>
 </body>
 </html>

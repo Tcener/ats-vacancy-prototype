@@ -79,7 +79,7 @@ const paneCareerSiteOff = () => `
 /* ── Сайт работает ───────────────────────────────────────────── */
 const paneCareerSiteOn = () => `
   <section class="st-cs-status" data-od-id="career-site-status">
-    <a class="st-cs-banner" href="#" data-od-id="career-site-link">refni.huntflow.io&nbsp;→</a>
+    <a class="st-cs-banner" href="#" data-od-id="career-site-link">example.com&nbsp;→</a>
     <p class="st-cs-state">Ваш бесплатный карьерный сайт
       <b class="st-cs-on">работает</b></p>
     <div class="st-cs-actions">
@@ -108,7 +108,7 @@ const paneCareerSiteOn = () => `
             трудоустройства кандидата.</p></div>
         </div>`,
   })}
-      ${csField('Ссылка на ваш корпоративный сайт', { value: 'https://refni.ru/' })}
+      ${csField('Ссылка на ваш корпоративный сайт', { value: 'https://example.com/' })}
       ${csField('Ссылка на ваше согласие обработки перс. данных')}
       ${csField('Ссылка на вашу политику обработки перс. данных')}
       ${csField('Язык карьерного сайта', {
@@ -122,7 +122,7 @@ const paneCareerSiteOn = () => `
 
   <section class="st-cs-block" data-od-id="career-site-logo">
     <h2 class="st-h2 st-h2--s">Ваш логотип для карьерного сайта</h2>
-    <img class="st-cs-logo" src="assets/logo-refni.jpg" width="75" height="75"
+    <img class="st-cs-logo" src="assets/logo-refni.jpg?public=8859d3e46643" width="75" height="75"
          alt="Логотип компании Рефни">
     <div class="st-cs-actions st-cs-actions--left">
       <button class="hf-btn hf-btn--secondary hf-btn--s" type="button">Загрузить новый</button>

@@ -98,6 +98,6 @@ document.addEventListener('click', (e) => {
 addEventListener('hashchange', apply);
 HF.mount({
   active: vacancyId(),
-  title: `<a href="vacancy-info.html#v=${vacancyId()}">${HF.esc(vacancy().name)}</a><span class="sep">·</span><a href="#">Рефни</a>`,
+  title: `<a href="vacancy-info.html?public=d1f890efe71c#v=${vacancyId()}">${HF.esc(vacancy().name)}</a><span class="sep">·</span><a href="#">Рефни</a>`,
 });
 apply();

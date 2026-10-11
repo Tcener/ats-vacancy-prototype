@@ -331,7 +331,7 @@ Object.assign(DIALOGS, {
           </div>
           <div class="hf-richtext-area" contenteditable="true">
             <p>С уважением, Юджин</p>
-            <p>Рефни · es@refni.ru</p>
+            <p>Рефни · demo-839bbff8@example.com</p>
           </div>
         </div>
       </div>`,

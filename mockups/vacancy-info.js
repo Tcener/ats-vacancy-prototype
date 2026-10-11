@@ -288,7 +288,7 @@ HF.mount({
   active: vacancyId(),
   /* В шапке этого роута не название вакансии, а возврат к её кандидатам:
      название стоит в шапке на самом экране вакансии и ведёт сюда. */
-  title: `<a class="hf-back" href="vacancy.html#v=${vacancyId()}" data-od-id="back-to-work">${
+  title: `<a class="hf-back" href="vacancy.html?public=f137e0b1ffad#v=${vacancyId()}" data-od-id="back-to-work">${
     HF.icon('arrow-left', 20)}<span>Вернуться к работе</span></a>`,
 });
 document.body.insertAdjacentHTML('beforeend', '<div id="vi-dialogs"></div>');

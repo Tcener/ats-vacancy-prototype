@@ -1,0 +1,355 @@
+/* ═════════════════════════════════════════════════════════════════
+   СОБЕССО — фирменный слой.
+
+   Перенесён из макета, который дизайн отдал отдельным файлом
+   (sobesso-ats-product.html): там та же оболочка прототипа, но
+   старее по функциям. Взят только внешний вид, функции остались
+   текущие.
+
+   Что задаёт слой: плоские фирменные цвета без градиентов
+   (фиолетовый — основной, зелёный — вторичный, розовый и жёлтый —
+   акцентные), зелёный стеклянный сайдбар как точка стиля на светлом
+   холсте, матовое стекло на панелях, KPI единой полосой вместо
+   плиток, чёрная кнопка как основное действие, ИИ — маскот-кнопка
+   справа снизу, а не пункт в меню. Шрифты сайта Собесо:
+   Шрифт — Inter (Р159). Кнопки, поля, сегменты, пилюли — в общем слое antd/.
+
+   Подключается ПОСЛЕДНИМ: слой рассчитан на то, что перебивает
+   базовые стили прототипа, а не живёт рядом с ними.
+   ═════════════════════════════════════════════════════════════════ */
+
+:root{
+  --bg:
+    radial-gradient(920px 660px at -8% -12%, rgba(150,111,241,.34), transparent 60%),
+    radial-gradient(840px 620px at 106% -6%, rgba(107,83,213,.26), transparent 58%),
+    radial-gradient(760px 660px at 14% 118%, rgba(255,111,184,.20), transparent 56%),
+    radial-gradient(720px 600px at 100% 108%, rgba(255,203,97,.24), transparent 56%),
+    linear-gradient(180deg,#F8F6FC 0%,#FBFAFF 45%,#F5FBF8 100%);
+  --surface:rgba(255,255,255,.55);
+  --soft:rgba(255,255,255,.4);
+  --line:rgba(21,23,22,.10);
+  --line-soft:rgba(21,23,22,.07);
+  --text:#171717;
+  --muted:#5E5B66;
+  --subtle:#928FA0;
+  --ai-gradient:linear-gradient(120deg,#151716 0%,#6B53D5 68%,#FF6FB8 135%);
+  --accent:#6B53D5;
+  --accent-dark:#5F35C4;
+  --accent-soft:#F0E7FE;
+  --good:#00944F;
+  --good-soft:#DFFBEC;
+  --warn:#A5740B;
+  --warn-soft:#FDF0D6;
+  --danger:#E01A4F;
+  --danger-soft:#FFE1E9;
+  font-family:Inter,Arial,sans-serif;
+}
+html,body{background:var(--bg);background-attachment:fixed}
+
+.ws{--accent:#6B53D5;--line:rgba(21,23,22,.1)}
+.rq-app{--rq-purple:#6B53D5;--rq-ink:#171717;--rq-muted:#5E5B66}
+.an-page{--an-purple:#6B53D5;--an-purple-dark:#5F35C4;--an-soft:#F0E7FE;--an-line:rgba(21,23,22,.1);--an-muted:#5E5B66}
+.ws,.ws-dialog,.rq-app,.an-page,.an-dialog,.vs-dialog,.cr-card{font-family:Inter,Arial,sans-serif}
+
+/* ── Заголовки и крупные числа — второй фирменный шрифт ──────────── */
+.page-head h1,.kpi strong,.ws h1,.ws-metric,.rq-top h1,.rq-metrics strong,
+.rq-detail-hero h2,.an-page-head h1,.an-kpi-value strong,.an-detail-value strong,
+.candidate-header h2,.vacancy-title h1,.profile-overview .profile-copy h2,
+.profile-copy h2,.resume-title-line h3,.ai-score strong,.vs-head h1,
+.nav-item span:not(.nav-count),.panel-head h2{
+  font-family:Inter,sans-serif;font-weight:700;letter-spacing:-.01em;
+}
+.page-head h1{font-weight:800;font-size:30px}
+
+/* ── Фон и фактура ──────────────────────────────────────────────── */
+.app-shell{background:transparent;position:relative}
+.app-shell::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+}
+
+/* ── Сайдбар: чёрный, активное — фиолетовым ─────────────────────────────────────── */
+.app-shell{grid-template-columns:276px minmax(0,1fr)}
+/* Цветовые переменные панели не трогаем: их наследует выпадающее меню
+   режимов, и белый текст уехал бы на белый фон. Цвета самих пунктов
+   ставятся ниже поштучно. */
+.sidebar{
+  --accent:#6B53D5;--accent-dark:#5F35C4;--accent-soft:#F0E7FE;
+  position:relative;z-index:1;
+  border:1px solid rgba(255,255,255,.08);
+  font-family:Inter,Arial,sans-serif;
+  background:linear-gradient(165deg,#1C1D21 0%,#131416 55%,#0D0E10 100%);
+  backdrop-filter:blur(14px) saturate(160%);
+  -webkit-backdrop-filter:blur(14px) saturate(160%);
+  box-shadow:0 28px 64px rgba(20,10,40,.28), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.sidebar.in-flex{width:276px}
+.sidebar .brand img{width:150px;height:auto;object-fit:contain;filter:brightness(0) invert(1)}
+.main-nav{padding:0 12px}
+.nav-item{color:#fff;font-family:Inter,sans-serif;font-size:14px;font-weight:600;border-radius:12px}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{
+  background:#6B53D5;color:#fff;
+  box-shadow:0 6px 16px rgba(107,83,213,.35), inset 0 1px 0 rgba(255,255,255,.12);
+}
+.nav-item.active .nav-icon{color:#fff}
+.nav-item.pm-dim{color:rgba(255,255,255,.55)}
+.nav-count{background:rgba(255,255,255,.22);color:#fff;font-family:Inter,Arial,sans-serif}
+.nav-item.active .nav-count{background:rgba(255,255,255,.18);color:#fff}
+.vacancy-nav{border-top-color:rgba(255,255,255,.22)}
+.vacancy-nav-title{color:#fff;font-family:Inter,Arial,sans-serif}
+.vacancy-link{color:rgba(255,255,255,.9);font-family:Inter,Arial,sans-serif;font-size:12px}
+.vacancy-link:hover{background:rgba(255,255,255,.14);color:#fff}
+.vacancy-link.archive{border-top-color:rgba(255,255,255,.22)}
+
+/* Переключатель режимов прототипа — бледная подпись под «Создать»:
+   на чёрном едва видна и проявляется только под курсором. */
+#pm-slot .pm-switch{color:rgba(255,255,255,.3);font-family:Inter,Arial,sans-serif;opacity:1}
+#pm-slot .pm-switch:hover,#pm-slot .pm-switch.is-open{color:rgba(255,255,255,.75)}
+/* Меню режимов шире панели не делаем: у панели overflow:hidden,
+   и всё, что не влезло, просто отрезается. */
+.pm-menu{width:calc(100% + 4px);border:1px solid rgba(255,255,255,.8);background:#fff;box-shadow:0 18px 40px rgba(20,10,40,.24)}
+
+/* Кнопка «Создать»: плоская плашка во всю ширину, а не голый кружок */
+.fab-row{position:absolute;left:16px;right:16px;bottom:28px;width:auto;display:block}
+.fab{
+  width:100%;height:48px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  background:#6B53D5;color:#fff;font:700 14px/1 Inter,sans-serif;
+  box-shadow:0 10px 22px rgba(107,83,213,.35);
+}
+.fab:hover{background:#7C66DE}
+.fab-plus{font-size:19px;line-height:1}
+.fab.ai{display:none}   /* ИИ переехал в маскот-кнопку справа снизу */
+
+/* ── ИИ-маскот: гусь в низу меню, справа от «Создать» ─────────────── */
+.fab-row{display:flex;align-items:center;gap:10px}
+.fab-row .fab{flex:1;min-width:0}
+.ai-mascot-fab{
+  position:static;flex:none;width:48px;height:48px;border:0;border-radius:50%;padding:0;cursor:pointer;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;background:#0A090C;
+  box-shadow:0 0 0 2px rgba(255,255,255,.85);
+}
+.ai-mascot-fab img{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.ai-mascot-fab:hover{box-shadow:0 0 0 2px #fff,0 0 0 5px rgba(107,83,213,.7)}
+.ai-panel{bottom:24px}
+
+/* ── Основной лист и панели: матовое стекло ──────────────────────── */
+.main-sheet,.panel,.split,.calendar-shell,.settings-shell,.candidate-pane,
+.search-builder,.search-results,.auto-match-card,.ai-search-workspace,
+.ws-panel,.ws-tile,.rq-workspace,.rq-detail-hero,.rq-previous,
+.rq-ai-dialog,.rq-live-summary,.rq-builder-main,.rq-approval-preview,
+.an-widget,.an-filterbar,.an-builder>section,
+.resume-document,.candidate-folds,.stage-work-card,.ai-candidate-summary,
+.consent-banner,.profile-zone,.vs-block,.cr-card{
+  background:rgba(255,255,255,.58) !important;
+  backdrop-filter:blur(30px) saturate(190%);
+  -webkit-backdrop-filter:blur(30px) saturate(190%);
+  border:1px solid rgba(255,255,255,.7) !important;
+  box-shadow:0 4px 22px rgba(40,20,80,.07);
+}
+.main-sheet{background:rgba(255,255,255,.42) !important;box-shadow:0 30px 70px rgba(40,20,80,.10)}
+.candidate-list,.candidate-list-head,.candidate-list>header,.data-table th,
+.an-table-wrap th,.rq-list>header{background:rgba(255,255,255,.5) !important}
+
+/* Выбор режима заявки — с цветом, а не бесцветным стеклом */
+.rq-mode{backdrop-filter:blur(20px) saturate(190%)}
+.rq-mode.ai{background:rgba(107,83,213,.16) !important;border-color:rgba(107,83,213,.3) !important}
+.rq-mode.form{background:rgba(21,23,22,.05) !important;border-color:rgba(21,23,22,.14) !important}
+.rq-mode-icon{background:rgba(255,255,255,.75) !important}
+
+/* Окна — белые и непрозрачные: стекло поверх затемнения даёт грязно-серый лист. */
+.modal,.drawer,.ai-panel,.ws-dialog,.an-dialog,.vs-dialog,
+.sb-work-dialog,.sb-ai-dialog,.vp-dialog,.hf-modal,
+.profile-popover,.stage-change-popover{
+  background:#fff !important;
+  border:1px solid rgba(21,23,22,.06) !important;
+  box-shadow:0 24px 70px rgba(20,10,40,.22);
+}
+.modal::backdrop{background:rgba(20,10,35,.4);backdrop-filter:blur(6px)}
+.modal-body,.drawer-body{background:transparent !important}
+.ai-panel header{background:var(--ai-gradient) !important}
+.ai-panel header small{color:rgba(255,255,255,.85) !important}
+.ai-message.user{background:var(--ai-gradient) !important;border-color:transparent !important}
+.ai-compose button{background:var(--ai-gradient) !important}
+.ai-suggestions button:hover{border-color:#6B53D5 !important;color:#5F35C4 !important}
+.rq-ai-avatar,.auto-match-mark,.ai-score,.profile-ai-summary>header>span{background:var(--ai-gradient) !important;color:#fff !important}
+
+/* ── KPI: одна стеклянная полоса с разделителями вместо плиток ───── */
+.kpi-grid{
+  display:flex !important;align-items:stretch;gap:0;
+  background:rgba(255,255,255,.42) !important;
+  backdrop-filter:blur(30px) saturate(190%);
+  border:1px solid rgba(255,255,255,.65) !important;
+  border-radius:20px;overflow:hidden;margin-bottom:12px;
+}
+.kpi{
+  flex:1;min-width:0;background:transparent !important;border:0 !important;
+  border-right:1px solid rgba(21,23,22,.08) !important;box-shadow:none !important;
+  border-radius:0 !important;padding:18px 20px;
+}
+.kpi:last-child{border-right:0 !important}
+.kpi span{color:#5E5B66;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.kpi strong{color:#171717;font-size:28px}
+.kpi .good{color:#00944F;font-weight:700}
+.kpi .danger,.kpi .late{color:#E01A4F;font-weight:700}
+.kpi:hover{background:rgba(107,83,213,.06) !important}
+.an-kpi-grid{display:flex !important;gap:0;background:rgba(255,255,255,.42) !important;backdrop-filter:blur(30px) saturate(190%);border:1px solid rgba(255,255,255,.65) !important;border-radius:20px;overflow:hidden;box-shadow:none}
+.an-kpi-card{flex:1;min-width:0;background:transparent !important;border:0 !important;border-right:1px solid rgba(21,23,22,.08) !important;border-radius:0 !important;box-shadow:none !important}
+.an-kpi-card:last-child{border-right:0 !important}
+.an-kpi-card>header{background:transparent !important;border-bottom:1px solid rgba(21,23,22,.06) !important}
+.an-kpi-value{background:transparent !important}
+.an-kpi-value:hover{background:rgba(107,83,213,.06) !important}
+
+/* ── Кнопки — в общем слое Ant Design (antd/) ── */
+.rq-metrics strong,.an-detail-value strong{color:#5F35C4}
+
+/* ── Аватары и плашки — плоские фирменные цвета ──────────────────── */
+.avatar,.resume-avatar,.vp-person-avatar{background:#6B53D5 !important;color:#fff !important}
+.avatar.tone-0{background:#6B53D5 !important;color:#fff !important}
+.avatar.tone-1{background:#151716 !important;color:#fff !important}
+.avatar.tone-2{background:#FF6FB8 !important;color:#fff !important}
+.avatar.tone-3{background:#2B6FC9 !important;color:#fff !important}
+.avatar.tone-4{background:#D9970B !important;color:#fff !important}
+.candidate-photo{background:#F0E7FE !important}
+.progress span,.vp-progress i,.rq-completion i{background:#6B53D5 !important}
+.resume-source.internal{background:#F0E7FE !important;color:#5F35C4 !important}
+
+/* ── Поля ввода, сегменты, пилюли, чекбоксы — в общем слое Ant Design (antd/) ── */
+
+/* ── Задачи ── */
+.task-row{border-top-color:rgba(21,23,22,.06);transition:background .12s ease}
+.task-row:hover{background:rgba(107,83,213,.05)}
+.filters{background:rgba(255,255,255,.4) !important;backdrop-filter:blur(16px);border-color:rgba(21,23,22,.08) !important}
+.data-table tr.clickable[data-route]:hover,.task-row[data-route]:hover{background:rgba(107,83,213,.05)}
+.task-row[data-route]{cursor:pointer}
+
+/* ── Календарь ──────────────────────────────────────────────────── */
+.calendar-shell{border-color:rgba(21,23,22,.08) !important}
+.calendar-side{background:rgba(255,255,255,.42) !important;backdrop-filter:blur(20px) saturate(180%);border-right-color:rgba(21,23,22,.08) !important}
+.calendar-toolbar{background:rgba(255,255,255,.3) !important;border-bottom-color:rgba(21,23,22,.08) !important}
+.day-head{background:rgba(255,255,255,.35) !important}
+.week-grid>div{border-color:rgba(21,23,22,.06) !important}
+.event-card{background:rgba(107,83,213,.16) !important;border-left-color:#6B53D5 !important;color:#171717 !important;backdrop-filter:blur(6px);box-shadow:0 4px 12px rgba(95,53,196,.14)}
+.event-card:hover{background:rgba(107,83,213,.24) !important}
+.event-card.good{background:rgba(0,148,79,.14) !important;border-left-color:#00944F !important}
+.event-card.good:hover{background:rgba(0,148,79,.2) !important}
+.week-grid>.is-today{background:rgba(107,83,213,.05)}
+.week-grid>.is-today .day-head{background:rgba(107,83,213,.14) !important;color:#5F35C4;font-weight:800}
+
+/* ── Аналитика: графики фирменными плоскими цветами ──────────────── */
+.bar{background:#6B53D5 !important;border-radius:10px 10px 0 0 !important;transition:filter .12s ease}
+.bar:hover{filter:brightness(1.12)}
+.funnel div{border-radius:999px;font-weight:700}
+.funnel div:nth-child(1){background:rgba(107,83,213,.10);color:#171717}
+.funnel div:nth-child(2){background:rgba(107,83,213,.22);color:#171717}
+.funnel div:nth-child(3){background:rgba(107,83,213,.36);color:#171717}
+.funnel div:nth-child(4){background:rgba(107,83,213,.52);color:#fff}
+.funnel div:nth-child(5){background:rgba(107,83,213,.72);color:#fff}
+.funnel div:nth-child(6){background:#6B53D5;color:#fff}
+
+/* ── Заявки: метрики — яркие цветные карточки ───────────────────── */
+.rq-metrics{display:grid !important;grid-template-columns:repeat(4,1fr);gap:11px;background:transparent !important;border:0 !important;box-shadow:none !important;backdrop-filter:none !important}
+.rq-metrics>div{border:0 !important;border-radius:16px !important;backdrop-filter:blur(18px) saturate(190%);box-shadow:0 8px 20px rgba(20,10,40,.08) !important}
+.rq-metrics .violet{background:rgba(107,83,213,.18) !important}
+.rq-metrics .mint{background:rgba(255,111,184,.14) !important}
+.rq-metrics .peach{background:rgba(217,151,11,.18) !important}
+.rq-metrics .blue{background:rgba(43,111,201,.16) !important}
+.rq-metrics>div>span{background:rgba(255,255,255,.8) !important;color:#171716;font-weight:800}
+.rq-metrics small{color:#5E5B66;font-weight:600}
+.rq-metrics .violet strong{color:#5F35C4}
+.rq-metrics .mint strong{color:#C2337A}
+.rq-metrics .peach strong{color:#A5740B}
+.rq-metrics .blue strong{color:#2B6FC9}
+
+/* Узкий экран: панель по-прежнему сворачивается в значки. Слой шире
+   базовой ширины панели, поэтому свёрнутый вид приходится возвращать
+   здесь — иначе рабочая область на 1024 px остаётся без места. */
+@media(max-width:1180px){
+  .app-shell{grid-template-columns:78px minmax(0,1fr)}
+  .sidebar.in-flex{width:78px}
+  .sidebar .brand img{width:50px;max-width:none;object-fit:cover;object-position:left}
+  .fab-row{left:9px;right:9px}
+  .fab{height:46px;font-size:0}
+  .fab-plus{font-size:24px}
+  .fab-row{flex-direction:column-reverse;gap:8px}
+  .fab-row .fab{flex:none;width:100%}
+  .ai-mascot-fab{width:46px;height:46px}
+}
+
+/* ═══ Главная (dashboard.html?public=509f70c12929) ══════════════════════════════════════
+   Она живёт в оболочке Хантфлоу, а не в каркасе SPA, поэтому свои
+   правила: перекрашиваем её токены и стеклим её поверхности. Иначе
+   точка входа продукта выглядела бы другим приложением, чем всё,
+   куда из неё ведёт меню. */
+.portfolio-mode{
+  --hf-color-base-cyan-50:#F7F3FE;--hf-color-base-cyan-100:#F0E7FE;
+  --hf-color-base-cyan-400:#A98BF3;--hf-color-base-cyan-500:#6B53D5;
+  --hf-color-link-default:#5F35C4;
+  --hf-color-pagetemplate-background:transparent;
+  --plus-button-background:#151716;
+  font-family:Inter,Arial,sans-serif;
+}
+.portfolio-mode .hf-app,.portfolio-mode .hf-canvas,.portfolio-mode .hf-main{background:transparent}
+.portfolio-mode .kd-title,.vp-heading-title h2,.vp-portfolio-heading h2{
+  font-family:Inter,sans-serif;font-weight:800;letter-spacing:-.01em;
+}
+.portfolio-mode .kd-sheet{
+  background:rgba(255,255,255,.42) !important;
+  backdrop-filter:blur(30px) saturate(190%);
+  -webkit-backdrop-filter:blur(30px) saturate(190%);
+  border:1px solid rgba(255,255,255,.7) !important;
+  box-shadow:0 30px 70px rgba(40,20,80,.10);
+}
+.sb-plan,.sb-meetings,.sb-counter,
+.vp-home-analytics,.vp-table-wrap,.vp-card,.vp-visual-list{
+  background:rgba(255,255,255,.58) !important;
+  backdrop-filter:blur(30px) saturate(190%);
+  -webkit-backdrop-filter:blur(30px) saturate(190%);
+  border:1px solid rgba(255,255,255,.7) !important;
+  box-shadow:0 4px 22px rgba(40,20,80,.07);
+}
+.vp-analytics-card{background:rgba(255,255,255,.5) !important;border-color:rgba(255,255,255,.7) !important}
+.vp-table th{background:rgba(255,255,255,.5) !important}
+.vp-row-accent{background:#6B53D5}
+.vp-progress i{background:#6B53D5}
+.sb-ai-message.is-user{background:var(--ai-gradient) !important;color:#fff !important;border-color:transparent !important}
+
+/* ── Настройка вакансии: липкие полосы без фона страницы ─────────────
+   У полос стоял background:var(--bg), а --bg здесь — многослойный градиент всей
+   страницы: он рисовался заново внутри каждой полосы радугой. */
+.vs-section-head{background:rgba(249,248,253,.94) !important;backdrop-filter:blur(14px);border-radius:12px;padding:10px 14px !important;margin:0 -2px}
+.vs-sticky,.vs-step-foot{background:linear-gradient(to top,rgba(249,248,253,.96) 62%,rgba(249,248,253,0)) !important}
+
+/* ── Сведение после визуального ревью 19.09 ───────────────────────────
+   Радиусы: у макета их десяток (7–20). Оставляем два, как в теме antd:
+   12 — всё размером с контрол и вложенные блоки, 16 — карточки, панели, окна. */
+.pipeline .stage,.pipeline-overflow,.pipeline-outcome,.work-total,.vs-factor,.detail-block,
+.ws-field-card,.vs-pick-card,.stage-alert,.cr-fold,.cr-demo,.vs-zone,.ws-index,
+.advanced-filter-grid label,.tag-option-list button,.popover-reset{border-radius:12px !important}
+.filters,.application-card,.ws-panel,.profile-zone,.candidate-photo,.panel,.candidate-list,
+.cr-card,.rq-mode,.an-kpi-grid,.ws-tile,#ws-root.ws,.rq-app,.vs-block,.an-widget{border-radius:16px !important}
+.main-sheet,.drawer,.ai-panel{border-radius:16px !important}
+.filters,.candidate-list{border-width:1px !important}
+/* Панель методики и окна — сплошные белые (стекло поверх содержимого не читается). */
+.an-detail-panel{background:#fff !important;box-shadow:-18px 0 60px rgba(20,10,40,.16)}
+/* Маскот поднимается над липкой полосой сохранения, а не закрывает её кнопку. */
+/* Календарь: у встречи только цветная левая кромка (без объёмной рамки кнопки). */
+.event-card{border-width:0 0 0 3px !important;border-style:solid !important;box-shadow:none !important}
+/* Зелёный — только успех. Балл кандидата, серия показателя, «скоро SLA» — не успех. */
+.candidate-row .score,.score{background:#F0E7FE !important;color:#5F35C4 !important}
+.vp-visual-row.soon .vp-row-accent,.vp-card.soon .vp-row-accent{background:#D9970B !important}
+.vp-visual-row.soon .vp-risk,.vp-card.soon .vp-risk{color:#A5740B !important}
+.vp-analytics-card.green b,.vp-analytics-card.green i{background:rgba(107,83,213,.28) !important}
+.vp-analytics-card.green b:last-child{background:#6B53D5 !important}
+/* Шестерёнка этапа: без серой пилюли-подложки, с зазором до следующего этапа. */
+.pipeline-stage-wrap .ant-btn-icon,.pipeline-stage-wrap .anticon{background:none !important}
+.pipeline-stage-wrap{margin-inline-end:6px}
+/* Меню разделов настроек: плотнее и с радиусом контрола. */
+.ws-menu .ant-menu-item{height:36px !important;line-height:36px !important;border-radius:12px !important;font-size:14px;margin-block:2px !important}
+.ws-menu .ant-menu-item-group-title{font-size:12px;padding-block:10px 4px}
+
+/* Календарь: вторая категория встреч — розовая (зелёный оставлен успеху). */
+.event-card.alt{background:rgba(255,111,184,.14) !important;border-left-color:#C2337A !important}
+.event-card.alt:hover{background:rgba(255,111,184,.2) !important}
+/* Маскот не рисуется поверх открытых окон и дровера. */

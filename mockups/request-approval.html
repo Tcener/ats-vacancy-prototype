@@ -1,40 +1,31 @@
 <!doctype html>
-<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/request.md
 
-     Единственная страница переноса, живущая ВНЕ приложения. Согласующий
-     получает ссылку вида /request/vacancy/<токен> и открывает её без входа
-     в систему: ни авторизации, ни проверки личности здесь нет. Поэтому
-     ни сайдбара, ни шапки приложения — только логотип и белый лист.
-
-     Состояния адресуются хешем:
-       request-approval.html            — решение ещё не принято
-       request-approval.html#confirm    — подтверждение согласования
-       request-approval.html#approved   — согласовано
-       request-approval.html#rejected   — отклонено -->
 <html lang="ru">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Согласование заявки на подбор — макет ATS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="shell.css">
-<link rel="stylesheet" href="screens.css">
-<script src="icons.js" defer></script>
-<script src="shell.js" defer></script>
-<script src="request-approval.js" defer></script>
+<link rel="stylesheet" href="tokens.css?public=f6163fc5f369">
+<link rel="stylesheet" href="shell.css?public=6a781f28ace7">
+<link rel="stylesheet" href="screens.css?public=4c0a61a0c088">
+<script src="icons.js?public=dcf7c0cdb453" defer></script>
+<script src="shell.js?public=96ffdb00e4d1" defer></script>
+<script src="request-approval.js?public=c3069dbc2b50" defer></script>
 </head>
 <body class="ra-body">
 
 <header class="ra-header">
-  <img src="assets/logo-huntflow.svg" width="152" height="36" alt="Хантфлоу">
+  <img src="assets/logo-huntflow.svg?public=b19be3bb9a27" width="152" height="36" alt="Хантфлоу">
 </header>
 
 <main class="ra-sheet">
   <div class="ra-inner" id="approval-screen"></div>
 </main>
 
+<script src="public-demo-notice.js?public=00271a9db372" defer></script>
 </body>
 </html>

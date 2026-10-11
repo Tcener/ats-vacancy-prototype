@@ -1,0 +1,129 @@
+/* Клей общего слоя Ant Design (карточка 49). Общий файл: проходы по экранам его НЕ правят.
+   Здесь только то, чего нет в выгруженных стилях antd: нативные select/checkbox/radio под
+   видом antd, доводка «плоских» окон, гашение остатков старого вида. */
+
+body{font-family:var(--ant-font-family);color:var(--ant-color-text)}
+
+/* ── остатки старого вида, которые antd не перекрывает сам ── */
+.ant-btn{min-height:0;min-width:0;background-image:none;line-height:var(--ant-line-height);text-decoration:none;filter:none;backdrop-filter:none;box-sizing:border-box;cursor:pointer}
+.ant-btn:hover{filter:none}
+.ant-btn-icon-only{padding-inline:0;font-size:16px}
+.ant-btn.ant-btn-variant-link{height:auto;padding:0}
+.ant-tag{margin-inline-end:0;font-weight:500;white-space:nowrap}
+.ant-tag.rq-status{display:inline-flex;align-items:center;gap:6px}
+.ant-switch.vs-switch::after,.ant-switch.vs-switch::before{content:none}
+.ant-switch{border:0;padding:0;flex:none}
+.ant-input{min-height:0;box-sizing:border-box;backdrop-filter:none}
+textarea.ant-input{height:auto;min-height:calc(var(--ant-control-height)*2);padding-block:7px;line-height:var(--ant-line-height)}
+input.ant-input{height:var(--ant-control-height)}
+input.ant-input.ant-input-borderless{height:auto}
+.ant-input-affix-wrapper.rq-search{height:var(--ant-control-height);gap:8px;align-items:center}
+
+/* ── Select: нативный select под видом antd (поведения выпадающего списка в макете нет) ── */
+.antd-native-select{
+  appearance:none;-webkit-appearance:none;box-sizing:border-box;
+  height:var(--ant-control-height);min-height:0;padding:0 32px 0 11px;
+  font:inherit;font-size:var(--ant-font-size);line-height:var(--ant-line-height);color:var(--ant-color-text);
+  border:var(--ant-line-width) solid var(--ant-color-border);border-radius:var(--ant-border-radius);
+  background:var(--ant-color-bg-container) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='64 64 896 896' fill='%23000' fill-opacity='.25'%3E%3Cpath d='M884 256h-75c-5.100 0-9.900 2.500-12.900 6.600L512 654.200 227.900 262.600c-3-4.100-7.800-6.600-12.900-6.600h-75c-6.500 0-10.300 7.400-6.500 12.700l352.600 486.100c12.800 17.600 39 17.600 51.700 0l352.600-486.100c3.900-5.300.1-12.700-6.400-12.700z'/%3E%3C/svg%3E") no-repeat right 11px center/12px;
+  transition:border-color var(--ant-motion-duration-mid),box-shadow var(--ant-motion-duration-mid);cursor:pointer;
+}
+.antd-native-select:hover{border-color:var(--ant-color-primary-hover)}
+.antd-native-select:focus{border-color:var(--ant-color-primary);box-shadow:0 0 0 var(--ant-control-outline-width) var(--ant-control-outline);outline:0}
+.antd-native-select:disabled{background-color:var(--ant-color-bg-container-disabled);color:var(--ant-color-text-disabled);cursor:not-allowed}
+.antd-native-select[multiple]{height:auto;background-image:none;padding:4px 11px}
+
+/* ── Checkbox и Radio: нативные input под видом antd ── */
+.antd-native-checkbox,.antd-native-radio{
+  appearance:none;-webkit-appearance:none;box-sizing:border-box;flex:none;margin:0;
+  width:16px;height:16px;display:inline-grid;place-content:center;vertical-align:middle;
+  border:var(--ant-line-width) solid var(--ant-color-border);background:var(--ant-color-bg-container);
+  transition:all var(--ant-motion-duration-mid);cursor:pointer;
+}
+.antd-native-checkbox{border-radius:var(--ant-border-radius-xs)}
+.antd-native-radio{border-radius:50%}
+.antd-native-checkbox:hover,.antd-native-radio:hover{border-color:var(--ant-color-primary)}
+.antd-native-checkbox:checked{background:var(--ant-color-primary);border-color:var(--ant-color-primary)}
+.antd-native-checkbox:checked::after{content:"";width:5px;height:9px;border:2px solid #fff;border-top:0;border-inline-start:0;transform:rotate(45deg) translate(-1px,-1px)}
+.antd-native-radio:checked{border-color:var(--ant-color-primary);background:var(--ant-color-primary)}
+.antd-native-radio:checked::after{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
+.antd-native-checkbox:focus-visible,.antd-native-radio:focus-visible{outline:2px solid var(--ant-color-primary-border);outline-offset:1px}
+.antd-native-checkbox:disabled,.antd-native-radio:disabled{background:var(--ant-color-bg-container-disabled);border-color:var(--ant-color-border);cursor:not-allowed}
+
+/* ── Segmented на кнопках: группа и корень — один элемент ── */
+.ant-segmented.ant-segmented-group{display:inline-flex;width:auto;box-sizing:border-box;border:0;backdrop-filter:none}
+button.ant-segmented-item{border:0;background:none;font:inherit;padding:0;height:auto;min-height:0;box-shadow:none}
+button.ant-segmented-item.ant-segmented-item-selected{background:var(--ant-segmented-item-selected-bg);box-shadow:var(--ant-box-shadow-tertiary);color:var(--ant-segmented-item-selected-color)}
+.ant-segmented-item-label,.ant-tabs-tab-btn{pointer-events:none}
+.ant-segmented-item-label{display:flex;align-items:center;gap:6px}
+.ant-segmented-shape-round,.ant-segmented-shape-round .ant-segmented-item{border-radius:999px}
+
+/* ── Tabs на кнопках: одна полоса без вложенных обёрток ── */
+.ant-tabs.ant-tabs-flat{display:flex;flex-direction:row;gap:var(--ant-tabs-horizontal-item-gutter);border-bottom:var(--ant-line-width) solid var(--ant-color-border-secondary);overflow:auto}
+.ant-tabs-flat>button.ant-tabs-tab{border:0;border-radius:0;background:none;font:inherit;font-size:var(--ant-tabs-title-font-size);margin:0;padding:var(--ant-tabs-horizontal-item-padding);color:var(--ant-tabs-item-color);box-shadow:none}
+.ant-tabs-flat>button.ant-tabs-tab-active{box-shadow:inset 0 calc(var(--ant-line-width-bold)*-1) 0 var(--ant-tabs-ink-bar-color);font-weight:inherit}
+
+/* ── Table: таблица макета без обёрток antd ── */
+table.ant-table{border-collapse:separate;border-spacing:0;background:transparent}
+
+/* ── «Плоские» окна: положение и стекло остаются от макета, части — от antd ── */
+.ant-modal-flat.ant-modal-container{box-sizing:border-box}
+dialog.ant-modal-flat{border:0;color:var(--ant-color-text)}
+.ant-modal-flat .ant-modal-header{background:transparent;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border:0;padding:0}
+.ant-modal-flat .ant-modal-title{margin:0;font-size:var(--ant-modal-title-font-size);line-height:var(--ant-modal-title-line-height)}
+.ant-modal-flat .ant-modal-body{padding:0}
+.ant-modal-flat .ant-modal-footer{display:flex;justify-content:flex-end;gap:8px;border:0;padding:0;background:transparent}
+.ant-drawer-flat .ant-drawer-header{justify-content:space-between;gap:12px}
+.ant-drawer-flat .ant-drawer-title{margin:0}
+.ant-message-flat.ant-message-notice-content{color:var(--ant-color-text);font-size:var(--ant-font-size)}
+.ant-dropdown-flat.ant-dropdown-menu{box-sizing:border-box}
+.ant-dropdown-flat .ant-dropdown-menu-item{width:100%;border:0;background:none;text-align:start;font:inherit;box-sizing:border-box}
+
+/* ── Avatar и Empty на одном элементе ── */
+.ant-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none;border:0}
+.ant-empty.ant-empty-normal{color:var(--ant-color-text-description)}
+/* фото кандидатов вырезаются из общего листа своими правилами — возвращаем их картинке */
+.ant-avatar>img{display:revert-layer;width:revert-layer;height:revert-layer;object-fit:revert-layer;object-position:revert-layer}
+.ant-modal-flat .ant-modal-header{margin-bottom:16px}
+.ant-modal-flat .ant-modal-footer{margin-top:16px}
+.ant-modal-flat .ant-modal-header p{margin:4px 0 0;color:var(--ant-color-text-description);font-size:var(--ant-font-size-sm)}
+/* ширину полей задаёт раскладка экрана, а не antd (у antd поле всегда 100%) */
+.ant-input,.antd-native-select{width:revert-layer;min-width:revert-layer;max-width:revert-layer;flex:revert-layer}
+.ant-switch.vs-switch{width:auto}
+
+/* выбранный тег: вложенные счётчики и значки берут цвет тега, а не серый от макета */
+.ant-tag-checkable-checked>*{color:inherit;opacity:.8}
+/* полоса вкладок: горизонтальный отступ задаёт раскладка экрана (antd обнуляет padding корня) */
+.ant-tabs.ant-tabs-flat{padding-inline:revert-layer;padding-block:0;margin:revert-layer}
+.ant-tabs-flat>button.ant-tabs-tab .ant-tabs-tab-btn{display:flex;align-items:center;gap:6px}
+/* кольцо фокуса — как у antd, а не толстая чёрная рамка от старых стилей */
+.ant-btn:focus-visible{outline:2px solid var(--ant-color-primary-border);outline-offset:1px;box-shadow:none}
+.ant-btn:focus:not(:focus-visible){outline:0}
+
+/* ── значки, подставленные вместо символов шрифта ── */
+.antd-glyph{display:inline-flex;align-items:center;vertical-align:-0.125em;line-height:0}
+.ant-btn:has(>.antd-glyph:only-child){padding-inline:0;width:var(--ant-control-height);font-size:16px;flex:none}
+.ant-btn.ant-btn-sm:has(>.antd-glyph:only-child){width:var(--ant-control-height-sm);font-size:14px}
+/* ── воздух вокруг плашек и шагов: у antd отступ задаёт раскладка, в макете её нет ── */
+.ant-alert{margin-bottom:12px}
+.ant-alert:last-child{margin-bottom:0}
+.ant-steps{margin-bottom:16px}
+/* ── нативные чекбокс и радио: форма не тянется полем, выбранный недоступный виден ── */
+.antd-native-checkbox,.antd-native-radio{min-width:16px;max-width:16px;min-height:16px;max-height:16px;padding:0}
+.antd-native-checkbox:disabled:checked{background:var(--ant-color-text-disabled);border-color:transparent}
+.antd-native-radio:disabled:checked{background:var(--ant-color-text-disabled);border-color:transparent}
+label:has(>.antd-native-checkbox),label:has(>.antd-native-radio),label:has(>.ant-switch){column-gap:8px}
+label>.antd-native-checkbox,label>.antd-native-radio,label>.ant-switch{margin-inline-end:8px}
+label:is([style*="gap"],.ws-check,.vs-check)>:is(.antd-native-checkbox,.antd-native-radio,.ant-switch){margin-inline-end:0}
+/* кнопка-значок на цветной шапке (панель ИИ) */
+.ai-panel header .ant-btn,.sb-ai-dialog>header .ant-btn{color:#fff}
+.ai-panel header .ant-btn:hover{background:rgba(255,255,255,.16);color:#fff}
+/* малые и ссылочные кнопки стоят внутри текста 12–13px: вес обычный, иначе они крупнее соседей */
+.ant-btn.ant-btn-sm,.ant-btn.ant-btn-variant-link,.ant-btn.ant-btn-variant-text{font-weight:500}
+.ant-btn.ant-btn-variant-link{font-size:inherit}
+
+/* ── переходы выключены ──
+   Макет на каждый клик пересобирает экран строками: элемент рождается в старом виде, слой
+   дописывает ему классы antd, и transition antd (all .2s) анимирует «переезд» — кнопки теряют
+   обводку, отступы плывут. В макете без поведения переходы не нужны совсем. */
+*,*::before,*::after{transition:none !important}

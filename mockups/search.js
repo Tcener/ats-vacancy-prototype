@@ -45,11 +45,11 @@ const PERIODS = ['За все время', 'За период'];
 const QUICK = ['Сегодня', 'Вчера', 'Неделя', 'Месяц', 'Квартал', 'Год'];
 
 const RECRUITERS = [
-  ['Я, Полина', 'polina@refni.ru'],
-  ['Артём Кузнецов', 'kuznetsov@refni.ru'],
-  ['Ирина Соколова', 'sokolova@refni.ru'],
-  ['API: интеграция с 1С', 'api-160301-68@refni.ru'],
-  ['API: карьерный сайт', 'api-160301-81@refni.ru'],
+  ['Я, Полина', 'demo-409f6456@example.com'],
+  ['Артём Кузнецов', 'demo-d42b76a9@example.com'],
+  ['Ирина Соколова', 'demo-0b4883a8@example.com'],
+  ['API: интеграция с 1С', 'demo-8640e78c@example.com'],
+  ['API: карьерный сайт', 'demo-72ffd87a@example.com'],
 ];
 
 const FUNNEL_SETS = ['Все наборы этапов', 'Основная воронка', 'Массовый подбор'];
@@ -236,7 +236,7 @@ const panelHtml = (key) => {
       <p class="se-promo-text">Добавьте в карточку кандидата поля с выбором значений
         из справочника, например «Грейд специалиста», «Откуда узнал о вакансии» или любые
         необходимые для полноты информации, детальной аналитики и удобного поиска</p>
-      <a class="ap-btn ap-btn--s" href="settings.html#s=business&t=fields">Добавить поля доп. инфо</a>
+      <a class="ap-btn ap-btn--s" href="settings.html?public=912c4e6907be#s=business&t=fields">Добавить поля доп. инфо</a>
     </div>`,
     vacstate: dropList(VAC_STATES.map(([, l]) => l), { reset: false,
       checked: VAC_STATES.find(([id]) => id === state.vac)[1] }),
@@ -293,7 +293,7 @@ const vacRow = (v) => {
   const hold = v.state === 'hold';
   return `
   <li class="se-vac${hold ? ' is-hold' : ''}">
-    <a class="se-vac-title" href="vacancy-info.html">
+    <a class="se-vac-title" href="vacancy-info.html?public=d1f890efe71c">
       ${hold ? `<span class="se-vac-pause">${svg('pause-2', 12)}</span>`
              : '<span class="se-vac-tag">Закрыта</span>'}${esc(v.name)}</a>
     <div class="se-vac-org">${esc(v.org)}</div>

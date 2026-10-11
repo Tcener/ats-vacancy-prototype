@@ -1,0 +1,550 @@
+/* Поправки экранов поверх Ant Design (карточка 49).
+   Старые стили макета лежат в слое legacy и antd не перебивают. Если на экране компонент
+   antd нужно поджать по месту (ширина, отступ, перенос) — правило пишется СЮДА, в конец,
+   в блок своего экрана. Внешний вид компонента (цвет, радиус, высота) здесь не меняем:
+   для этого выбираются другие пропсы компонента. */
+
+/* ── 49.3 вакансия и карточка кандидата ── */
+
+/* Чипы фильтра по состоянию прогона: Tag.CheckableTag — inline-block, из-за чего подпись
+   и счётчик слипались. Возвращаем раскладку в строку с зазором. */
+.cr-axis .ant-tag{display:inline-flex;align-items:center;gap:5px}
+
+/* Шестерёнки в ленте этапов. У выгруженных стилей размер значка кнопки-значка задан
+   переменной --ant-button-only-icon-size(-sm), а самой переменной в выгрузке нет: правило
+   становится недействительным, размер наследуется, и в ленте (там span — 10px) шестерёнка
+   превращалась в точку. Подставляем переменную по месту; заявка — в antd/REQUESTS.md. */
+.pipeline-stage-config,
+.pipeline-settings{--ant-button-only-icon-size-sm:15px}
+
+/* Оценка компетенций в форме обратной связи: строка — грид, а Segmented у antd inline-block,
+   поэтому шкала 1–5 растягивалась на всю ширину строки. */
+.rating-row > .ant-segmented{justify-self:start;width:fit-content}
+
+/* Поповер «Метки кандидата» живёт внутри левой колонки карточки, а у зон карточки матовое
+   стекло (backdrop-filter) — каждая зона сама себе слой, и правая колонка со сводкой ИИ
+   рисовалась поверх поповера. Поднимаем колонку с поповером над соседней. */
+.profile-overview > .profile-copy{position:relative;z-index:2}
+
+/* «Сбросить выбор» в поповере — ссылка во всю ширину, у кнопки antd подпись по центру. */
+.popover-reset{justify-content:flex-start}
+
+/* Четыре кнопки действий под фото стоят сеткой 2×2 в узкой колонке: на ширине окна около
+   1300 подпись длиннее ячейки. Кнопка не шире ячейки, подпись обрезается многоточием
+   (полный текст — в title). Добавлено оркестратором при сведении проходов. */
+.profile-action-grid>.ant-btn{min-width:0;padding-inline:8px;overflow:hidden}
+.profile-action-grid>.ant-btn>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* Сетка 2×2, как в прежнем макете: значок в светло-фиолетовой плашке слева, подпись прижата
+   к левому краю — так «Доп. информация» и «Редактировать» помещаются без многоточия. */
+.profile-action-grid>.ant-btn{height:44px;justify-content:flex-start;gap:8px;padding-inline:6px 8px;font-size:13px}
+.profile-action-grid>.ant-btn>.ant-btn-icon{flex:none;display:inline-flex;align-items:center;justify-content:center;box-sizing:content-box;width:16px;height:16px;padding:7px;border-radius:8px;background:#F0EDFB;color:#6B53D5}
+.profile-vacancy-action>.ant-btn{height:48px;font-size:15px}
+/* В узкой колонке (лист делится с ИИ-саммари) ячейка 2×2 короче подписи — там кнопки идут столбиком. */
+.profile-action-grid{grid-template-columns:repeat(auto-fit,minmax(max(150px,40%),1fr))}
+/* Когда действия и ИИ-саммари делят строку, действиям нужна половина — тогда 2×2 помещается. */
+@container candidate-card (min-width:600px) and (max-width:1050px){.profile-command-center{grid-template-columns:minmax(370px,1.1fr) minmax(0,1fr)}}
+
+/* ── 49.4 настройка вакансии и мастер ── */
+
+/* Шкала шагов мастера: шапка окна у antd — строка (заголовок + крестик), поэтому Steps
+   встал рядом с заголовком и подписи шагов ломались посреди слова. Отдаём шкале всю
+   ширину под заголовком и запрещаем перенос подписей. */
+.vs-dialog-head { flex-wrap: wrap; }
+.vs-dialog-head .vs-wiz-steps { flex: 1 0 100%; margin-top: 12px; }
+.vs-wiz-steps .ant-steps-item-title { white-space: nowrap; }
+
+/* Итог справа в шапке блока («5 из 15 · 2 критичных») — шапка Collapse тянет заголовок
+   на всю ширину, итог прижимаем к правому краю и не даём ему сжиматься. */
+.vs-block .ant-collapse-header > .ant-collapse-title { flex: 1 1 auto; }
+.vs-block .ant-collapse-header > .vs-block-sum { flex: 0 0 auto; margin-left: auto; }
+
+/* Значки в строке требования и в шапке вопроса: кнопка antd шире прежней, из-за чего
+   поле ввода ужималось. Держим значки в своём размере. */
+.vs-factor > .ant-btn { flex: 0 0 auto; }
+
+/* Segmented в поле с подписью: обёртка поля — грид, а Segmented у antd inline-block,
+   поэтому переключатель растягивался на всю ширину строки. Прижимаем к левому краю. */
+.vs-field > .ant-segmented,
+.vs-row > .ant-segmented { justify-self: start; width: fit-content; }
+
+/* ── 49.5 настройки ── */
+
+/* Плитка раздела — Card на элементе <button>: тело карточки должно быть блоком,
+   иначе значок, название и пояснение выстраиваются в строку. */
+.ws-tile.ant-card > .ant-card-body { display: block; }
+
+/* Кнопки antd шире прежних: панель сохранения переносила «Проверить и опубликовать»
+   на вторую строку. Переносим подпись, а не кнопки. */
+.ws-savebar .ws-actions { flex-wrap: nowrap; }
+.ws-savebar > small { min-width: 0; }
+
+/* Строка карточки поля и шага — это Button type=link на две строки: название и описание.
+   У кнопки antd по умолчанию одна строка (inline-flex, nowrap, фиксированная высота),
+   из-за чего описание уезжало за край карточки. */
+.ws-field-card > .ws-link.ant-btn,
+.ws-table td > .ws-link.ant-btn { display: block; width: 100%; height: auto; padding: 0;
+  text-align: left; white-space: normal; }
+
+/* Боковая колонка редактора узкая (275 px), а у кнопки antd текст в одну строку:
+   «Вернуться к центральному правилу» вылезала за край. Разрешаем перенос. */
+.ws-aside .ws-btn.ant-btn { max-width: 100%; white-space: normal; height: auto;
+  min-height: var(--ant-control-height); }
+
+
+/* ── 49.6 Главная, поиск, заявки, аналитика, задачи ── */
+
+/* Поиск: «Подобрать по вакансии» запускает ИИ, по Р161 она фиолетовая. Класс
+   .auto-match-button с неё снят — brand-sobesso.css красит его в чёрный через !important
+   внутри слоя legacy, а важное правило в слое сильнее неслоевого (заявка в REQUESTS.md).
+   Место в сетке карточки держалось на том же классе, возвращаем его кнопке antd. */
+.auto-match-card > .ant-btn { grid-column: 2; }
+
+/* Источники поиска стали переключателями: подпись и счётчик выстраиваем в строку. */
+.search-sources label { display: inline-flex; align-items: center; gap: 8px; }
+
+/* Главная, блок «План дня / Ближайшие встречи» (правка по замечаниям Лёши, 19.09).
+   Две панели — самостоятельные карточки с радиусом окон; общая обёртка без фона и тени.
+   Кнопка «Свернуть план дня» — текстовая кнопка antd с воздухом сверху и снизу. */
+.sb-plan,.sb-meetings{border-radius:var(--ant-border-radius-lg)}
+.sb-day-details{gap:16px}
+.sb-day-controls{height:auto;margin:12px 0 8px}
+.sb-day-toggle.ant-btn{font-size:var(--ant-font-size-sm);color:var(--ant-color-text-secondary)}
+
+/* Пилюля прогресса количественной задачи: мельче и с зазором от срока. */
+.sb-task-progress.ant-btn{font-size:var(--ant-font-size-sm);margin-inline-start:8px}
+/* Крупное число показателя не переносится: с Inter «4,6 / 5» стало шире прежнего. */
+.vp-analytics-card>strong{white-space:nowrap}
+/* Заявки: строка списка. Тег статуса antd шире прежней пилюли, колонка auto раздувалась и
+   выталкивала инициатора со стрелкой на правую панель. Колонки делят ширину, тег обрезается. */
+.rq-list-card{grid-template-columns:minmax(0,1.3fr) fit-content(168px) minmax(0,.9fr) 20px}
+.rq-list-card>*{min-width:0}
+.rq-list-card .ant-tag{max-width:100%;overflow:hidden;white-space:nowrap}
+.rq-list-owner{overflow:hidden}
+.rq-list-owner>*{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ── 49.7b настройка вакансии и мастер: доводка по визуальному ревью ── */
+
+/* Липкие полосы сохранения были полупрозрачными: внутри листа --bg = rgba(…,.94), а у
+   нижней полосы ещё и градиент, уходящий в прозрачность, — сквозь плашку читался текст
+   под ней. Делаем полосу непрозрачной, с тонкой чертой сверху. Отрицательный bottom не
+   трогаем: у листа снизу 54 px поля, и полоса встаёт по ним вровень с нижним краем.
+   Фон кладём на псевдоэлемент: свой фон brand-sobesso.css пишет с !important внутри слоя
+   legacy, а важное правило в слое сильнее любого неслоевого (заявка в REQUESTS.md). */
+.vs-sticky::before, .vs-step-foot::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: #fbfafe; box-shadow: 0 -1px 0 rgba(30,22,58,.07); }
+/* Доехав до низа страницы, полоса поднималась на те же 54 px поля и подлезала под гуся —
+   он закрывал угол «Сохранить». Отрицательным нижним полем ставим её вровень с краем
+   листа и в потоке: гусь (поднятый общим слоем на 92 px) её больше не задевает. */
+.vs-sticky, .vs-step-foot { margin-bottom: -54px; }
+
+/* Липкая шапка секции: та же полупрозрачность (текст блока просвечивал сквозь заголовок)
+   плюс шапка вставала на 29 px ниже верха листа — в этой щели проезжал обрезанный кусок
+   предыдущего блока. Поднимаем её вровень с верхним краем: у листа сверху 28 px поля, а
+   прямоугольник прилипания на поля уменьшен. Фон — снова псевдоэлементом: у brand-sobesso
+   фон и матовое стекло шапки стоят с !important (заявка в REQUESTS.md). */
+.vs-section-head { top: -28px; }
+.vs-section-head::before { content: ""; position: absolute; inset: 0; z-index: -1;
+  background: #fcfcfe; border-radius: 12px; }
+
+/* «+ Добавить» в шапке зоны требований: у Button type=link размер подписи 14 — крупнее
+   названия зоны (13). Возвращаем ссылке размер подписи зоны и убираем поля кнопки. */
+.vs-zone-head .vs-zone-add.ant-btn { height: auto; padding: 0; font-size: var(--ant-font-size-sm); }
+
+/* Три вложенных слоя в зоне требований: серая зона → белая строка → белое поле.
+   Убираем средний: строка держится только раскладкой, фон и рамку отдаём полю.
+   Заодно строим строку сеткой с постоянными местами под значки: у требований без «⊘»
+   поле ввода было длиннее, и правые края полей в зоне шли лесенкой. */
+.vs-zone .vs-factor { display: grid; grid-template-columns: 28px minmax(0,1fr) repeat(3, 28px);
+  align-items: center; gap: 8px; padding: 2px 0; border-color: transparent; background: transparent; }
+.vs-zone .vs-factor > [data-vs="factor-negate"] { grid-column: 3; }
+.vs-zone .vs-factor > [data-vs="factor-critical"] { grid-column: 4; }
+.vs-zone .vs-factor > [data-vs="factor-remove"] { grid-column: 5; }
+
+/* Мастер: карточки выбора. Подпись рисовалась чистым чёрным мимо палитры; ряды карточек
+   были разной высоты — у отключённых длинное пояснение, у активных его нет. */
+.vs-pick { grid-auto-rows: 1fr; }
+.vs-pick-card { color: var(--ant-color-text); }
+.vs-pick-card small { color: var(--ant-color-text-secondary); }
+
+/* Плашка-подсказка в окне («Вставьте ссылку на вакансию») растягивалась на всю ширину
+   окна жёлтым полотном — хватает ширины по тексту. */
+.vs-dialog-body > .vs-plate { justify-self: start; }
+
+/* Пошаговый режим: на коротком шаге подвал «Назад / Далее» вставал сразу под содержимым
+   посреди экрана, и гусь (он живёт в правом нижнем углу) наползал на «Далее». Тянем
+   колонку шага на всю высоту листа и прижимаем подвал к низу — там его гусь не трогает. */
+.vs-steps { min-height: calc(100% - 54px); }
+.vs-step-work { display: flex; flex-direction: column; align-self: stretch; }
+.vs-step-work > * { flex: 0 0 auto; }
+.vs-step-foot { margin-top: auto; }
+
+/* Окно «Версия шаблона воронки». Строки этапов: значки стояли по-разному — у системных
+   строк карандаш убегал к правому краю, у модулей стоял слева от стрелок. Раскладываем
+   строку сеткой с постоянными местами. Каталог видов требований (там строка — кнопка)
+   не трогаем: правило только для div-строк окна. */
+div.vs-stage-row { display: grid; grid-template-columns: 22px minmax(0,1fr) 26px 26px 26px 144px;
+  align-items: center; gap: 9px; }
+div.vs-stage-row > [data-vs="rename"] { grid-column: 3; }
+div.vs-stage-row > [data-vs="move-up"] { grid-column: 4; }
+div.vs-stage-row > [data-vs="move-down"] { grid-column: 5; }
+div.vs-stage-row > .vs-mini { grid-column: 6; }
+/* Замок у этапа от режима — такой же одиночный значок, как карандаш: ставим в ту же колонку. */
+div.vs-stage-row > .vs-stage-lock { grid-column: 3; }
+
+/* Системные строки внутри белого окна были серой заплаткой. Оставляем только пунктир —
+   он же на узлах «Пути кандидата» и объяснён подписью под ними, — а фон делаем белым. */
+.vs-dialog .vs-stage-row.is-system { background: #fff; }
+
+/* Окно «Что проверяем»: строка вида — <button> без своего фона, поэтому браузер красил её
+   в системный серый. В белом окне это выглядело заливкой без причины. */
+.vs-dialog-body > button.vs-stage-row { background: #fff; }
+.vs-dialog-body > button.vs-stage-row:hover:not(.is-off) { border-color: var(--ant-color-primary); background: #faf8ff; }
+
+/* Окно «Применить новую версию шаблона»: абзацы шли с браузерными полями поверх зазора
+   сетки окна — строки расходились почти на 40 px. Зазор задаёт окно. */
+.vs-dialog-body > p { margin: 0; }
+
+/* Список «Найденные»: каждая строка была своей флекс-строкой, поэтому поиск, балл, статус
+   и дата вставали лесенкой — колонки съезжали от длины статуса. Колонки задаёт список,
+   строки берут их через subgrid. */
+.vs-found { display: grid; grid-template-columns: auto minmax(0,1fr) max-content 28px max-content max-content; }
+.vs-found-row { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; }
+.vs-found-row > .vs-tag { justify-self: start; }
+.vs-found-row > .vs-note { justify-self: end; }
+
+/* ── 49.7d Главная, поиск, задачи, календарь, заявки, аналитика, окно «Создать» ── */
+
+/* Главная, таблица портфеля. Шапка: antd даёт ячейке свои 12px сверху и снизу, а у кнопки
+   сортировки остались прежние 12px — шапка вырастала до 70px с пустотой под подписью. */
+.vp-table .vp-sort{padding:0}
+/* Шапка липкая и полупрозрачная (матовое стекло страницы) — строки просвечивали сквозь неё
+   при прокрутке. Непрозрачную подложку кладём под ячейки, на саму строку шапки. */
+.vp-table thead{background:#fbfafd}
+/* Таблица шире окна: обрез справа читался как обрыв вёрстки. Тень у правого края —
+   на #vp-content, он не прокручивается; класс вешает dashboard-portfolio.js и снимает,
+   когда таблицу домотали до конца. */
+/* Маскот висит в правом нижнем углу окна и закрывал «Открыть» у нижней правой карточки
+   и ссылку в подвале. Оставляем под ним воздух: подвалу — отступ справа (css экрана),
+   содержимому портфеля — снизу. */
+#vp-content{position:relative;margin-bottom:46px}
+#vp-content.vp-more-right::after{content:"";position:absolute;inset:1px 1px 1px auto;width:40px;
+  pointer-events:none;border-radius:0 12px 12px 0;
+  background:linear-gradient(to left,rgba(62,44,104,.16),rgba(62,44,104,0))}
+
+/* Окно «Столбцы»: у antd своя внутренняя рамка окна (24px), а у абзаца и списка остались
+   прежние отступы — левая линия шла тремя уступами. Сводим всё к рамке окна. */
+.vp-dialog .ant-modal-title{font-size:16px;font-weight:600}
+.vp-dialog>p{padding-inline:0}
+.vp-dialog .vp-column-search{margin-bottom:12px}
+.vp-dialog .vp-column-list{padding-inline:0}
+.vp-dialog .vp-column-row{padding-inline:0}
+
+/* Окно «Мои задачи» / «Встречи сегодня»: рамка окна antd складывалась с прежними отступами
+   шапки, вкладок и строк — заголовок, вкладки и задачи начинались с трёх разных позиций.
+   Рамку окна убираем, отступы внутри сводим к 24px, разделители идут во всю ширину. */
+.sb-work-dialog.ant-modal-container{padding:0}
+.sb-work-dialog>header{padding:20px 24px;align-items:center}
+.sb-work-dialog h2{font-size:16px;font-weight:600}
+.sb-work-dialog .sb-work-tabs{padding-inline:24px}
+.sb-work-dialog .sb-task-row,.sb-work-dialog .sb-meeting-row{padding-inline:24px}
+.sb-work-dialog .sb-work-note{padding-inline:24px}
+.sb-work-dialog .sb-work-detail{padding:20px 24px}
+.sb-work-dialog .sb-work-actions{padding:16px 24px}
+.sb-work-dialog .sb-work-empty{padding:32px 24px}
+
+/* Окно ИИ-агента на Главной приводим к виду боковой панели ИИ с остальных экранов:
+   шапка фирменным градиентом, поле ввода с рамкой, кнопка отправки обычного размера. */
+.sb-ai-dialog.ant-modal-container{padding:0;overflow:hidden}
+.sb-ai-dialog>header{background:var(--ai-gradient);color:#fff}
+.sb-ai-dialog>header .ant-btn{color:#fff}
+.sb-ai-dialog>header .ant-btn:hover{color:#fff;background:rgba(255,255,255,.18)}
+.sb-ai-compose .ant-btn{width:36px;height:36px;padding:0;border-color:transparent;
+  background:var(--ai-gradient);color:#fff}
+.sb-ai-compose .ant-btn:hover{background:var(--ai-gradient);color:#fff;filter:brightness(1.08)}
+
+/* ── 49.7c настройки: доводка по визуальному ревью ── */
+
+/* Матовое стекло панелей и плиток. `brand-sobesso.css?public=5b47f61ed15b` красит `.ws-panel` и `.ws-tile`
+   стеклом через `!important` внутри слоя `legacy`, а важное правило в слое сильнее любого
+   неслоевого — обычной поправкой его не перебить. Дописываем свои правила в тот же слой:
+   внутри слоя при равной важности выигрывает последнее по порядку, а наш файл подключён
+   после всех старых. Заявка на общий слой — в antd/REQUESTS.md. */
+@layer legacy {
+  .ws-panel, .ws-tile { background: #fff !important; backdrop-filter: none;
+    -webkit-backdrop-filter: none; box-shadow: none;
+    border: 1px solid var(--ant-color-border-secondary) !important; }
+  .ws-panel.flat { background: #fbfafd !important; }
+  .ws-tile:hover { border-color: var(--ant-color-primary-border-hover) !important; }
+}
+
+/* Плитка раздела: радиус и воздух отдаём карточке antd, рамка при наведении вместо тяжёлой
+   тени (пропс hoverable с плитки снят). */
+.ws-panel { border-radius: var(--ant-border-radius-lg); }
+.ws-tile { min-height: 0; padding: 0; }
+.ws-tile.ant-card > .ant-card-body { padding: 20px; }
+.ws-tile-icon { display: grid; place-items: center; padding: 0; font-size: 18px;
+  border-radius: var(--ant-border-radius); margin-bottom: 14px; }
+
+/* Левое меню разделов: «Замещение согласующих» и «Политика автоматизации» обрезались
+   посреди слова («Замещение согласую…»). Пункт меню у antd — одна строка фиксированной
+   высоты, переносить его — ломать ряд; вместо этого расширяем колонку меню, длинные
+   названия помещаются целиком. */
+@media (min-width: 1351px) { .ws-layout { grid-template-columns: 252px minmax(0, 1fr); } }
+
+/* Шапка таблицы была 11 px при теле 13 — разнобой на одном экране. */
+.ws-table th { font-size: var(--ant-font-size-sm); }
+/* Стрелка у «Открыть» — значок общего слоя; зазор даёт сама кнопка. */
+.ws-go { display: inline-flex; }
+
+/* Полоса сохранения липкая, но прилипает только на длинной странице: на коротком редакторе
+   («Команды и иерархия») она вставала посреди листа ровно туда, где висит гусь, и накрывала
+   «Проверить и опубликовать». Прижимаем полосу к низу колонки и к нижнему краю окна —
+   тогда гусь, который поднят над полосой, всегда оказывается выше. Запас снизу у листа
+   нужен, чтобы на самом низу страницы полоса оставалась прилипшей. */
+#ws-content:has(> .ws-savebar) { display: flex; flex-direction: column;
+  min-height: calc(100dvh - 150px); }
+#ws-content > #ws-editor-body { flex: 0 0 auto; }
+.ws-savebar { margin-top: auto; bottom: -54px; } /* -54 = поле снизу у .main-sheet:
+  прилипшая полоса должна доходить до нижнего края листа, иначе под ней остаётся полоска,
+  в которой видно уезжающий контент */
+.ws:has(.ws-savebar) { padding-bottom: 0; }
+
+/* Панель поиска в редакторе роли уже списка: поле 350 px и кнопка не влезали в колонку,
+   «Развернуть все» падала под поиск. Поле сжимается, строка не переносится. */
+.ws-toolbar { flex-wrap: nowrap; }
+.ws-toolbar .ws-search { flex: 1 1 auto; min-width: 0; }
+.ws-toolbar .ws-actions, .ws-toolbar > .ant-btn { flex: 0 0 auto; flex-wrap: nowrap; }
+
+/* Заголовок группы прав: вместо стандартного треугольника <details> — значок общего слоя,
+   итог справа. */
+.ws-perms { border-radius: var(--ant-border-radius); }
+.ws-perms summary { list-style: none; display: flex; align-items: center; gap: 9px; }
+.ws-perms summary::-webkit-details-marker { display: none; }
+.ws-perms summary small { margin-left: auto; }
+.ws-fold-arrow { display: inline-flex; color: var(--ant-color-text-tertiary); }
+.ws-perms[open] .ws-fold-arrow { transform: rotate(90deg); }
+
+/* Карточка этапа воронки: радиус и рамка как у остальных карточек темы, значки в рост поля,
+   пустое место на месте отсутствующего крестика — чтобы столбцы значков не гуляли. */
+.ws-field-card { border-radius: var(--ant-border-radius);
+  border-color: var(--ant-color-border-secondary); }
+.ws-index { width: 28px; height: 28px; border-radius: var(--ant-border-radius-sm);
+  background: var(--ant-color-fill-quaternary); color: var(--ant-color-text-secondary); }
+.ws-stage-gap { width: var(--ant-control-height); flex: 0 0 auto; }
+
+/* Боковая панель пользователя: «Повторить приглашение» и «Деактивировать» стояли вплотную. */
+.ws-aside .ant-btn + .ant-btn { margin-top: 10px; }
+.ws-aside > .ws-panel > p:first-of-type { margin-top: 12px; }
+
+/* Поле-переключатель в сетке формы: у него нет подписи сверху, поэтому строка с
+   переключателем вставала выше соседнего поля. Подставляем пустое место в рост подписи —
+   верхние края совпадают. */
+.ws-form > .ws-field:not(.wide):not(:has(> span))::before { content: ""; display: block; height: 15px; }
+
+/* Нативный select обрезает длинный вариант без многоточия — выглядит как ошибка вёрстки.
+   Самые длинные («Показать удаления администратору для подтверждения») не помещаются даже
+   во всю ширину формы, поэтому хотя бы показываем, что текст продолжается. */
+.ws select, .ws-dialog select { text-overflow: ellipsis; }
+
+/* Окна: у textarea оставался нативный уголок растягивания, а «Изменений нет.» прилипало
+   к подписи следующего поля. */
+.ws-dialog textarea, .ws textarea { resize: none; }
+.ws-dialog .ws-dialog-body > p { margin: 0 0 18px; }
+
+/* Поиск. Лупа стояла отдельной колонкой 64px слева от поля — при одной строке запроса
+   это читалось как пустая дыра. В первой строке поле занимает обе колонки, лупа уходит
+   внутрь поля; со второй строки в первой колонке стоит И / ИЛИ / НЕ, как и было. */
+.search-query-row.is-first{position:relative}
+.search-query-row.is-first>input{grid-column:1/3;padding-inline-start:44px}
+.search-query-row.is-first>.search-glass{position:absolute;inset:0 auto 0 13px;width:auto;
+  z-index:2;pointer-events:none;font-size:18px;color:var(--ant-color-text-tertiary)}
+/* Строка быстрых фильтров: «Фильтры» держалась на margin-left:auto и при переносе уезжала
+   одна на вторую строку. Теперь идёт следом за чипами. */
+.search-quick-filters{gap:8px}
+
+/* ── 49.7a вакансия и карточка кандидата: доводка по визуальному ревью ── */
+
+/* Лента этапов. «✓ Вышли» — единственная кнопка с цветной рамкой и заливкой
+   среди плоских этапов. Оставляем зелёным только текст и счётчик (выход —
+   это успех), а коробку убираем: ряд снова однороден. */
+.compact-pipeline .pipeline-outcome{border-color:transparent;background:transparent}
+.compact-pipeline .pipeline-outcome:hover{background:#eaf6f1}
+.compact-pipeline .pipeline-outcome>span{background:#e4f2eb}
+/* Значок ✓ внутри подписи — не счётчик: снимаем с него пилюлю счётчика
+   (правило ленты красит пилюлей любой span внутри терминальных кнопок). */
+.compact-pipeline .pipeline-terminals i{font-style:normal}
+.compact-pipeline .pipeline-terminals .anticon{min-width:0;padding:0;background:none;font-size:14px}
+/* Шестерёнка этапа стояла ровно посередине между двумя этапами и читалась как
+   ничья. Прижимаем её к своему этапу, зазор до следующего увеличиваем. */
+.pipeline-stage-wrap>.pipeline-stage-config{margin-inline-start:-6px}
+/* «Ещё» — тоже без рамки: в ленте не должно остаться ни одной кнопки в коробке. */
+.pipeline-stages .pipeline-overflow,.pipeline-stages .pipeline-overflow:hover{border-color:transparent}
+
+/* Список кандидатов: шапка полупрозрачная (стекло), строки белые — на стыке
+   был виден шов. Красим шапку непрозрачным белым через ::before: сам фон
+   задан в brand-sobesso.css важным правилом внутри слоя и не перебивается. */
+.candidate-list-head::before{content:'';position:absolute;inset:0;z-index:-1;background:#fff}
+
+/* Фотоблок карточки: стеклянная обёртка с тенью вокруг фотографии давала
+   вторую рамку вокруг уже скруглённого снимка. Тень и стекло снимаем
+   (фон обёртки полностью закрыт фотографией). */
+.profile-overview>.profile-photo-column{border-radius:var(--ant-border-radius-lg);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+/* Подписи в сводке («Возраст и город») не переносятся: колонка по самой длинной. */
+.profile-overview .profile-facts>div{grid-template-columns:minmax(96px,auto) minmax(0,1fr)}
+.profile-overview .profile-facts dt{white-space:nowrap}
+/* Плашка с инициалами на фото была 10px и не читалась. */
+.profile-overview .candidate-photo>span{padding:5px 9px;border-radius:8px;font-size:var(--ant-font-size-sm)}
+
+/* «ИИ-этапы и история прогонов» — не отдельная карточка, а часть карточки
+   заявки: стекло, тень и внутренний отступ давали карточку в карточке. */
+.application-card .cr-card{padding:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+/* Композер комментария — тот же радиус, что у остальных вложенных блоков.
+   Полоса форматирования и полоса действий были двумя почти одинаковыми
+   оттенками серого вокруг белого поля: на сером «Сохранить» (заливка) терялась.
+   Оставляем белый фон и только разделительные линии. */
+.comment-composer{border-radius:var(--ant-border-radius)}
+.comment-composer .rich-toolbar,.comment-composer .comment-tools{background:transparent}
+
+/* История работы: значок события был 8px в кружке 29px — не читался. */
+.activity-item .activity-mark{font-size:13px}
+
+/* Окно «Сменить этап» (своё окно ленты прогонов, не мастер настройки):
+   заголовок жался к краю, между ним и текстом был провал. Выравниваем поля
+   и убираем верхний отступ первого абзаца. */
+[data-cr-overlay] .vs-dialog{padding:24px}
+[data-cr-overlay] .vs-dialog-head{margin-bottom:16px}
+[data-cr-overlay] .vs-dialog-head h2{font-size:var(--ant-font-size-lg)}
+[data-cr-overlay] .vs-dialog-body>p{margin:0}
+
+/* Поповер «Метки»: внутри было три размера подписи — ссылка «Сбросить» 13,
+   строки-опции 12, нижняя кнопка 14. Сводим к одному и выравниваем по левому
+   краю, как у «Сбросить выбор». */
+.profile-popover header b{font-size:var(--ant-font-size)}
+.tag-option-list button{font-size:var(--ant-font-size-sm)}
+.popover-footer.ant-btn{height:auto;margin-top:8px;padding:9px 8px 0;border-top:1px solid var(--ant-color-border-secondary);border-radius:0;font-size:var(--ant-font-size-sm);justify-content:flex-start}
+.popover-reset.ant-btn{padding:7px 8px;font-size:var(--ant-font-size-sm)}
+/* Прокручиваемые списки поповеров резали строку пополам: высота кратна строке. */
+.tag-option-list{max-height:163px}
+.vacancy-option-list{max-height:206px}
+
+/* Дровер вакансии: полоса действий #fbfafc, вкладки #fff, содержимое #faf9fb —
+   три разных фона внутри белого окна. Делаем дровер целиком белым, карточки
+   внутри держатся на своих рамках. */
+.vacancy-drawer-actions,.vacancy-detail-content{background:transparent}
+/* Счётчик у вкладки был надстрочным текстом 9px — ставим тег темы. */
+.vacancy-detail-tabs .ant-tag{margin-inline-start:8px;margin-inline-end:0}
+
+/* Панель ИИ: сообщение 11px, подсказки 10px, кнопка отправки с радиусом 8 —
+   приводим к размерам и радиусам темы. */
+.ai-panel header small{font-size:var(--ant-font-size-sm)}
+.ai-message{font-size:var(--ant-font-size);border-radius:var(--ant-border-radius) var(--ant-border-radius) var(--ant-border-radius) 4px}
+.ai-message.user{border-radius:var(--ant-border-radius) var(--ant-border-radius) 4px var(--ant-border-radius)}
+.ai-suggestions button{min-height:28px;padding:5px 12px;border-radius:var(--ant-border-radius-lg);font-size:var(--ant-font-size-sm)}
+.ai-compose button{width:42px;border-radius:var(--ant-border-radius)}
+
+/* Поле даты в окнах «Создать задачу» и «Назначить встречу»: у .field input своя высота 36px
+   из стилей экрана, из-за неё DatePicker вырастал до 44. Высоту задаёт сам компонент. */
+.field .ant-picker input{height:auto;padding:0;border:0;background:transparent}
+
+/* Строки с чекбоксом, радио или переключателем внутри поля формы: значок стоял вплотную
+   к подписи (между ними был только пробел). */
+.field>span{display:inline-flex;align-items:center;gap:9px}
+
+
+/* Заявки, строка списка. В блоке 49.6 колонок задали четыре, а содержимого в строке пять:
+   «Следующий шаг» уходил в неявную колонку за край панели, а стрелка падала на вторую
+   строку. Возвращаем пятую колонку. */
+.rq-list-card{grid-template-columns:minmax(0,1.05fr) fit-content(162px) minmax(0,.7fr) minmax(0,.62fr) 18px;gap:10px}
+/* Длинный статус («Преобразована в вакансию») обрезался без многоточия: у тега свой
+   inline-flex, а в гибком контейнере многоточие не работает. */
+.rq-list-card .ant-tag{display:inline-block;text-overflow:ellipsis}
+.rq-list-card .ant-tag>i{display:inline-block;margin-inline-end:6px;vertical-align:1px}
+
+/* Свёрнутые блоки карточки (сообщения, офферы, резюме): у раскрытого тела был
+   свой почти белый серый, и кнопка с заливкой на нём пропадала. Тело белое,
+   радиус панели — как у остальных карточек. */
+.candidate-folds{border-radius:var(--ant-border-radius-lg)}
+.candidate-folds .fold-body{background:transparent}
+
+/* Карточка заявки, блок «Обсуждение». Кнопка «Добавить» стояла вплотную к полю ввода,
+   и рамка у неё была почти чёрная — берём обычную рамку кнопки и отбиваем от поля.
+   Разметку даёт чужой файл экрана, поэтому правка только стилем. */
+.ws-panel>#ws-req-comment+.ant-btn{margin-top:10px;border-color:var(--ant-color-border)}
+
+/* Карточка заявки закрыта на изменение целиком (<fieldset disabled>), но выглядела
+   наполовину: селекты серые и бледные, а поля ввода рядом — белые, как активные. Форму
+   здесь читают, поэтому ровняем по полям: белый фон и обычный текст у всех, а то, что
+   заявку сейчас не меняют, говорят кнопка «Изменить как автор» и курсор. */
+fieldset:disabled .antd-native-select{background:#fff;color:var(--ant-color-text);
+  border-color:var(--ant-color-border);cursor:default}
+
+/* Вкладка «ИИ-помощник» заявки: плашка Alert и первое сообщение чата шли подряд и оба
+   были сиреневыми — читались как один блок. Реплика помощника становится белой карточкой
+   с рамкой (как в панели ИИ на других экранах), сиреневой остаётся только плашка. */
+.ws-chat{gap:14px}
+.ws-chat .ws-bubble{background:#fff;border:1px solid var(--ant-color-border-secondary);
+  color:var(--ant-color-text)}
+.ws-chat .ws-bubble.user{background:#f3f2f6;border-color:transparent}
+
+/* Мастер заявки: на шаге формы было две шкалы шагов сразу — горизонтальная сверху и
+   вертикальная в левой колонке. Оставляем вертикальную: у неё есть подписи шагов.
+   На экране выбора способа вертикальной нет, там верхняя шкала остаётся. */
+.rq-app:has(.rq-builder-nav) .rq-steps-top{display:none}
+/* Поле даты в мастере: высоту задаёт сам DatePicker, а не правило .rq-field input. */
+.rq-field .ant-picker input{height:auto;padding:0;border:0;background:transparent}
+
+/* Окно кастомной метрики: у textarea antd высота считается по rows, прежние 75px из css
+   экрана не работают — подсказка в «Описании» обрезалась на третьей строке. */
+.an-builder textarea.ant-input{min-height:108px}
+
+/* ── 69: разделы настроек, которых в режиме нет, притушены в меню и в каталоге ──
+   После прохода под Ant Design пункты меню стали li, старое правило product-mode.css
+   (button.pm-dim) их не находило. Кликаются по-прежнему: внутри объясняющая заглушка. */
+.ws-menu .ant-menu-item.pm-dim{color:var(--ant-color-text-quaternary)}
+.ws-tile.pm-dim{opacity:.5}
+.ws-tile.pm-dim:hover{opacity:.75}
+
+/* ── Переключатель режима в боковой панели ──
+   Меню режимов — Dropdown, а у .ant-dropdown-menu своё position:relative: меню вставало
+   в поток и раздвигало панель. Переключатель теперь у нижнего края, поэтому меню всплывает
+   над ним. На узком экране product-mode.js переносит меню в body и ставит ему fixed
+   строкой style — она сильнее. Пункт .ant-dropdown-menu-item — flex в строку: название,
+   слот и пояснение слипались, возвращаем их друг под другом. */
+.pm-menu.ant-dropdown-menu{position:absolute;left:0;bottom:calc(100% + 6px)}
+.ant-dropdown-flat.ant-dropdown-menu .pm-option.ant-dropdown-menu-item{display:block;height:auto;white-space:normal;text-align:left}
+@media(max-width:1180px){.pm-menu.ant-dropdown-menu{width:296px}}
+
+/* ── 68: публикации на работных сайтах (publications.js?public=8ad87eaa814a) ──
+   Alert с описанием у antd рассчитан на страницу: отступ 20×24 и значок 24. В карточке
+   публикации и в окнах таких плашек бывает две подряд — ужимаем до размера строки блока. */
+:is(.pub-section, .pub-modal, .pub-close-block) .ant-alert{--ant-alert-with-description-padding:11px 14px;--ant-alert-with-description-icon-size:17px}
+:is(.pub-section, .pub-modal, .pub-close-block) .ant-alert-with-description .ant-alert-title{margin-bottom:3px;font-size:14px;font-weight:600}
+:is(.pub-section, .pub-modal, .pub-close-block) .ant-alert-with-description .ant-alert-description{font-size:13px;line-height:1.5}
+:is(.pub-section, .pub-modal, .pub-close-block) .ant-alert-with-description .ant-alert-icon{margin-top:2px}
+/* Шаги в окне публикации: подпись шага в одну строку, окно шире самих шагов. */
+.pub-modal .ant-steps{margin-bottom:16px}
+/* Вкладки площадок в форме: тег состояния рядом с названием, без переноса. */
+.pub-tabs .ant-tabs-tab-btn{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.pub-tabs .ant-tag{margin:0}
+/* Плитки выбора (тип публикации, решение по расхождению) — радио antd нативное, выравниваем по первой строке. */
+.pub-type .antd-native-radio,.pub-choice .antd-native-radio{margin-top:2px}
+/* Таблица соответствия полей в настройках: списки во всю ячейку, строка без источника у
+   обязательного поля — тёплым фоном (ячейки Table antd красят фон сами, поэтому правило здесь). */
+.pub-map .antd-native-select,.pub-map .ant-input{width:100%;min-width:150px}
+.pub-map td{vertical-align:middle}
+.pub-map tr.pub-map-miss>td.ant-table-cell{background:#fff7ec}
+.pub-cap .ant-tag{margin:0}
+/* Отступы плашек: у .ant-alert antd обнуляет margin, правила в слое legacy не срабатывали —
+   плашка в карточке публикации прилипала к строке фактов, в окне снятия — к списку причин. */
+.pub-card .ant-alert{margin-top:12px}
+.pub-modal .pub-field + .ant-alert{margin-top:14px}
+.pub-review .ant-alert{margin-top:2px}
+/* Ошибка поля в форме публикации — пропс status=error; у нативного Select слоя его нет, рамку даём здесь. */
+.pub-field select.antd-native-select[data-antd-props~="status=error"]{border-color:var(--ant-color-error)}
+/* Метка «Не опубликована» — Tag с рамкой, чтобы читалась как состояние, а не как текст. */
+.pub-card.is-empty>header .ant-tag{background:#fff}
+/* «История отправок» — ссылка сразу за кнопками, без пустого места до правого края. */
+.pub-actions .ant-btn-link{padding-inline:6px}
+/* Строка «Подсказка» под таблицей соответствия и подпись над ней — с воздухом. */
+.ws-field:has(.pub-map)>span{margin-bottom:4px}
+.pub-actions .ant-btn-link{font-size:14px}

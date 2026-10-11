@@ -1,0 +1,265 @@
+/* Настройка вакансии: перенос работающего экрана Собесо в макет. Префикс vs-. */
+
+/* Шапка страницы */
+.vs-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.vs-back{width:32px;height:32px;flex:none;display:grid;place-items:center;border:1px solid #cbc4d6;border-radius:9px;background:#fff;color:#555;font-size:15px}
+.vs-back:hover{background:#faf8ff;border-color:#aaa0bb}
+.vs-head h1{margin:0;font-size:22px;font-weight:500}
+.vs-head-tools{margin-left:auto;display:flex;align-items:center;gap:10px}
+.vs-save-state{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:11px;white-space:nowrap}
+.vs-save-state::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--good)}
+.vs-save-state.is-dirty::before{background:var(--warn)}
+.vs-save-state.is-saving::before{background:var(--accent)}
+
+/* Карточка «Путь кандидата» */
+.vs-route .panel-body{padding:14px}
+.vs-route-nodes{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:2px}
+.vs-node{flex:1 1 0;min-width:126px;display:grid;gap:3px;align-content:start;padding:10px;border:1px solid var(--line-soft);border-radius:11px;background:#fff;text-align:left}
+.vs-node:hover{border-color:var(--accent);background:#faf8ff}
+.vs-node.is-off{opacity:.5}
+/* Узел от режима работы: виден, но не настраивается и не кликается. */
+.vs-node.is-mode{cursor:default}
+.vs-node.is-mode:hover{border-color:var(--line-soft);background:#faf9fb}
+.vs-node-kicker{color:var(--subtle);font-size:9px;letter-spacing:.04em;text-transform:uppercase}
+.vs-node-name{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
+.vs-node-num{width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:50%;background:#332a4d;color:#fff;font-size:10px;font-weight:600}
+.vs-node-sub{color:var(--muted);font-size:10px}
+.vs-node-sub.is-warn{color:var(--warn)}
+.vs-node-arrow{flex:none;align-self:center;padding:0 5px;color:#c8c2d2;font-size:13px}
+.vs-route-hint{margin:10px 0 0;color:var(--muted);font-size:11px}
+
+/* Секции */
+.vs-section{margin-top:22px}
+.vs-section.is-off>.vs-section-body{opacity:.55}
+/* шапку гасим не прозрачностью, иначе сквозь липкий заголовок просвечивает содержимое */
+.vs-section.is-off>.vs-section-head>*{opacity:.55}
+.vs-section-head{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:10px;padding:9px 2px;background:var(--bg)}
+.vs-section-head h2{margin:0;font-size:16px;font-weight:600}
+.vs-section-num{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:50%;background:#332a4d;color:#fff;font-size:11px;font-weight:600}
+.vs-section-toggle{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:11px}
+.vs-section-body{display:grid;gap:12px}
+
+/* Тумблер */
+.vs-switch{position:relative;width:38px;height:21px;flex:none;border:0;border-radius:11px;background:#d3cddc;transition:background .12s}
+.vs-switch::after{content:"";position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;transition:left .12s}
+.vs-switch.is-on{background:var(--accent)}
+.vs-switch.is-on::after{left:19px}
+.vs-switch:disabled{opacity:.45;cursor:not-allowed}
+
+/* Карточка-блок */
+.vs-block{border:2px solid var(--line);border-radius:15px;background:#fff}
+.vs-block-head{min-height:46px;display:flex;align-items:center;gap:9px;padding:11px 14px}
+.vs-block.is-open>.vs-block-head{border-bottom:1px solid var(--line-soft)}
+.vs-block-head h3{margin:0;font-size:14px;font-weight:600}
+.vs-block-sum{margin-left:auto;color:var(--muted);font-size:11px;text-align:right}
+.vs-block-chevron{width:22px;flex:none;color:#9b93a8;font-size:10px;transition:transform .12s}
+.vs-block.is-open .vs-block-chevron{transform:rotate(90deg)}
+.vs-block-body{display:grid;gap:12px;padding:14px}
+.vs-note{margin:0;color:var(--muted);font-size:11px;line-height:1.45}
+.vs-note.is-warn{color:var(--warn)}
+.vs-plate{padding:9px 11px;border-radius:9px;background:var(--warn-soft);color:var(--warn);font-size:11px;line-height:1.45}
+.vs-plate.is-info{background:var(--accent-soft);color:var(--accent-dark)}
+.vs-title-input{width:100%;height:44px;padding:0 12px;border:1px solid #d5cfdd;border-radius:9px;font-size:17px}
+
+/* Требования по трём зонам */
+.vs-zone{padding:10px 12px;border:1px solid transparent;border-radius:12px;background:#f4f2f6}
+.vs-zone.is-drop{border-color:var(--accent);background:#f7f4ff}
+.vs-zone-head{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.vs-zone-head b{font-size:13px}
+.vs-zone-who{color:var(--muted);font-size:11px}
+.vs-zone-off-note{color:var(--muted);font-size:11px;font-style:italic}
+.vs-zone-add{margin-left:auto;border:0;background:transparent;color:var(--accent-dark);font-size:11px}
+.vs-zone-rows{display:grid;gap:6px}
+.vs-zone.is-muted .vs-zone-rows{opacity:.45}
+.vs-zone-empty{padding:12px;border:1px dashed #c8c2d2;border-radius:10px;color:var(--muted);font-size:11px;text-align:center}
+.vs-factor{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--line-soft);border-radius:9px;background:#fff}
+.vs-factor.is-dragging{opacity:.4}
+.vs-factor-kind{width:28px;height:28px;flex:none;display:grid;place-items:center;border:1px solid var(--line-soft);border-radius:8px;background:#fafafa;font-size:14px;cursor:grab}
+.vs-factor input[type=text]{flex:1;min-width:0;height:30px;padding:0 9px;border:1px solid #d5cfdd;border-radius:8px;font-size:12px}
+.vs-factor-mark{width:28px;height:28px;flex:none;border:1px solid transparent;border-radius:8px;background:transparent;color:#a8a1b4;font-size:12px}
+.vs-factor-mark:hover{border-color:#cbc4d6;background:#faf8ff}
+.vs-factor-mark.is-on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-dark)}
+.vs-factor-mark.is-on[data-vs=factor-negate]{border-color:var(--danger);background:var(--danger-soft);color:var(--danger)}
+
+/* Проходной балл */
+.vs-score{display:flex;gap:4px;flex-wrap:wrap}
+.vs-score button{width:32px;height:32px;border:1px solid #cbc4d6;border-radius:50%;background:#fff;color:#555;font-size:12px}
+.vs-score button.is-on{border-color:var(--accent);background:var(--accent);color:#fff}
+.vs-advanced{border-top:1px solid var(--line-soft);padding-top:11px}
+.vs-advanced-trigger{display:flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--accent-dark);font-size:12px;padding:0}
+.vs-advanced-body{display:grid;gap:9px;margin-top:10px}
+.vs-check{display:flex;align-items:center;gap:9px;font-size:12px}
+
+/* Правила исхода */
+.vs-outcome{display:grid;gap:7px;padding:10px 11px;border:1px solid var(--line-soft);border-radius:10px}
+.vs-outcome>b{font-size:12px}
+.vs-rule{display:grid;gap:6px;padding:8px 9px;border-radius:8px;background:#fafafa}
+.vs-rule-channel{display:flex;align-items:center;gap:7px;font-size:12px}
+.vs-channel-logo{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:6px;background:#eceaf0;font-size:10px;font-weight:700}
+.vs-rule-line{display:flex;align-items:center;gap:7px;padding-left:29px;color:#555;font-size:11px}
+.vs-rule-line select{height:30px;padding:0 8px;border:1px solid #d5cfdd;border-radius:8px;background:#fff;font-size:11px}
+
+/* Модалка «Состав воронки» */
+.vs-overlay{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:24px;background:rgba(23,18,38,.38)}
+.vs-dialog{width:620px;max-width:100%;max-height:88vh;display:flex;flex-direction:column;border-radius:16px;background:#fff;box-shadow:0 18px 44px rgba(30,22,58,.3)}
+.vs-dialog-head{padding:16px 18px 12px;border-bottom:1px solid var(--line-soft)}
+.vs-dialog-head h2{margin:0;font-size:17px;font-weight:600}
+.vs-dialog-head p{margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.vs-dialog-body{display:grid;gap:8px;padding:16px 18px;overflow:auto}
+.vs-dialog-foot{display:flex;justify-content:flex-end;gap:8px;padding:12px 18px;border-top:1px solid var(--line-soft)}
+.vs-stage-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.vs-stage-row.is-off{opacity:.6}
+.vs-stage-num{width:22px;height:22px;flex:none;display:grid;place-items:center;border-radius:50%;background:#332a4d;color:#fff;font-size:11px;font-weight:600}
+.vs-stage-name{flex:1;min-width:0;display:grid;gap:1px}
+.vs-stage-name b{font-size:13px}
+.vs-stage-name small{color:var(--muted);font-size:11px}
+.vs-stage-name input{height:28px;padding:0 8px;border:1px solid #d5cfdd;border-radius:7px;font-size:13px}
+.vs-stage-btn{width:26px;height:26px;flex:none;border:1px solid #cbc4d6;border-radius:7px;background:#fff;color:#666;font-size:11px}
+.vs-stage-btn:hover:not(:disabled){background:#faf8ff}
+.vs-stage-btn:disabled{opacity:.35;cursor:not-allowed}
+.vs-stage-add{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px;padding-top:12px;border-top:1px solid var(--line-soft)}
+.vs-stage-add input{width:260px;max-width:100%;height:32px;padding:0 9px;border:1px solid #d5cfdd;border-radius:8px;font-size:12px}
+.vs-menu{position:relative}
+.vs-menu-list{position:absolute;right:0;bottom:calc(100% + 5px);z-index:2;min-width:190px;padding:5px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 10px 26px rgba(30,22,58,.18)}
+.vs-menu-list button{display:block;width:100%;padding:7px 9px;border:0;border-radius:7px;background:transparent;text-align:left;font-size:12px}
+.vs-menu-list button:hover{background:var(--accent-soft);color:var(--accent-dark)}
+.vs-dialog-text{display:grid;gap:9px;color:#444;font-size:12px;line-height:1.5}
+
+/* Липкая кнопка сохранения */
+.vs-sticky{position:sticky;bottom:-54px;z-index:5;display:flex;justify-content:flex-end;margin-top:20px;padding:12px 0;background:linear-gradient(to top,var(--bg) 62%,rgba(245,245,245,0))}
+
+/* Системные этапы: назначение неизменяемо, имя — меняется */
+.vs-node.is-system{background:#faf9fb;border-style:dashed}
+.vs-node-split{flex:none;align-self:stretch;width:0;margin:0 14px;border-left:1px dashed #c8c2d2}
+.vs-section-kicker{color:var(--subtle);font-size:11px}
+.vs-stage-row.is-system{background:#faf9fb;border-style:dashed}
+.vs-target-line{padding-left:0;margin-bottom:2px}
+.vs-target-line select{max-width:320px}
+
+/* Вкладка «Воронка и ИИ» в панели вакансии */
+.vs-panel-rows{display:grid;gap:6px;margin-top:10px}
+.vs-panel-row{display:flex;align-items:center;gap:9px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.vs-panel-row.is-off{opacity:.6}
+.vs-panel-row.is-system{background:#faf9fb;border-style:dashed}
+.vs-panel-sub{margin-left:auto;color:var(--muted);font-size:11px;white-space:nowrap}
+.vs-stage-lock{width:26px;flex:none;text-align:center;font-size:11px;opacity:.5}
+.vs-panel-open{width:26px;height:26px;flex:none;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--accent-dark);font-size:13px}
+.vs-panel-open:hover{border-color:#cbc4d6;background:#faf8ff}
+.vs-panel-foot{display:flex;gap:8px;margin-top:12px}
+.vs-panel-channels{display:flex;gap:14px;margin-top:8px}
+.vs-panel-row.is-system .vs-stage-num{background:#e7e3eb;color:#9b93a8}
+.vs-stage-row.is-system .vs-stage-num{background:#e7e3eb;color:#9b93a8}
+.vs-panel-rows+.vs-panel-foot .btn{white-space:nowrap}
+.drawer-section-head .pill{white-space:nowrap}
+
+/* Разговорные модули: чат-бот и голос */
+.vs-field{display:grid;gap:5px}
+.vs-field>span{color:#555;font-size:11px}
+.vs-field input[type=text],.vs-field textarea,.vs-field select{width:100%;padding:8px 10px;border:1px solid #d5cfdd;border-radius:9px;font-size:12px;font-family:inherit;color:#2c2637}
+.vs-field textarea,.vs-q textarea{resize:vertical;line-height:1.5}
+.vs-q textarea{width:100%;padding:8px 10px;border:1px solid #d5cfdd;border-radius:9px;background:#fff;font-size:12px;font-family:inherit;line-height:1.5;resize:vertical}
+.vs-seg{display:inline-flex;padding:2px;border:1px solid var(--line);border-radius:9px;background:#f4f2f6}
+.vs-seg button{padding:5px 13px;border:0;border-radius:7px;background:transparent;color:#666;font-size:12px}
+.vs-seg button.is-on{background:#fff;color:#332a4d;font-weight:600;box-shadow:0 1px 3px rgba(30,22,58,.14)}
+.vs-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:#555;font-size:12px}
+.vs-row select{height:32px;padding:0 8px;border:1px solid #d5cfdd;border-radius:8px;background:#fff;font-size:12px}
+.vs-check.is-nested{padding-left:26px}
+.vs-q{display:grid;gap:8px;padding:10px 11px;border:1px solid var(--line-soft);border-radius:11px;background:#fafafa}
+.vs-q-head{display:flex;align-items:center;gap:8px}
+.vs-q-head b{font-size:12px}
+.vs-q-tools{margin-left:auto;display:flex;align-items:center;gap:5px}
+.vs-badge{padding:2px 8px;border-radius:20px;background:#eceaf0;color:var(--muted);font-size:10px;white-space:nowrap}
+.vs-badge.is-on{background:var(--accent-soft);color:var(--accent-dark)}
+.vs-sub-block{display:grid;gap:9px;padding-top:11px;border-top:1px solid var(--line-soft)}
+.vs-link{display:flex;flex-wrap:wrap;align-items:center;gap:9px;padding:8px 10px;border:1px dashed #c8c2d2;border-radius:9px;background:#fafafa;color:#555;font-size:11px}
+.vs-link code{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:11px;color:var(--accent-dark)}
+.vs-add-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+
+/* Мелкие действия у вопроса: вложение, генераторы, корзина */
+.vs-mini{padding:5px 10px;border:1px solid #cbc4d6;border-radius:8px;background:#fff;color:#555;font-size:11px}
+.vs-mini:hover{border-color:var(--accent);background:#faf8ff;color:var(--accent-dark)}
+.vs-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 10px;border:1px solid var(--accent);border-radius:8px;background:var(--accent-soft);color:var(--accent-dark);font-size:11px}
+.vs-chip button{border:0;background:transparent;color:inherit;font-size:11px;padding:0 2px}
+.vs-trash{display:grid;gap:6px;padding:9px 10px;border:1px dashed #c8c2d2;border-radius:10px;background:#fafafa}
+.vs-trash-row{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:11px}
+.vs-trash-row span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Холодный поиск */
+.vs-search{display:grid;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.vs-search-head{display:flex;align-items:center;gap:9px}
+.vs-tags{display:flex;flex-wrap:wrap;gap:5px}
+.vs-tag{padding:3px 9px;border-radius:20px;background:var(--accent-soft);color:var(--accent-dark);font-size:11px;white-space:nowrap}
+.vs-tag.is-plain{background:#eceaf0;color:#555}
+.vs-tag.is-wait{background:var(--warn-soft);color:var(--warn)}
+.vs-tag.is-done{background:var(--good-soft,#e7f5ec);color:var(--good,#2c7a4b)}
+.vs-tag.is-live{background:var(--accent);color:#fff}
+.vs-run{display:grid;gap:9px;padding:11px;border-radius:11px;background:#fafafa}
+.vs-run-head{display:flex;align-items:center;gap:9px}
+.vs-progress{height:7px;border-radius:5px;background:#e7e3eb;overflow:hidden}
+.vs-progress span{display:block;height:100%;background:var(--accent);transition:width .3s}
+.vs-chain{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+.vs-chain-step{display:grid;gap:1px;padding:6px 10px;border:1px solid var(--line-soft);border-radius:9px;background:#fff}
+.vs-chain-step b{font-size:14px}
+.vs-chain-step small{color:var(--muted);font-size:10px}
+.vs-chain-arrow{color:#c8c2d2;font-size:12px}
+.vs-days{display:inline-flex;gap:3px}
+.vs-days button{width:30px;height:28px;border:1px solid #cbc4d6;border-radius:7px;background:#fff;color:#666;font-size:11px}
+.vs-days button.is-on{border-color:var(--accent);background:var(--accent);color:#fff}
+.vs-note.is-nested{padding-left:26px}
+.vs-row input[type=number]{height:32px;padding:0 8px;border:1px solid #d5cfdd;border-radius:8px;font-size:12px}
+.vs-found{display:grid;gap:6px}
+.vs-found-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+.vs-found-row:hover{border-color:#cbc4d6;background:#faf8ff}
+.vs-found-score{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:50%;background:#332a4d;color:#fff;font-size:12px;font-weight:600}
+.vs-search .vs-stage-name small{color:var(--muted);font-size:11px}
+
+/* Пошаговый режим: рельса маршрута слева, шаг справа */
+.vs-steps{display:grid;grid-template-columns:244px minmax(0,1fr);gap:18px;align-items:start}
+.vs-rail{position:sticky;top:48px;display:grid;gap:10px}
+.vs-rail-nodes{display:grid;gap:6px}
+.vs-rail-node{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px;padding:2px;border:1px solid transparent;border-radius:11px}
+.vs-rail-node.is-active{border-color:var(--accent);background:#faf8ff}
+.vs-rail-node.is-off .vs-rail-head{opacity:.6}
+.vs-rail-head{display:grid;gap:2px;padding:8px 9px;border:0;border-radius:9px;background:transparent;text-align:left}
+.vs-rail-head:hover{background:#f4f2f6}
+.vs-rail-node.is-active .vs-rail-head:hover{background:transparent}
+.vs-rail-toggle{padding-right:7px}
+.vs-rail-subs{grid-column:1/-1;display:grid;gap:1px;padding:2px 6px 7px}
+.vs-rail-subs button{display:flex;align-items:center;gap:7px;padding:5px 7px;border:0;border-radius:7px;background:transparent;color:#555;text-align:left;font-size:11px}
+.vs-rail-subs button:hover{background:#f0ecfa}
+.vs-rail-subs button i{width:16px;height:16px;flex:none;display:grid;place-items:center;border:1px solid #cbc4d6;border-radius:50%;background:#fff;font-style:normal;font-size:9px}
+.vs-rail-subs button small{color:var(--subtle);font-size:10px}
+.vs-rail-subs button.is-done i{border-color:var(--accent);color:var(--accent-dark)}
+.vs-rail-subs button.is-active{background:#fff;color:#332a4d;font-weight:600;box-shadow:0 1px 3px rgba(30,22,58,.14)}
+.vs-rail-subs button.is-active i{border-color:var(--accent);background:var(--accent);color:#fff}
+.vs-step-work{display:grid;gap:12px;min-width:0}
+.vs-step-head{display:flex;align-items:baseline;gap:9px;padding-bottom:2px}
+.vs-step-head h2{margin:0;font-size:18px;font-weight:600}
+.vs-step-foot{position:sticky;bottom:-54px;display:flex;justify-content:space-between;gap:9px;margin-top:6px;padding:12px 0;background:linear-gradient(to top,var(--bg) 62%,rgba(245,245,245,0))}
+.vs-sum{display:grid;gap:9px}
+.vs-sum-row{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;gap:10px;font-size:12px}
+.vs-sum-row>span{color:var(--muted);font-size:11px}
+.vs-sum-row>b{font-weight:500}
+.vs-sum-row>b.is-warn{color:var(--warn)}
+.vs-sum-row .vs-title-input{height:38px;font-size:15px}
+
+/* Мастер создания вакансии */
+.vs-pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:8px}
+.vs-pick-card{display:grid;gap:3px;padding:11px;border:1px solid var(--line);border-radius:11px;background:#fff;text-align:left}
+.vs-pick-card:hover:not(:disabled){border-color:var(--accent);background:#faf8ff}
+.vs-pick-card.is-on{border-color:var(--accent);background:var(--accent-soft)}
+.vs-pick-card b{font-size:13px}
+.vs-pick-card small{color:var(--muted);font-size:11px;line-height:1.4}
+.vs-pick-card:disabled{opacity:.55;cursor:not-allowed}
+.vs-dialog-body .vs-seg{justify-self:start}
+
+/* Три внешних слота вакансии: источник, разговор, приёмник */
+.vs-slot{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:11px 0;border-bottom:1px solid var(--line-soft)}
+.vs-slot:last-of-type{border-bottom:0}
+.vs-slot-label{flex:none;width:158px;color:var(--muted);font-size:12px}
+.vs-slot>b{display:flex;align-items:center;gap:6px;font-size:14px}
+.vs-slot>small{color:var(--subtle);font-size:12px}
+.vs-slot>.btn{margin-left:auto}
+.vs-slot.is-pick{align-items:flex-start}
+.vs-slot.is-pick .vs-pick{flex:1;min-width:300px}
+.vs-channel-logo.is-img{display:block;padding:0;background:#fff;object-fit:cover;object-position:left center;outline:1px solid rgba(0,0,0,.06);outline-offset:-1px}

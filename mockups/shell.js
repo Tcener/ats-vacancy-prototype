@@ -53,17 +53,17 @@ const HF = (() => {
      внутри самих настроек соседних разделов не видно, там только
      подвкладки текущего. */
   const SETTINGS_LINKS = {
-    'Настройки Собессо': 'settings.html#s=home',
-    'Мой профиль': 'settings.html#s=profile',
-    'Руководство пользователя': 'settings.html#s=home',
-    'Бухгалтерские документы': 'settings.html#s=home',
-    'Рекрутеры и заказчики': 'settings.html#s=users&t=recruiters',
-    'Организация': 'settings.html#s=org&t=company',
-    'Воронка': 'settings.html#s=funnel&t=stages',
-    'Бизнес-процесс': 'settings.html#s=business&t=requests',
-    'Шаблоны, оценка и анкеты': 'settings.html#s=templates&t=mail',
-    'Сбор откликов': 'settings.html#s=response',
-    'API и вебхуки': 'settings.html#s=api',
+    'Настройки Собесо': 'settings.html?public=912c4e6907be#s=home',
+    'Мой профиль': 'settings.html?public=912c4e6907be#s=profile',
+    'Руководство пользователя': 'settings.html?public=912c4e6907be#s=home',
+    'Бухгалтерские документы': 'settings.html?public=912c4e6907be#s=home',
+    'Рекрутеры и заказчики': 'settings.html?public=912c4e6907be#s=users&t=recruiters',
+    'Организация': 'settings.html?public=912c4e6907be#s=org&t=company',
+    'Воронка': 'settings.html?public=912c4e6907be#s=funnel&t=stages',
+    'Бизнес-процесс': 'settings.html?public=912c4e6907be#s=business&t=requests',
+    'Шаблоны, оценка и анкеты': 'settings.html?public=912c4e6907be#s=templates&t=mail',
+    'Сбор откликов': 'settings.html?public=912c4e6907be#s=response',
+    'API и вебхуки': 'settings.html?public=912c4e6907be#s=api',
   };
 
   const MENUS = {
@@ -119,7 +119,7 @@ const HF = (() => {
           ['Интеграции', 'settings-integrations'],
         ]],
         ['Аккаунт и помощь', [
-          ['Настройки Собессо', 'settings'],
+          ['Настройки Собесо', 'settings'],
           ['Руководство пользователя', 'info'],
           ['Бухгалтерские документы', 'download'],
           ['Выйти', 'x-close'],
@@ -299,8 +299,8 @@ const HF = (() => {
       leftFields: REQUEST_FACTS,
       rightFields: [{ label: 'Сколько человек нужно нанять', value: '2', readonly: true }],
       trail: [
-        ['Заказчик, 03.09.2026', 'es@refni.ru'],
-        ['Ожидание согласования', 'es@refni.ru', 'pending'],
+        ['Заказчик, 03.09.2026', 'demo-839bbff8@example.com'],
+        ['Ожидание согласования', 'demo-839bbff8@example.com', 'pending'],
       ],
       foot: `
         <button class="hf-btn hf-btn--secondary hf-btn--l" type="button" data-hf-close>Закрыть</button>
@@ -323,8 +323,8 @@ const HF = (() => {
       ],
       rightFields: [{ label: 'Сколько человек нужно нанять', value: '2', readonly: true }],
       trail: [
-        ['Заказчик, 03.09.2026', 'es@refni.ru'],
-        ['Согласовано, 03.09.2026', 'es@refni.ru', 'ok', 'Согласовано, бюджет подтверждён'],
+        ['Заказчик, 03.09.2026', 'demo-839bbff8@example.com'],
+        ['Согласовано, 03.09.2026', 'demo-839bbff8@example.com', 'ok', 'Согласовано, бюджет подтверждён'],
         ['Заявка получена', 'Отдел HR'],
       ],
       foot: `
@@ -345,8 +345,8 @@ const HF = (() => {
       leftFields: REQUEST_FACTS,
       rightFields: [{ label: 'Сколько человек нужно нанять', value: '2', readonly: true }],
       trail: [
-        ['Заказчик, 03.09.2026', 'es@refni.ru'],
-        ['Отказ, 03.09.2026', 'es@refni.ru', 'no',
+        ['Заказчик, 03.09.2026', 'demo-839bbff8@example.com'],
+        ['Отказ, 03.09.2026', 'demo-839bbff8@example.com', 'no',
           'Бюджет на этот квартал не согласован, вернитесь в октябре'],
       ],
       foot: `
@@ -366,7 +366,7 @@ const HF = (() => {
           <span class="hf-badge hf-badge--orange">На согласовании 0/1</span>
           <a class="hf-request-card-title" href="#" data-hf-modal="request-card-pending">Заявка от 03.09.2026 — 0/2</a>
           <dl class="hf-request-card-meta">
-            <dt>Заказчик:</dt><dd>es@refni.ru</dd>
+            <dt>Заказчик:</dt><dd>demo-839bbff8@example.com</dd>
             <dt>Отдел, подразделение:</dt><dd>Разработка</dd>
           </dl>
           <button class="hf-btn hf-btn--secondary hf-btn--s" type="button">Скопировать ссылку для согласования</button>
@@ -443,8 +443,8 @@ const HF = (() => {
 
   const headerHtml = () => `
     <div class="hf-logo-wrap">
-      <a class="hf-logo" href="applicants.html" aria-label="Хантфлоу — на главную">
-        <img src="assets/logo-huntflow.svg" width="152" height="36" alt="Хантфлоу">
+      <a class="hf-logo" href="applicants.html?public=f9f0d4daad85" aria-label="Хантфлоу — на главную">
+        <img src="assets/logo-huntflow.svg?public=b19be3bb9a27" width="152" height="36" alt="Хантфлоу">
       </a>
     </div>
     <div class="hf-header-right" data-hf-headerbar>${headerActionsHtml()}</div>`;
@@ -476,9 +476,9 @@ const HF = (() => {
 
   const sidebarHtml = (active) => {
     const nav = [
-      ['applicants', 'Все кандидаты', 'home-20', 'applicants.html'],
-      ['analytics', 'Аналитика', 'graph-20', '#'],
-      ['calendar', 'Календарь', 'calendar-20', 'calendar.html'],
+      ['applicants', 'Все кандидаты', 'home-20', 'applicants.html?public=f9f0d4daad85'],
+      ['analytics', 'Аналитика', 'graph-20', 'ats-product.html?public=3183591b8132#analytics'],
+      ['calendar', 'Календарь', 'calendar-20', 'calendar.html?public=a44619303d83'],
     ];
     return `
       <div class="hf-sidebar-scroll">
@@ -495,13 +495,13 @@ const HF = (() => {
             ${icon('folder-20')}<span class="hf-nav-title">Мои вакансии</span>${icon('chevron-down-20')}
           </div>
           ${VACANCIES.map((v) => `
-            <a class="hf-vacancy-link${v.id === active ? ' is-active' : ''}" href="vacancy.html#v=${v.id}">
+            <a class="hf-vacancy-link${v.id === active ? ' is-active' : ''}" href="vacancy.html?public=f137e0b1ffad#v=${v.id}">
               <div class="hf-vacancy-name">${esc(v.name)}</div>
               <div class="hf-vacancy-org">${esc(v.org)}</div>
             </a>`).join('')}
           <hr class="hf-sidebar-divider">
-          <a class="hf-nav-link" href="search.html#s=vacancies&state=hold">${icon('pause-2-20')}<span class="hf-nav-title">На паузе</span></a>
-          <a class="hf-nav-link" href="search.html#s=vacancies&state=closed">${icon('archive-2-20')}<span class="hf-nav-title">Закрытые вакансии</span></a>
+          <a class="hf-nav-link" href="search.html?public=1920fa231945#s=vacancies&state=hold">${icon('pause-2-20')}<span class="hf-nav-title">На паузе</span></a>
+          <a class="hf-nav-link" href="search.html?public=1920fa231945#s=vacancies&state=closed">${icon('archive-2-20')}<span class="hf-nav-title">Закрытые вакансии</span></a>
         </div>
       </div>
       <button class="hf-fab" type="button" data-hf-menu="plus" aria-label="Создать">${icon('plus', 28)}</button>`;
@@ -515,7 +515,7 @@ const HF = (() => {
     if (key === 'search-scope') {
       return `<div class="hf-menu" style="width:200px">
         ${Object.entries(SEARCH_SUBJECTS).map(([id, label]) => `
-          <a class="hf-menu-item" href="search.html#s=${id}">
+          <a class="hf-menu-item" href="search.html?public=1920fa231945#s=${id}">
             <span class="hf-menu-check">${id === searchSubject ? icon('checkmark') : ''}</span>${esc(label)}</a>`).join('')}
       </div>`;
     }
@@ -617,7 +617,7 @@ const HF = (() => {
                 .join('')}</div>` : ''}
             </div>
             ${m.headLink ? `<a class="hf-btn hf-btn--secondary hf-btn--s"
-              href="settings.html#s=business&t=requests">${esc(m.headLink)}</a>` : ''}
+              href="settings.html?public=912c4e6907be#s=business&t=requests">${esc(m.headLink)}</a>` : ''}
             <button class="hf-icon-btn hf-icon-btn--dark" type="button" data-hf-close aria-label="Закрыть">${icon('x-close')}</button>
           </div>
           ${body}
@@ -720,7 +720,7 @@ const HF = (() => {
       if (e.target.closest('[data-hf-search]')) { closeMenu(); toggleSearch(true); return; }
       if (e.target.closest('[data-hf-search-close]')) {
         /* На самом экране поиска крестик закрывает не строку, а поиск целиком */
-        if (search) { location.href = 'applicants.html'; return; }
+        if (search) { location.href = 'applicants.html?public=f9f0d4daad85'; return; }
         toggleSearch(false); return;
       }
       if (!e.target.closest('.hf-menu')) closeMenu();
@@ -731,7 +731,7 @@ const HF = (() => {
       /* Запрос отправляется по Enter — кнопки «искать» в оригинале нет */
       if (e.key === 'Enter' && e.target.matches('[data-hf-search-input]')) {
         const q = e.target.value.trim();
-        location.href = `search.html#s=${searchSubject}${q ? `&q=${encodeURIComponent(q)}` : ''}`;
+        location.href = `search.html?public=1920fa231945#s=${searchSubject}${q ? `&q=${encodeURIComponent(q)}` : ''}`;
       }
     });
 

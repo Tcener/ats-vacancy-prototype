@@ -34,8 +34,8 @@ const head = `
   <div class="ra-author">
     <span class="ra-avatar">${HF.icon('userpic', 24)}</span>
     <span class="ra-author-text">
-      <b>es@refni.ru</b>
-      <span>es@refni.ru</span>
+      <b>demo-839bbff8@example.com</b>
+      <span>demo-839bbff8@example.com</span>
     </span>
   </div>
   <div class="ra-divider"></div>

@@ -1,38 +1,35 @@
 <!doctype html>
-<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/settings-org.md,
-     settings-funnel.md, settings-business.md, settings-users.md, settings-response.md, settings-api.md,
-     settings-themes.md, settings-my.md -->
+
 <html lang="ru">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Настройки — макет ATS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="shell.css">
-<link rel="stylesheet" href="screens.css">
-<script src="icons.js" defer></script>
-<script src="shell.js" defer></script>
-<!-- Порядок важен: ядро, потом разделы. Каждый раздел дописывает
-     себя в SECTIONS; отрисовка ждёт DOMContentLoaded -->
-<script src="settings.js" defer></script>
-<script src="settings-home.js" defer></script>
-<script src="settings-org.js" defer></script>
-<script src="settings-funnel.js" defer></script>
-<script src="settings-business.js" defer></script>
-<script src="settings-templates.js" defer></script>
-<script src="settings-users.js" defer></script>
-<script src="settings-response.js" defer></script>
-<script src="settings-api.js" defer></script>
-<script src="settings-themes.js" defer></script>
-<script src="settings-my.js" defer></script>
+<link rel="stylesheet" href="tokens.css?public=f6163fc5f369">
+<link rel="stylesheet" href="shell.css?public=6a781f28ace7">
+<link rel="stylesheet" href="screens.css?public=4c0a61a0c088">
+<script src="icons.js?public=dcf7c0cdb453" defer></script>
+<script src="shell.js?public=96ffdb00e4d1" defer></script>
+
+<script src="settings.js?public=a3fb884eba55" defer></script>
+<script src="settings-home.js?public=9c588d368e79" defer></script>
+<script src="settings-org.js?public=d55f574efc5c" defer></script>
+<script src="settings-funnel.js?public=4dfedacbd736" defer></script>
+<script src="settings-business.js?public=7ab06be0c288" defer></script>
+<script src="settings-templates.js?public=84feba158cbc" defer></script>
+<script src="settings-users.js?public=ad6f69e8dd74" defer></script>
+<script src="settings-response.js?public=e3bc93bd6b57" defer></script>
+<script src="settings-api.js?public=9ca373cfe1ae" defer></script>
+<script src="settings-themes.js?public=02ad1ff0e91b" defer></script>
+<script src="settings-my.js?public=1a98157a7a2e" defer></script>
 </head>
 <body>
 
-<!-- У настроек своя оболочка: сайдбара вакансий нет,
-     в шапке вместо названия вакансии возврат к работе -->
+
 <div class="hf-app" data-od-id="app-settings">
   <header class="hf-header" id="hf-header" data-od-id="app-header"></header>
   <div class="hf-canvas">
@@ -46,5 +43,6 @@
   </div>
 </div>
 
+<script src="public-demo-notice.js?public=00271a9db372" defer></script>
 </body>
 </html>

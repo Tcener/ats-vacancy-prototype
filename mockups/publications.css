@@ -1,0 +1,289 @@
+/* Публикации вакансии на работных сайтах — карточка 68.
+   Подключается в слой legacy, как остальные стили экранов: внешний вид кнопок, тегов,
+   полей и окон даёт слой Ant Design, здесь только раскладка своих блоков. */
+
+/* ── Блок «Публикации на работных сайтах» в сведениях вакансии ── */
+.pub-section .drawer-section-head{align-items:flex-start}
+.pub-head-actions{display:flex;flex:none;gap:8px;justify-content:flex-end}
+.pub-summary{display:flex;flex-wrap:wrap;gap:6px 14px;margin:-4px 0 12px;color:var(--muted);font-size:12px}
+.pub-summary b{color:var(--text);font-weight:600}
+.pub-list{display:grid;gap:10px}
+.pub-card{padding:14px 15px;border:1px solid var(--line-soft);border-radius:12px;background:#fff}
+.pub-card.is-off{padding:11px 15px;background:#fbfafc}
+.pub-card.is-empty{padding:12px 15px}
+.pub-card>header{display:flex;align-items:center;gap:11px;min-width:0}
+.pub-card .pub-name{flex:1;min-width:0}
+.pub-card .pub-name b{display:block;font-size:14px}
+.pub-card .pub-name small{display:block;margin-top:2px;color:var(--muted);font-size:12px;line-height:1.35}
+.pub-card>header .ant-tag,.pub-card>header .pill{flex:none;margin:0}
+.pub-logo{flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:#fff;font-size:11px;font-weight:800;letter-spacing:-.2px;background:#d6001c}
+.pub-logo.avito{background:#8455ed}
+.pub-logo.superjob{background:#1f7a3a}
+.pub-logo.getmatch{background:#2c2c34}
+.pub-logo.off{background:#e4e0ea;color:#8c8495}
+.pub-logo.is-img{display:block;padding:0;background:#fff;object-fit:cover;outline:1px solid rgba(0,0,0,.06);outline-offset:-1px}
+.pub-logo.is-img.off{filter:grayscale(1);opacity:.45}
+.pub-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 16px;margin:12px 0 0;padding:0}
+.pub-facts div{min-width:0}
+.pub-facts dt{color:var(--muted);font-size:11px}
+.pub-facts dd{margin:3px 0 0;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.pub-facts a{color:var(--accent);text-decoration:none}
+.pub-card .ant-alert{margin-top:12px}
+.pub-card .ant-alert-description p{margin:4px 0 0}
+.pub-alert-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+.pub-card .publication-metrics{margin:12px 0 0}
+.pub-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+.pub-actions:empty{display:none}
+.pub-prev{margin-top:10px}
+.pub-lead{margin-bottom:10px}
+.pub-lead-top{margin:14px 0 0}
+.pub-lead-text{margin:0 0 12px;line-height:1.5}
+.pub-note{margin-top:9px;color:var(--muted);font-size:12px;line-height:1.45}
+.pub-inline-reason{margin:8px 0 0 45px;color:var(--muted);font-size:12px;line-height:1.45}
+.pub-demo{margin-top:14px;border:1px dashed #d9d1e6;border-radius:12px;background:#fcfbfe}
+.pub-demo>summary{cursor:pointer;padding:10px 14px;color:var(--muted);font-size:12px;list-style:none}
+.pub-demo>summary::-webkit-details-marker{display:none}
+.pub-demo>summary::before{content:'›';display:inline-block;margin-right:8px;transition:transform .15s}
+.pub-demo[open]>summary::before{transform:rotate(90deg)}
+.pub-demo-body{display:grid;gap:16px;padding:0 14px 14px}
+.pub-demo-row{display:grid;grid-template-columns:minmax(0,1fr) 220px;align-items:center;gap:12px;font-size:12px}
+.pub-demo-row select{width:100%}
+
+/* ── Окно публикации ── */
+.modal.pub-modal{width:min(1180px,calc(100vw - 40px))}
+.modal.pub-modal.mid{width:min(860px,calc(100vw - 40px))}
+.modal.pub-modal.narrow{width:min(640px,calc(100vw - 40px))}
+.pub-modal .modal-body{max-height:min(74vh,720px)}
+.pub-modal>footer{align-items:center}
+/* Подвал отделён от прокручиваемого списка: строка, ушедшая под него, не выглядит обрезанной. */
+.pub-modal .modal-body{border-bottom:1px solid var(--line-soft)}
+.pub-foot-note{flex:1;min-width:0;color:var(--muted);font-size:12px;line-height:1.4}
+.pub-foot-note b{color:var(--text);font-weight:600}
+.pub-steps{margin:-2px 0 16px}
+.pub-steps .ant-steps-item-title{white-space:nowrap}
+
+/* Выбор площадки и кабинета */
+.pub-choose{display:grid;gap:14px}
+.pub-board-group h4{margin:0 0 8px;font-size:13px;color:var(--muted);font-weight:600}
+.pub-cab{display:grid;grid-template-columns:24px 34px minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line-soft);border-radius:12px;background:#fff;cursor:pointer}
+.pub-cab+.pub-cab{margin-top:8px}
+.pub-cab.is-off{cursor:default;background:#fbfafc}
+.pub-cab.is-checked{border-color:#b9aaf0;background:#faf8ff}
+.pub-cab b{display:block;font-size:14px}
+.pub-cab small{display:block;margin-top:3px;color:var(--muted);font-size:12px;line-height:1.4}
+.pub-cab .pub-why{color:#8a5a12}
+.pub-cab .pub-why.neutral{color:var(--muted)}
+.pub-cab .pub-exist{color:#5f5868}
+.pub-cab-side{text-align:right;color:var(--muted);font-size:12px;line-height:1.4;max-width:230px}
+
+/* Форма под площадку + внешний предпросмотр */
+.pub-form-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:20px;align-items:start}
+.pub-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 14px}
+.pub-field-section{margin:0 0 20px;padding:16px;border-radius:16px;background:#faf9fd}
+.pub-field-section h3{margin:0 0 14px;font-size:15px;color:#282131}
+.pub-draft-card{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;margin:12px 0;border-radius:14px;background:#f2edff}
+.pub-draft-card small{display:block;margin-top:5px;color:var(--muted);font-size:12px}
+.pub-option-list{display:flex;flex-wrap:wrap;gap:6px}
+.pub-option{display:flex;align-items:center;gap:6px;padding:7px 9px;border:1px solid #e4dff0;border-radius:10px;background:#fff;cursor:pointer;color:#352a45}
+.pub-option.selected{background:#efe9ff;border-color:#b49bef}
+.pub-option input{accent-color:#7452df;margin:0}
+.pub-language{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) 30px;gap:6px;margin-bottom:8px}
+.pub-payload{padding:12px 14px;border-radius:12px;background:#f5f1fc;margin:12px 0}
+.pub-payload summary{cursor:pointer;font-weight:600}
+.pub-payload dl{font-size:12px;line-height:1.5}
+.pub-payload dl>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:12px;padding:6px 0}
+.pub-payload dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.pub-field{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:12px;color:#5f5868}
+.pub-field.wide{grid-column:1/-1}
+.pub-field>span,.pub-field>label{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.pub-field>span em,.pub-field>label em{color:#c0392b;font-style:normal}
+.pub-tagline{color:var(--muted);font-size:11px}
+.pub-ats-settings{padding-top:14px;border-top:1px dashed var(--line-soft)}
+.pub-field input:not([type=checkbox]):not([type=radio]),.pub-field select,.pub-field textarea{width:100%}
+.pub-field textarea{min-height:150px;resize:vertical;line-height:1.45}
+.pub-field .pub-src{color:var(--muted);font-size:11px;line-height:1.4}
+.pub-field .pub-src.own{color:#6b53d5}
+.pub-field .pub-src.bad{color:#b42335}
+.pub-field .pub-src button{padding:0;border:0;background:none;color:#6b53d5;font:inherit;text-decoration:underline;cursor:pointer}
+.pub-salary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 120px;gap:8px}
+.pub-salary label{display:flex;flex-direction:column;gap:5px;min-width:0;font-size:11px}
+.pub-salary+.pub-salary{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pub-salary+.pub-salary label:last-child{grid-column:1/-1}
+.pub-types{display:grid;gap:8px}
+.pub-type{display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line-soft);border-radius:10px;font-size:13px;color:var(--text);cursor:pointer}
+.pub-type.is-checked{border-color:#b9aaf0;background:#faf8ff}
+.pub-type small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.pub-type .pub-left{color:var(--muted);font-size:12px;white-space:nowrap}
+.pub-check{display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--text)}
+.pub-check input{margin-top:3px;flex:none}
+.pub-preview-col{position:sticky;top:0}
+.pub-preview-label{display:flex;justify-content:space-between;gap:10px;margin:0 0 8px;color:var(--muted);font-size:12px}
+.pub-preview-label span:last-child{text-align:right}
+.pub-template-field{padding:12px 14px;border:1px solid #ddd5f7;border-radius:12px;background:#faf8ff}
+.pub-template-field>label{color:#342a58;font-weight:700}
+.pub-template-source{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#766c92!important}
+.pub-preview-scroll{max-height:480px;overflow:auto;border:1px solid #e6e1ec;border-radius:14px;background:#fff;cursor:zoom-in;scrollbar-gutter:stable}
+.pub-preview-scroll:focus-visible{outline:3px solid rgba(105,72,230,.24);outline-offset:2px}
+.pub-preview-scroll .pub-ad{border:0;border-radius:0}
+.pub-preview-scroll .pub-ad .pub-ad-text{max-height:none}
+.pub-preview-scroll .pub-ad .pub-ad-text::after{display:none}
+.pub-preview-scroll.is-full{max-height:none;overflow:visible;cursor:default;border:0;background:transparent}
+.pub-preview-scroll.is-full .pub-ad{width:min(760px,100%);margin:0 auto;border-radius:20px;box-shadow:0 24px 70px rgba(27,26,32,.14)}
+.pub-ad{border:1px solid #e6e1ec;border-radius:14px;background:#fff;overflow:hidden}
+.pub-ad-top{height:6px;background:#d6001c}
+.pub-ad.avito .pub-ad-top{background:#8455ed}
+.pub-ad.superjob .pub-ad-top{background:#1f7a3a}
+.pub-ad-body{padding:18px 20px 20px;font-family:Arial,Helvetica,sans-serif;color:#222}
+.pub-ad h3{margin:0;font-size:21px;line-height:1.25;font-family:Arial,Helvetica,sans-serif}
+.pub-ad .pub-ad-salary{margin:8px 0 0;font-size:17px;font-weight:700}
+.pub-ad .pub-ad-salary.empty{color:#9a9a9a;font-weight:400;font-size:14px}
+.pub-ad .pub-ad-meta{margin:10px 0 0;display:grid;gap:3px;font-size:13px;color:#444}
+.pub-ad .pub-ad-company{margin-top:12px;font-size:14px;font-weight:700}
+.pub-ad .pub-ad-company.muted{color:#8a8a8a;font-weight:400}
+.pub-ad .pub-ad-text{margin-top:14px;font-size:13px;line-height:1.55;white-space:pre-line;max-height:260px;overflow:hidden;position:relative}
+.pub-ad .pub-ad-text::after{content:'';position:absolute;left:0;right:0;bottom:0;height:40px;background:linear-gradient(transparent,#fff)}
+.pub-ad .pub-ad-text.full{max-height:none}
+.pub-ad .pub-ad-text.full::after{display:none}
+.pub-ad-mark{background:#ffe1e4;color:#8f2633;padding:0 2px;border-radius:3px}
+.pub-ad .pub-ad-skills{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.pub-ad .pub-ad-skills span{padding:4px 9px;border-radius:12px;background:#f1f1f1;font-size:12px}
+.pub-ad .pub-ad-btn{margin-top:16px;display:inline-block;padding:9px 18px;border-radius:9px;background:#0070ff;color:#fff;font-size:13px;font-weight:700}
+.pub-ad.avito .pub-ad-btn{background:#0a7fd1}
+.pub-ad.superjob .pub-ad-btn{background:#1f7a3a}
+.pub-ad-template-hero{display:grid;gap:8px;padding:26px 24px 24px;color:#fff}
+.pub-ad-template-hero span{font:800 13px/1.2 Arial,Helvetica,sans-serif;letter-spacing:.08em}
+.pub-ad-template-hero small{max-width:420px;font:700 20px/1.25 Arial,Helvetica,sans-serif}
+.pub-ad.hh.template-tech{background:#f2edff}
+.pub-ad.hh.template-tech .pub-ad-top{display:none}
+.pub-ad.hh.template-tech .pub-ad-template-hero{background:radial-gradient(circle at 88% 12%,rgba(146,255,91,.9) 0 7%,transparent 7.5%),linear-gradient(135deg,#17141e 0%,#6948e6 70%,#8b6cf2 100%)}
+.pub-ad.hh.template-tech .pub-ad-body{margin:0 12px 12px;border-radius:0 0 14px 14px;background:#fff}
+.pub-ad.hh.template-tech .pub-ad-btn{background:#6948e6}
+.pub-ad.hh.template-tech .pub-ad-skills span{background:#eee9ff;color:#4d31bd}
+.pub-ad.hh.template-lime{background:#ecffd9}
+.pub-ad.hh.template-lime .pub-ad-top{display:none}
+.pub-ad.hh.template-lime .pub-ad-template-hero{background:linear-gradient(125deg,#172018 0%,#356f30 62%,#83ec45 100%)}
+.pub-ad.hh.template-lime .pub-ad-body{margin:0 12px 12px;border-radius:0 0 14px 14px;background:#fff}
+.pub-ad.hh.template-lime .pub-ad-btn{background:#1b1a20}
+.pub-ad.hh.template-lime .pub-ad-skills span{background:#e8f8dc;color:#315421}
+.pub-ad-missing{color:#b42335}
+.pub-preview-note{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.45}
+.pub-preview-modal{width:min(1160px,calc(100vw - 32px))!important;max-height:calc(100vh - 24px)}
+.pub-preview-modal::backdrop{background:rgba(20,18,27,.64);backdrop-filter:blur(5px)}
+.pub-preview-modal .modal-body{max-height:calc(100vh - 172px);padding:24px;background:#f4f2f8}
+.pub-preview-modal .pub-preview-label{width:min(760px,100%);margin:0 auto 10px}
+.pub-preview-modal>footer .btn.primary{border-color:#1b1a20;background:#1b1a20;color:#fff}
+
+/* Проверка перед отправкой */
+.pub-review{display:grid;gap:10px}
+.pub-review-row{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--line-soft);border-radius:12px}
+.pub-review-row b{display:block;font-size:14px}
+.pub-review-row small{display:block;margin-top:3px;color:var(--muted);font-size:12px;line-height:1.45}
+.pub-review-row .pub-cost{font-size:12px;color:var(--text);text-align:right;line-height:1.45}
+.pub-review .ant-alert{margin-top:4px}
+
+/* Расхождение */
+.pub-diff-head{display:flex;align-items:center;gap:11px;margin-bottom:10px}
+.pub-diff-head b{display:block;font-size:14px}
+.pub-diff-head small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.pub-diff-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line-soft);border-radius:12px;overflow:hidden;font-size:13px}
+.pub-diff-table th{background:#faf9fc;color:#8b8295;font-size:11px;font-weight:500;text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-soft)}
+.pub-diff-table td{padding:11px 12px;border-bottom:1px solid #f0edf4;vertical-align:top;line-height:1.45}
+.pub-diff-table tr:last-child td{border-bottom:0}
+.pub-diff-table td:first-child{width:150px;color:#5f5868}
+.pub-diff-table td.changed{background:#fffaf0}
+.pub-diff-table ins{background:#e3f6ea;text-decoration:none;padding:0 2px;border-radius:3px}
+.pub-diff-table del{background:#fde7ea;color:#8f2633;padding:0 2px;border-radius:3px}
+.pub-diff-same-row td{color:var(--muted);font-size:12px;background:#fcfbfe}
+.pub-diff-lead{margin:0 0 12px}
+.pub-block-foot{display:flex;justify-content:flex-end;margin-top:12px}
+.pub-diff-list{margin-top:12px}
+.pub-replace{margin:10px 0 0}
+.pub-warn-note{color:#8a5a12}
+.pub-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.pub-choice{display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;padding:12px;border:1px solid var(--line-soft);border-radius:12px;cursor:pointer;font-size:13px;line-height:1.4}
+.pub-choice.is-checked{border-color:#b9aaf0;background:#faf8ff}
+.pub-choice b{display:block}
+.pub-choice small{display:block;margin-top:3px;color:var(--muted);font-size:12px}
+.pub-block{padding:14px 15px;border:1px solid var(--line-soft);border-radius:14px}
+.pub-block+.pub-block{margin-top:12px}
+.pub-block.is-off{background:#fbfafc}
+.pub-block>.pub-check{margin-bottom:10px}
+.pub-block.is-off>.pub-check{margin-bottom:0}
+.pub-block .pub-check small{color:var(--muted);font-size:12px}
+.pub-keep{color:#6b53d5;font-size:12px}
+
+/* Привязка существующего объявления */
+.pub-attach-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.pub-examples{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;color:var(--muted);font-size:12px}
+.pub-found{margin-top:16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.pub-checks{display:grid;gap:7px;margin:0;padding:0;list-style:none;font-size:13px;line-height:1.45}
+.pub-checks li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:6px}
+.pub-checks .ok{color:#21775a}
+.pub-checks .warn{color:#9c6414}
+.pub-radio-list{display:grid;gap:8px;margin-top:12px}
+.pub-radio-list>b{font-size:13px}
+
+/* История отправок */
+.pub-history{width:100%}
+.pub-history td small{color:var(--muted);font-size:12px}
+.pub-op{color:var(--muted);font-size:12px;font-style:italic}
+.pub-op-row td{background:#fcfbfe}
+.pub-unknown{color:#8a5a12;font-weight:600}
+.pub-snap{padding:4px 2px}
+.pub-snap b{font-size:13px}
+.pub-snap dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;margin:8px 0 0}
+.pub-snap dt{color:var(--muted);font-size:11px}
+.pub-snap dd{margin:2px 0 0;font-size:13px}
+.pub-facts-2{grid-template-columns:repeat(2,minmax(0,1fr));margin:14px 0}
+.pub-confirm{margin-top:12px}
+.pub-inbox-filter{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 8px}
+
+/* Окно закрытия и паузы вакансии */
+.pub-close-block{margin-top:16px;padding:14px;border:1px solid var(--line-soft);border-radius:12px;background:#fff}
+.pub-close-block h4{margin:0;font-size:14px}
+.pub-close-block>p{margin:4px 0 10px;color:var(--muted);font-size:12px;line-height:1.45}
+.pub-close-item{display:grid;grid-template-columns:20px 30px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid #f0edf4;font-size:13px}
+.pub-close-item .pub-logo{width:30px;height:30px;font-size:10px}
+.pub-close-item small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.pub-close-item .pub-close-cant{color:var(--muted);font-size:12px;text-align:right;max-width:210px}
+.pub-close-foot{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+
+@media (max-width:1100px){
+  .pub-facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pub-form-layout{grid-template-columns:minmax(0,1fr) minmax(0,.9fr)}
+  .pub-choices{grid-template-columns:minmax(0,1fr)}
+  .pub-found{grid-template-columns:minmax(0,1fr)}
+}
+
+@media (max-width:700px){
+  .pub-template-source{align-items:flex-start;flex-direction:column;gap:3px}
+  .pub-preview-scroll{max-height:420px}
+}
+
+/* ── Настройки: соответствие полей и возможности кабинета ── */
+/* Таблице соответствия нужна вся ширина редактора: боковые панели уходят под неё в две колонки. */
+.ws-editor:has(.pub-map){grid-template-columns:minmax(0,1fr)}
+.ws-editor:has(.pub-map)>.ws-aside{position:static;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.ws-editor:has(.pub-map)>.ws-aside>.ws-panel{margin:0}
+.pub-caps{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.pub-cap{padding:10px 12px;border:1px solid #e8e3ee;border-radius:10px;background:#fff}
+.pub-cap>div{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 10px}
+.pub-cap b{font-size:13px;font-weight:600;color:#332d3b}
+.pub-cap small{display:block;margin-top:4px;color:#8b8295;font-size:12px;line-height:1.4}
+
+/* Висячие слова в коротких абзацах: перенос выравнивается браузером. */
+.pub-section :is(p,small,.ant-alert-description),.pub-modal :is(p,small,.ant-alert-description,.pub-foot-note),.pub-close-block :is(p,small){text-wrap:pretty}
+/* Карточка подключения площадки: боковая панель «Безопасное подключение» остаётся на виду при прокрутке. */
+.ws-editor:has(.pub-caps)>aside{position:sticky;top:12px;align-self:start}
+.pub-caps-note{margin:16px 0 0;color:#8b8295;font-size:12px;line-height:1.45}
+
+/* Остаток дней — второй строкой под датой: срок не рвётся посреди фразы. */
+.pub-left-days{display:block;margin-top:1px;color:var(--muted);font-size:12px}
+/* Неподключённая площадка в окне выбора — строкой, без карточки. */
+.pub-off-line{display:flex;align-items:center;gap:10px;margin:2px 0 0;padding:8px 14px;color:var(--muted);font-size:12px;line-height:1.4}
+.pub-off-line .pub-logo{width:26px;height:26px;font-size:9px}
+.pub-off-line b{color:#5f5868}
+/* Окно выбора и формы выше: список кабинетов помещается целиком на 900 по высоте. */
+.pub-modal .modal-body{max-height:calc(100vh - 190px)}
+/* Сведения найденного объявления под предпросмотром. */
+.pub-found-facts{margin:12px 0 0}

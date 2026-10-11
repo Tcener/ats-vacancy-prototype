@@ -75,7 +75,7 @@ const upsell = ({ title, lead, items, actions, badge = true, art = null,
   <div class="st-promo${mod ? ` ${mod}` : ''}">
     ${badge ? '<span class="st-promo-badge">Тариф Максимальный</span>' : ''}
     ${stars ? `<div class="st-promo-stars">${
-  '<img src="assets/star-rating.svg" width="53" height="53" alt="">'.repeat(5)}</div>` : ''}
+  '<img src="assets/star-rating.svg?public=4292a8c14e52" width="53" height="53" alt="">'.repeat(5)}</div>` : ''}
     <h2 class="st-promo-title">${HF.esc(title)}</h2>
     <div class="st-promo-body">
       <div class="st-promo-text">
@@ -149,13 +149,13 @@ const render = () => {
 document.addEventListener('click', (e) => {
   /* Внутренняя ссылка: показываем сами и только потом просим браузер
      поправить адрес. Сюда же попадают пункты меню настроек в шапке —
-     они написаны полным адресом `settings.html#…`, но, раз мы уже
+     они написаны полным адресом `settings.html?public=912c4e6907be#…`, но, раз мы уже
      на этой странице, это тот же переход. Заглушки `href="#"`
      остаются заглушками — но без прыжка страницы наверх */
   const link = e.target.closest('a[href*="#"]');
   if (link) {
     const [file, hash] = link.getAttribute('href').split('#');
-    if (file && file !== 'settings.html') return;
+    if (file && file !== 'settings.html?public=912c4e6907be') return;
     e.preventDefault();
     if (!hash) return;
     route = `#${hash}`;
@@ -186,7 +186,7 @@ addEventListener('hashchange', () => { route = null; render(); syncDialog(); });
 /* Отрисовка после того, как все разделы дописали себя в SECTIONS:
    defer-скрипты выполняются раньше DOMContentLoaded */
 addEventListener('DOMContentLoaded', () => {
-  HF.mount({ title: '<a class="hf-back" href="applicants.html" data-od-id="back-to-work">'
+  HF.mount({ title: '<a class="hf-back" href="applicants.html?public=f9f0d4daad85" data-od-id="back-to-work">'
     + HF.icon('arrow-left', 20) + '<span>Кандидаты и вакансии</span></a>' });
   document.body.insertAdjacentHTML('beforeend',
     Object.entries(DIALOGS).map(([k, d]) => dialogHtml(k, d)).join(''));

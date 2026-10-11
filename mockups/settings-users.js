@@ -2,10 +2,10 @@
    человека и приглашение. Подключается после settings.js. */
 
 const RECRUITERS = [
-  { name: 'Я, Юджин', mail: 'es@refni.ru', role: 'Управляющий рекрутер', owner: true },
+  { name: 'Я, Юджин', mail: 'demo-839bbff8@example.com', role: 'Управляющий рекрутер', owner: true },
 ];
 const MANAGERS = [
-  { name: 'Ольга Васильева', mail: 'ov@refni.ru', role: 'Заказчик' },
+  { name: 'Ольга Васильева', mail: 'demo-4a45d3b7@example.com', role: 'Заказчик' },
 ];
 
 /* Права рекрутера: десять галочек, восемь из них включены сразу.
@@ -29,7 +29,7 @@ const RIGHTS = [
    вкладке: строку не открыть, права не поправить, приглашение
    не отозвать — единственное действие с ним у Хантфлоу отсутствует. */
 const INVITES = [
-  { name: 'Анна Петрова', mail: 'ap@refni.ru', sent: '12 июня 2026' },
+  { name: 'Анна Петрова', mail: 'demo-daa7747d@example.com', sent: '12 июня 2026' },
 ];
 
 /* ── «Рекрутеры» и «Заказчики» ─────────────────────────────────
@@ -125,7 +125,7 @@ Object.assign(DIALOGS, {
       </span>`,
     body: `
       <ul class="st-dialog-meta">
-        <li>${HF.icon('mail')}ov@refni.ru</li>
+        <li>${HF.icon('mail')}demo-4a45d3b7@example.com</li>
         <li class="is-warn">${HF.icon('lock')}Двухфакторная аутентификация не включена
           <span class="st-hint" aria-hidden="true">?</span></li>
       </ul>
@@ -146,7 +146,7 @@ Object.assign(DIALOGS, {
       </span>`,
     body: `
       <ul class="st-dialog-meta">
-        <li>${HF.icon('mail')}es@refni.ru</li>
+        <li>${HF.icon('mail')}demo-839bbff8@example.com</li>
         <li class="is-warn">${HF.icon('lock')}Двухфакторная аутентификация не включена
           <span class="st-hint" aria-hidden="true">?</span></li>
       </ul>`,

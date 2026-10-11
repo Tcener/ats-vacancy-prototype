@@ -1,0 +1,113 @@
+/* История и сведения о прогонах ИИ на этапе воронки. */
+.cr-note{font-size:12px;line-height:1.55;color:var(--muted);margin:0}
+/* Демо-сценарий — не отдельная плашка, а сворачиваемый хвост карточки:
+   серая заливка внутри белой карточки читалась как ещё один слой. */
+.cr-demo{padding:4px 0 0;background:transparent;display:grid;gap:10px}
+.cr-demo summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--accent-dark);display:flex;align-items:center;gap:7px;list-style:none}
+.cr-demo summary::-webkit-details-marker{display:none}
+/* Свой шеврон вместо системного треугольника — как у свёрнутых прогонов. */
+.cr-demo summary::before{content:'';width:6px;height:6px;flex:none;border:1.8px solid currentColor;border-width:1.8px 1.8px 0 0;transform:rotate(45deg);margin-left:3px}
+.cr-demo[open]>summary::before{transform:rotate(135deg);margin-top:-3px}
+.cr-demo[open]>*+*{margin-top:10px}
+.cr-local-history{border-top:1px solid var(--line);padding-top:10px}
+.ai-readiness .vs-block-body{display:grid;gap:12px}
+.pipeline-stage-wrap{display:flex;align-items:center;flex-shrink:0}
+.pipeline-stage-wrap[hidden]{display:none}
+.pipeline-stages .pipeline-stage-wrap{padding:0;min-width:0;border-radius:0;background:transparent}
+.current-application>.cr-card{margin:12px 16px}
+.pipeline-stage-config{border:0;background:transparent;padding:5px;color:var(--muted);font-size:13px}
+.pipeline-stage-config:hover{color:var(--accent)}
+.cr-axis{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.cr-axis button{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border:1px solid var(--line);border-radius:20px;background:#fff;color:#555;font-size:11px}
+.cr-axis button span{color:var(--muted);font-size:10px}
+.cr-mini{padding:5px 10px;border:1px solid #cbc4d6;border-radius:8px;background:#fff;color:#555;font-size:11px}
+.cr-mini:hover:not(:disabled){border-color:var(--accent);background:#faf8ff;color:var(--accent-dark)}
+.cr-mini:disabled{opacity:.45;cursor:not-allowed}
+.cr-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;padding:7px 9px;border-radius:12px;background:var(--accent-soft);font-size:11px}
+.cr-bulk b{margin-right:2px;font-size:11px;color:var(--accent-dark)}
+.candidate-list-tools{flex-wrap:wrap}
+.candidate-list-tools .cr-mini{width:auto;height:auto;margin-left:auto;padding:4px 9px;background:#fff;white-space:nowrap}
+.cr-row-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:5px}
+.cr-row-meta .pill{font-size:10px}
+/* Аватар в роли чекбокса: наведение показывает галочку, отмеченный остаётся с ней */
+.cr-avatar{position:relative;display:block;width:42px;height:42px;border-radius:12px;cursor:pointer}
+.cr-avatar .avatar,.cr-avatar .candidate-image{display:block}
+.cr-avatar-mark{position:absolute;inset:0;display:grid;place-items:center;border-radius:12px;background:rgba(51,42,77,.62);color:#fff;font-size:17px;opacity:0;transition:opacity .12s}
+.cr-avatar:hover .cr-avatar-mark{opacity:1}
+.cr-avatar.is-picked .cr-avatar-mark{opacity:1;background:var(--accent)}
+.cr-avatar.is-picked{box-shadow:0 0 0 2px var(--accent)}
+.candidate-row:has(.cr-avatar.is-picked){background:#faf8ff}
+.candidate-empty{padding:18px;color:var(--muted);font-size:12px;text-align:center}
+
+.cr-card{display:grid;gap:12px;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.cr-card-head{display:flex;align-items:flex-start;gap:12px}
+.cr-card-head h3{margin:3px 0 2px;font-size:16px;font-weight:600}
+.cr-card-head p{margin:0;color:var(--muted);font-size:12px}
+.cr-head-tools{margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}
+.cr-actions{display:flex;flex-wrap:wrap;gap:7px}
+.cr-scores{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:11px 13px;border-radius:12px;background:#f4f2f6}
+.cr-scores span{display:grid;gap:1px}
+.cr-scores small{color:var(--muted);font-size:10px}
+.cr-scores b{font-size:15px}
+.cr-total{margin-left:auto;padding-left:14px;border-left:1px solid var(--line)}
+.cr-total b{font-size:18px}
+.cr-runs{display:grid;gap:8px}
+.cr-fold{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.cr-fold>header{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer}
+.cr-fold.is-empty>header{cursor:default;opacity:.6}
+.cr-fold>header b{font-size:13px;font-weight:600}
+.cr-fold>header b small{color:var(--muted);font-size:11px;font-weight:400}
+.cr-fold-extra{margin-left:auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px}
+.cr-chevron{width:14px;flex:none;display:grid;place-items:center;color:#9b93a8;font-size:13px;transition:transform .12s}
+.cr-fold.is-open .cr-chevron{transform:rotate(90deg)}
+.cr-fold-body{display:grid;gap:10px;padding:0 13px 13px}
+/* Итог прогона шёл абзацем без класса и наследовал базовые 16px — вдвое крупнее
+   соседних строк блока. */
+.cr-fold-body>p:not([class]){margin:0;font-size:13px;line-height:1.5}
+.cr-note{margin:0;color:var(--muted);font-size:11px}
+.cr-h4{margin:4px 0 0;font-size:12px;font-weight:600}
+.cr-verdicts{display:grid;gap:5px}
+.cr-verdict{display:flex;gap:9px;padding:7px 9px;border-radius:12px;background:#fafafa;font-size:12px}
+.cr-verdict small{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+/* Значок «критичное требование» шёл вплотную к тексту и сидел ниже строки:
+   пробел перед ним съедается при замене символа на svg. */
+.cr-verdict i{display:inline-flex;vertical-align:-2px;margin-inline-start:6px;color:#9b93a8}
+.cr-verdict-mark{width:17px;height:17px;flex:none;display:grid;place-items:center;border-radius:50%;font-size:10px;color:#fff;background:#b9b1c6}
+.cr-verdict.is-ok .cr-verdict-mark{background:var(--good,#2c7a4b)}
+.cr-verdict.is-bad .cr-verdict-mark{background:var(--danger,#c0392b)}
+.cr-verdict.is-unknown .cr-verdict-mark{background:var(--warn,#c47f17)}
+/* Чеклист разговора: вместо символов ☑/☐ — своя клетка со значком темы,
+   чтобы вес и размер совпадали с остальными значками блока. */
+.cr-checklist{display:grid;gap:5px;color:#555;font-size:12px}
+.cr-checklist>span{display:flex;align-items:center;gap:8px}
+.cr-tick{width:15px;height:15px;flex:none;display:grid;place-items:center;border:1px solid #cfc9d8;border-radius:4px;font-size:10px;color:transparent}
+.cr-checklist .is-done{color:var(--good,#2c7a4b)}
+.cr-checklist .is-done .cr-tick{border-color:var(--good,#2c7a4b);background:var(--good,#2c7a4b);color:#fff}
+/* Пометка ответа бота: вместо цветных эмодзи ✅/❌ — значок темы в цвете строки. */
+.cr-qa-mark{display:inline-flex;vertical-align:-2px;margin-inline-end:5px;color:var(--good,#2c7a4b)}
+.cr-qa-mark.is-bad{color:var(--danger,#c0392b)}
+.cr-qa{display:grid;gap:6px}
+.cr-qa div{padding:7px 9px;border-radius:12px;background:#fafafa;font-size:12px}
+.cr-qa small{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+.cr-answer{display:grid;gap:5px;padding:9px 11px;border:1px solid var(--line-soft);border-radius:12px;background:#fafafa}
+.cr-answer-head{display:flex;align-items:center;gap:9px}
+.cr-answer-head b{font-size:12px}
+.cr-answer p{margin:0;font-size:12px}
+.cr-answer small{color:var(--muted);font-size:11px;line-height:1.45}
+.cr-score{width:26px;height:26px;margin-left:auto;flex:none;display:grid;place-items:center;border-radius:50%;background:#332a4d;color:#fff;font-size:12px;font-weight:600}
+.cr-score.is-bad{background:var(--danger,#c0392b)}
+.cr-media{padding:7px 9px;border:1px dashed #c8c2d2;border-radius:12px;color:var(--muted);font-size:11px}
+.cr-attempt{padding:7px 9px;border-radius:12px;background:#f4f2f6;color:var(--muted);font-size:11px}
+.cr-feed{display:grid;gap:7px}
+.cr-msg{display:flex;gap:9px;align-items:flex-start;font-size:12px}
+.cr-msg p{margin:0;padding:7px 10px;border-radius:12px;background:#f4f2f6}
+.cr-msg.is-in p{background:var(--accent-soft)}
+.cr-msg.is-sys p{background:transparent;color:var(--muted);font-size:11px}
+.cr-consequences{display:grid;gap:8px;margin:10px 0}
+.cr-consequences div{padding:8px 10px;border-radius:12px;background:#fafafa;font-size:12px}
+.cr-consequences small{display:block;margin-top:2px;color:var(--muted);font-size:11px}
+
+/* Зеркало чужой системы: видно, но не действует */
+.cr-mirror{margin:6px 0 0;display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
+.cr-mirror b{padding:2px 8px;border:1px dashed var(--line);border-radius:12px;color:var(--text);font-weight:600}
+.cr-mirror small{color:var(--subtle);font-size:11px}

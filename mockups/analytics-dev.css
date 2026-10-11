@@ -1,0 +1,28 @@
+/* Только адаптация снятых стилей к самостоятельному локальному документу. */
+[data-analytics-dev] [hidden] { display: none !important; }
+[data-analytics-dev] button:not(:disabled),
+[data-analytics-dev] .ant-select,
+[data-analytics-dev] .ant-segmented-item,
+[data-analytics-dev] .ant-picker-cell { cursor: pointer; }
+[data-analytics-dev] .ant-select-input { cursor: pointer; }
+[data-analytics-dev] .ant-select-show-search .ant-select-input { cursor: text; }
+.analytics-dev-dropdown { max-height: 256px; overflow-y: auto; pointer-events: auto; }
+.analytics-dev-dropdown .ant-select-item:hover,
+.analytics-dev-dropdown .ant-select-item:focus { background: #f4efff; outline: none; }
+.analytics-dev-toast { position: fixed; z-index: 1900; left: 50%; bottom: 28px; transform: translateX(-50%); display: flex; gap: 20px; align-items: center; padding: 13px 19px; border-radius: 11px; background: #27252d; color: #fff; font-size: 14px; box-shadow: 0 5px 24px #0003; }
+.analytics-dev-toast button { color: #d7caff; border: 0; padding: 0; background: transparent; font: inherit; cursor: pointer; }
+[data-analytics-dev] .ant-drawer-content-wrapper { max-width: 100vw; }
+[data-analytics-dev] .ant-drawer-title { padding-right: 10px; }
+[data-analytics-dev] .ant-drawer-body { overflow-y: auto; }
+[data-analytics-dev] [class*="Analytics_metricPreview__"] strong { display: block; margin-top: 16px; }
+[data-analytics-dev] [class*="Analytics_metricPreview__"] small { display: block; color: #8b8797; margin-top: 4px; }
+[data-analytics-dev] [class*="Analytics_metricForm__"] > label > span { cursor: default; }
+[data-analytics-dev] .ant-select-item-option-content { white-space: normal; }
+[data-analytics-dev] .ant-select-dropdown .ant-select-item { min-height: 32px; }
+.analytics-dev-calendar { pointer-events: auto !important; }
+.analytics-dev-calendar .ant-picker-cell-selected .ant-picker-cell-inner { color: white; }
+@media (max-width: 760px) {
+  [data-analytics-dev] [class*="Analytics_filterRow__"] { flex-wrap: wrap; }
+  [data-analytics-dev] .ant-drawer-content-wrapper { width: min(720px, 100vw) !important; }
+  .analytics-dev-calendar { left: 10px !important; max-width: calc(100vw - 20px); overflow-x: auto; }
+}

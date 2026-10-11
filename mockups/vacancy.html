@@ -1,20 +1,21 @@
 <!doctype html>
-<!-- Что это за экран и как он связан с ТЗ: docs/reference/screens/vacancy.md -->
+
 <html lang="ru">
 <head>
+<meta name="robots" content="noindex,nofollow,noarchive">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Вакансия — макет ATS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="tokens.css">
-<link rel="stylesheet" href="shell.css">
-<link rel="stylesheet" href="screens.css">
-<script src="icons.js" defer></script>
-<script src="shell.js" defer></script>
-<script src="candidate.js" defer></script>
-<script src="vacancy.js" defer></script>
+<link rel="stylesheet" href="tokens.css?public=f6163fc5f369">
+<link rel="stylesheet" href="shell.css?public=6a781f28ace7">
+<link rel="stylesheet" href="screens.css?public=4c0a61a0c088">
+<script src="icons.js?public=dcf7c0cdb453" defer></script>
+<script src="shell.js?public=96ffdb00e4d1" defer></script>
+<script src="candidate.js?public=33fead76bc2b" defer></script>
+<script src="vacancy.js?public=f36ce37fb635" defer></script>
 </head>
 <body>
 
@@ -42,10 +43,10 @@
         </div>
       </div>
 
-      <!-- Вкладка «В работе»: список во всю ширину -->
+      
       <div class="vc-list" id="vacancy-wide" data-od-id="vacancy-wide-list"></div>
 
-      <!-- Конкретный этап: те же две колонки, что на экране кандидатов -->
+      
       <div class="ap-columns" id="vacancy-split" hidden data-od-id="vacancy-split">
         <div class="ap-list" id="candidate-list"></div>
         <div class="ap-detail"><div class="ap-detail-inner" id="candidate-detail"></div></div>
@@ -55,5 +56,6 @@
   </div>
 </div>
 
+<script src="public-demo-notice.js?public=00271a9db372" defer></script>
 </body>
 </html>

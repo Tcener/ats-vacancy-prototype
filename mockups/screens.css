@@ -396,7 +396,7 @@
 .st-tab-icon.is-locked::before{
   content:"";position:absolute;left:-4px;top:-3px;
   width:11px;height:13px;
-  background:url("assets/tariff-lock.svg") no-repeat center/contain;
+  background:url("assets/tariff-lock.svg?public=f73eb26937e4") no-repeat center/contain;
 }
 .st-tab-icon svg{width:20px;height:20px;fill:none;stroke:currentColor}
 .st-tab-label{font-size:var(--hf-font-size-s);line-height:28px;font-weight:var(--hf-font-weight-medium)}
@@ -834,7 +834,7 @@
 /* Щит есть только у «Безопасности»; у анкет своя картинка сбоку,
    у оценки — звёзды, у SMS ничего */
 .st-promo--shield{
-  background-image:url("assets/shield.svg");
+  background-image:url("assets/shield.svg?public=f392606c3f25");
   background-repeat:no-repeat;
   background-position:right -10px center;
   background-size:190px auto;
@@ -1135,7 +1135,7 @@
   margin-bottom:30px;
   border-radius:50px;background:var(--hf-color-base-white-900);
   box-shadow:0 0 50px rgba(0,0,0,.15);
-  background-image:url("assets/career-site-promo.png");
+  background-image:url("assets/career-site-promo.png?public=2bdbad3f3246");
   background-repeat:no-repeat;background-position:100% 30%;
 }
 .st-cs-promo-in{padding:40px 165px 40px 60px}
@@ -1792,7 +1792,7 @@
 .hf-menu-check svg{width:16px;height:16px;fill:currentColor}
 
 /* ─────────────────────────────────────────────────────────────
-   Экран «Календарь» (calendar.html).
+   Экран «Календарь» (calendar.html?public=a44619303d83).
 
    Единственный вид — сетка месяца. Заголовков дней недели нет:
    в оригинале их действительно нет, только числа. Значения ниже

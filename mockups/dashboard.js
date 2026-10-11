@@ -17,7 +17,7 @@ const svg = (name, size = 20) =>
 
 /* Полоса этапов — та же, что на «Всех кандидатах»: с неё уходят в список */
 document.getElementById('stage-tabs-row').innerHTML = HF.STAGES.map(([name, count]) => `
-  <a class="ap-tab" href="applicants.html">
+  <a class="ap-tab" href="applicants.html?public=f9f0d4daad85">
     <span class="ap-tab-in">${esc(name)}<span class="ap-tab-count">${count}</span></span>
   </a>`).join('');
 
@@ -86,13 +86,13 @@ const IDLERS = [
 /* Списки для фильтров. У рекрутеров показана почта — у токенов она
    выдана системой, по ней их и видно. */
 const RECRUITERS = [
-  ['Я, Полина', 'polina@refni.ru'],
-  ['Артём Кузнецов', 'kuznetsov@refni.ru'],
-  ['Ирина Соколова', 'sokolova@refni.ru'],
-  ['API: интеграция с 1С', 'api-160301-68@refni.ru'],
-  ['API: карьерный сайт', 'api-160301-81@refni.ru'],
-  ['API: выгрузка в аналитику', 'api-160301-76@refni.ru'],
-  ['API: тестовый', 'api-160301-101@refni.ru'],
+  ['Я, Полина', 'demo-409f6456@example.com'],
+  ['Артём Кузнецов', 'demo-d42b76a9@example.com'],
+  ['Ирина Соколова', 'demo-0b4883a8@example.com'],
+  ['API: интеграция с 1С', 'demo-8640e78c@example.com'],
+  ['API: карьерный сайт', 'demo-72ffd87a@example.com'],
+  ['API: выгрузка в аналитику', 'demo-7131fb24@example.com'],
+  ['API: тестовый', 'demo-59e46e3b@example.com'],
 ];
 
 const DEPARTMENTS = ['Рефни', 'Vi.Tech', 'Брейнвей', 'Кортекс', 'Практика', 'ЦИАН', 'ЗВУК'];
@@ -125,7 +125,7 @@ const rowHtml = (r) => `
     <td class="kd-col-vac">
       ${r.hold
         ? `<span class="kd-vac-title is-hold"><span class="kd-vac-hold-icon">${svg('pause-2', 20)}</span>${esc(r.name)}</span>`
-        : `<a class="kd-vac-title" href="vacancy.html${r.id ? `#v=${r.id}` : ''}">${esc(r.name)}<span class="kd-vac-count">${r.plan}</span></a>`}
+        : `<a class="kd-vac-title" href="vacancy.html?public=f137e0b1ffad${r.id ? `#v=${r.id}` : ''}">${esc(r.name)}<span class="kd-vac-count">${r.plan}</span></a>`}
       <div class="kd-vac-sub">${esc(r.sub)}</div>
     </td>
     <td class="kd-col-num"><span class="kd-num">${r.days}</span></td>
