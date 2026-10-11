@@ -172,7 +172,7 @@
     const nav = {goHome:'dashboard',goTasks:'tasks',goReq:'requisitions',goAnalytics:'analytics',goSearch:'search',goMessages:'messages',goCalendar:'calendar',goSettings:'settings',goArchive:'portfolio',goTasksLegacy:'tasks/legacy',goReqLegacy:'requisitions/legacy',createCandidate:'create/candidate',createVacancy:'create/vacancy',createReq:'create/requisition',createReqAI:'create/requisition-ai'};
     Object.keys(nav).forEach(k => {out[k] = e => {persist(s); route(nav[k], e);};});
     out.goCand = e => route('vacancy/' + ctx.vacancyId,e);
-    out.goVacancySettings = e => route('vacancy/' + ctx.vacancyId + '/edit',e);
+    out.goVacancySettings = e => {e?.stopPropagation?.();return route('vacancy/' + ctx.vacancyId + '/edit',e);};
     out.vacancyNavigation = catalog().map(v => ({title:v.title || v.name, go:e => route('vacancy/' + v.id,e),style:'display:block;padding:7px 10px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;font-size:13px;color:#d9d9de;background:' + (ctx.vacancyId === v.id && s.page === 'cand' ? 'rgba(255,255,255,.11)' : 'transparent')}));
     out.cs = Object.assign({}, values.cs); out.cv = Object.assign({},values.cv);
     const list = seeds();

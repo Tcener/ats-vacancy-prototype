@@ -1,0 +1,56 @@
+/* Одна навигация по образцу поиска. Стиль не зависит от содержимого экрана. */
+@font-face{font-family:SidebarVela;src:url('assets/dev-fonts/b304eb5effd1a2b9-s.p.woff2?public=fe0f3f17dcfd') format('woff2');font-weight:200 800;font-display:swap}
+body{--unified-sidebar-width:var(--unified-expanded-width,232px);--unified-content-left:calc(var(--unified-sidebar-width) + 32px)}
+body.sidebar-is-collapsed{--unified-sidebar-width:64px}
+body .sidebar[data-unified-sidebar]{box-sizing:border-box;position:sticky;top:14px;align-self:start;height:calc(100vh - 28px);min-height:0;width:var(--unified-sidebar-width);flex:none;display:flex;flex-direction:column;overflow:visible;background:#1b1b20;color:#f8f7fb;border:0;border-radius:20px;padding:20px 12px 12px;font:13px/1.45 SidebarVela,Inter,Arial,sans-serif;box-shadow:0 13px 25px #2421331a}
+.sidebar[data-unified-sidebar] *{box-sizing:border-box}
+body .sidebar .sidebar-brand-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 9px 20px;flex:none}
+body .sidebar .brand{display:block;min-width:0;height:auto;margin:0;padding:0}
+body .sidebar .brand img{display:block;width:148px;max-width:100%;height:auto;max-height:40px;filter:brightness(0) invert(1);object-fit:contain}
+body .sidebar .sidebar-collapse{display:grid;place-items:center;color:#aaa7b4;background:transparent;border:0;padding:4px;cursor:pointer}
+body .sidebar .nav-icon{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+body .sidebar .sidebar-scroll{min-height:0;flex:1;overflow:auto;scrollbar-width:thin;scrollbar-color:#434049 transparent;margin-right:-4px;padding-right:4px}
+body .sidebar .main-nav{display:grid;gap:5px;padding:0;margin:0}
+body .sidebar .nav-item{box-sizing:border-box;display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-height:43px;padding:11px 12px;border:0;border-radius:10px;background:transparent;color:#f8f7fb;text-decoration:none;text-align:left;font:650 13px/1.45 SidebarVela,Inter,Arial,sans-serif;cursor:pointer}
+body .sidebar .nav-item>span:first-of-type{flex:1}
+body .sidebar .nav-item:hover{background:#303036;color:#fff}
+body .sidebar .nav-item.active,body .sidebar .nav-item[aria-current=page]{background:#7050ed;color:#fff;box-shadow:none}
+body .sidebar .nav-count{position:static;margin:0 0 0 auto;min-width:22px;padding:1px 8px;border-radius:8px;background:#3c3c43;color:#e0dfe7;font:11px/1.45 SidebarVela,Arial,sans-serif;text-align:center;flex:none}
+body .sidebar .vacancy-nav{margin:22px 0 0;padding:17px 6px 8px;border-top:1px solid #35353a}
+body .sidebar .vacancy-nav-title{display:flex;align-items:center;gap:8px;margin:0 0 10px;font:650 12px/1.45 SidebarVela,Arial,sans-serif;color:#cac6d2}
+body .sidebar .vacancy-nav-title svg{width:16px;height:16px}
+body .sidebar .vacancy-link{display:block;padding:7px 8px;color:#f8f7fb;border:0;border-radius:7px;font:11px/1.45 SidebarVela,Arial,sans-serif;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+body .sidebar .vacancy-link:hover,body .sidebar .vacancy-link.active{background:#35333c;color:#fff}
+body .sidebar .vacancy-link.archive{margin-top:8px;border-top:1px solid #33333a;border-radius:0;color:#b7b2c4}
+body .sidebar .vacancy-link.archive svg{display:none}
+body .sidebar .fab-row{position:relative;inset:auto;display:flex;align-items:center;gap:6px;flex:none;margin-top:10px}
+body .sidebar .fab{height:42px;min-height:42px;flex:1;width:auto;padding:0 8px;display:flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:11px;background:#7050ed;color:#fff;font:750 13px/1 SidebarVela,Arial,sans-serif;box-shadow:none;cursor:pointer}
+body .sidebar .fab:hover{background:#6240df}
+body .sidebar .fab-plus{font-size:18px}
+body .sidebar .ai-mascot-fab{position:static;width:42px;height:42px;flex:none;border:0;border-radius:12px;background:#ff71c0;color:#1b1b20;display:grid;place-items:center;font-size:25px;box-shadow:none;cursor:pointer}
+body .sidebar .sidebar-demo-footer{font:10px/1.4 SidebarVela,Arial,sans-serif;color:#8f899e;display:flex;justify-content:space-between;padding:12px 5px 0;flex:none}
+body .sidebar #pm-slot{position:static;flex:none;margin:0;padding:0}
+body .sidebar #pm-slot .pm-switch{min-height:0;height:18px;padding:0 5px;border:0;background:transparent;color:#8f899e;box-shadow:none;font-size:10px;display:block;width:100%;text-align:left}
+body .sidebar #pm-slot :is(.pm-switch-top,.pm-switch-name,.pm-switch-slot){display:none}
+body .sidebar #pm-slot .pm-switch-short{display:inline;font-size:10px}
+body .sidebar :is(button,a):focus-visible{outline:3px solid #b7a6ff;outline-offset:2px}
+body.sidebar-is-collapsed .sidebar[data-unified-sidebar]{padding:16px 6px}
+body.sidebar-is-collapsed .sidebar .sidebar-brand-row{justify-content:center;padding:0 0 18px}
+body.sidebar-is-collapsed .sidebar :is(.brand,.nav-item>span,.vacancy-nav,.sidebar-demo-footer,#pm-slot,.fab-label){display:none}
+body.sidebar-is-collapsed .sidebar .nav-item{justify-content:center;padding:12px}
+body.sidebar-is-collapsed .sidebar .fab-row{flex-direction:column}
+body.sidebar-is-collapsed .sidebar .fab{width:100%;flex:none}
+.sidebar-sleep-tooltip{position:fixed;z-index:1600;padding:8px 12px;border-radius:10px;background:#24202e;color:#fff;font:12px/1.4 SidebarVela,Arial,sans-serif;box-shadow:0 8px 24px #21193026;pointer-events:none;white-space:nowrap}
+.sidebar-sleep-tooltip[hidden]{display:none!important}
+.sidebar-resizer{position:fixed;left:calc(var(--unified-sidebar-width) + 20px);top:25px;width:9px;height:calc(100vh - 50px);border-radius:8px;cursor:col-resize;z-index:1100;touch-action:none}
+.sidebar-resizer:hover,.sidebar-resizer:focus-visible{background:#ae97f333}
+body.sidebar-is-collapsed .sidebar-resizer{display:none}
+body.unified-navigation>#unified-app-shell{display:grid!important;grid-template-columns:var(--unified-sidebar-width) minmax(0,1fr)!important;gap:18px!important;padding:14px!important;height:100vh!important}
+body.unified-navigation>.app-shell>.sidebar{z-index:1050}
+body.unified-navigation.unified-frame-route>.app-shell>#screen{display:none!important}
+body.unified-navigation.unified-frame-route>iframe:not([hidden]){left:var(--unified-content-left)!important;right:0!important;top:0!important;bottom:0!important;width:calc(100% - var(--unified-content-left))!important;height:100%!important}
+body.unified-navigation.unified-frame-route>:is(#create-menu-popover,#sidebar-calendar-tooltip,.pm-menu){display:block!important;z-index:1600}
+body.unified-navigation.unified-frame-route>#sidebar-calendar-tooltip[hidden]{display:none!important}
+body.unified-navigation.unified-frame-route>#ai-panel:not([hidden]){display:block!important;z-index:1500}
+body.unified-navigation .main-sheet{height:calc(100vh - 28px)}
+@media(max-width:760px){body{--unified-sidebar-width:64px}body .sidebar[data-unified-sidebar]{padding:16px 6px}body .sidebar .sidebar-brand-row{justify-content:center;padding:0 0 18px}body .sidebar :is(.brand,.nav-item>span,.vacancy-nav,.sidebar-demo-footer,#pm-slot,.fab-label,.sidebar-resizer){display:none}body .sidebar .nav-item{justify-content:center;padding:12px}body .sidebar .fab-row{flex-direction:column}body .sidebar .fab{width:100%;flex:none}}

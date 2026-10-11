@@ -450,7 +450,7 @@
       if(vacancyId)activeVacancyId=vacancyId;
       document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
       if(!stagePanel.hidden)closeStagePanel();
-      if(!colleagueFrame.getAttribute('src'))colleagueFrame.src='colleague-current.html?public=8f2fcf7d900f';
+      if(!colleagueFrame.getAttribute('src'))colleagueFrame.src='colleague-current.html?public=895518571f87';
       else colleagueFrame.contentWindow?.dispatchEvent(new Event('colleague-context-refresh'));
       return;
     }
@@ -513,7 +513,7 @@
   document.addEventListener('click',e=>{
     const created=e.target.closest('[data-created-candidate]');if(created){window.CreationStore.select(created.dataset.createdCandidate);render();return;}
     if(!e.target.closest('.ve68-funnel-dropdown'))toggleVacancyFunnelMenu(false);
-    const route=e.target.closest('[data-route]');if(route){routeTo(route.dataset.route);return}
+    const route=e.target.closest('[data-route]');if(route){e.preventDefault();routeTo(route.dataset.route);return}
     const a=e.target.closest('[data-action]');if(!a)return;const action=a.dataset.action;
     if(modal.open&&a.closest('.modal-body')&&!['format-text','choose-stage','toggle-pause-outgoing','vacancy-ai-toggle','vacancy-ai-configure','vacancy-automation-config','vacancy-funnel-toggle','vacancy-funnel-choose'].includes(action))modal.close();
     if(!stagePanel.hidden&&a.closest('[data-stage-panel]')&&!['format-text','choose-stage','close-stage-panel','confirm-stage-change'].includes(action))closeStagePanel();
