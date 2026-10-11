@@ -13,17 +13,20 @@ body.analytics-redesign .ad-flow-stage-meta { display:flex; flex-wrap:wrap; alig
 body.analytics-redesign .ad-flow-toolbar strong,
 body.analytics-redesign .ad-flow-stage-meta strong { color:var(--ad-ink,#171717); font-weight:650; }
 body.analytics-redesign .ad-flow-toolbar-hint { margin-left:auto; }
-body.analytics-redesign .ad-flow-navigation { display:flex; gap:6px; }
-body.analytics-redesign .ad-flow-navigation button { width:34px; height:34px; border:1px solid #e5dcf7; border-radius:11px; background:#f2ebff; color:var(--ad-purple-dark,#5f35c4); font-family:inherit; font-size:18px; line-height:1; font-weight:700; cursor:pointer; }
-body.analytics-redesign .ad-flow-navigation button:hover { background:#e7daff; }
+body.analytics-redesign .ad-flow-navigation { display:flex; align-items:center; gap:6px; }
+body.analytics-redesign .ad-flow-navigation button { display:grid; place-items:center; flex:0 0 34px; box-sizing:border-box; width:34px; height:34px; min-width:34px; min-height:34px; margin:0; padding:0; border:1px solid #e5dcf7; border-radius:11px; background:#f2ebff; color:var(--ad-purple-dark,#5f35c4); cursor:pointer; }
+body.analytics-redesign .ad-flow-arrow { display:block; flex:none; width:18px; height:18px; }
+body.analytics-redesign .ad-flow-navigation [data-af-scroll="back"] .ad-flow-arrow { transform:rotate(180deg); }
+body.analytics-redesign .ad-flow-navigation button:hover:not(:disabled) { background:#e7daff; }
+body.analytics-redesign .ad-flow-navigation button:disabled { opacity:.4; cursor:not-allowed; }
 body.analytics-redesign .ad-flow-transitions { display:flex; gap:12px; padding:2px 1px 12px; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x proximity; overscroll-behavior-x:contain; scrollbar-width:thin; scrollbar-color:#b9a7e9 #f5f1fb; }
 body.analytics-redesign .ad-flow-transition { display:flex; flex:0 0 226px; flex-direction:column; min-width:0; height:196px; padding:15px 16px; border:1px solid #e4d9f8; border-radius:17px; background:#f7f2ff; scroll-snap-align:start; }
-body.analytics-redesign .ad-flow-transition-route { display:grid; grid-template-columns:minmax(0,1fr) 15px minmax(0,1fr); align-items:center; gap:6px; min-height:44px; color:#8c74bd; }
-body.analytics-redesign .ad-flow-transition-route button { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-width:0; padding:0; border:0; background:transparent; color:var(--ad-ink,#171717); font-family:inherit; font-size:12px; line-height:1.35; font-weight:600; text-align:left; cursor:pointer; overflow-wrap:anywhere; }
+body.analytics-redesign .ad-flow-transition-route { display:grid; grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr); align-items:center; gap:6px; box-sizing:border-box; min-height:52px; padding:8px 9px; border:1px solid #dfd1f8; border-radius:10px; background:#eee5ff; color:var(--ad-purple-dark,#5f35c4); }
+body.analytics-redesign .ad-flow-transition-route button { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-width:0; padding:0; border:0; background:transparent; color:var(--ad-ink,#171717); font-family:inherit; font-size:13px; line-height:1.35; font-weight:650; text-align:left; cursor:pointer; overflow-wrap:anywhere; }
 body.analytics-redesign .ad-flow-transition-route button:last-child { text-align:right; }
 body.analytics-redesign .ad-flow-transition-route button:hover { color:var(--ad-purple-dark,#5f35c4); text-decoration:underline; }
 body.analytics-redesign .ad-flow-transition-route button:focus-visible { border-radius:5px; outline:2px solid #6b53d5; outline-offset:3px; }
-body.analytics-redesign .ad-flow-rate { display:block; margin-top:7px; color:var(--ad-purple-dark,#5f35c4); font-size:36px; line-height:1.12; font-weight:800; letter-spacing:-.045em; }
+body.analytics-redesign .ad-flow-rate { display:block; margin-top:12px; color:var(--ad-purple-dark,#5f35c4); font-size:32.4px; line-height:1.12; font-weight:800; letter-spacing:-.045em; }
 body.analytics-redesign .ad-flow-transition-caption { margin-top:4px; color:var(--ad-purple-dark,#5f35c4); font-size:11px; font-weight:550; line-height:1.4; }
 body.analytics-redesign .ad-flow-transition-sample { margin-top:auto; padding-top:8px; color:var(--ad-muted,#6c6877); font-size:11px; line-height:1.4; }
 body.analytics-redesign .ad-flow-alternative { background:#f5f3f8; border-style:dashed; }

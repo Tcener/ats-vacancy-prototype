@@ -19,6 +19,7 @@
 .analytics-redesign .amb-field{display:flex;flex-direction:column;gap:7px;min-width:0;margin:0!important}
 .analytics-redesign .amb-field>span{font-size:12px;line-height:1.4;font-weight:650;color:#4c445d}
 .analytics-redesign .amb-field input,.analytics-redesign .amb-field textarea,.analytics-redesign .amb-field select{width:100%;min-width:0;border:1px solid #ddd2f5;border-radius:13px;background:#fff;padding:10px 12px;font:inherit;color:#19191b;outline:none}
+.analytics-redesign .amb-field input::placeholder,.analytics-redesign .amb-field textarea::placeholder{color:rgba(109,101,126,.55);opacity:1}
 .analytics-redesign .amb-field textarea{min-height:66px;resize:vertical;line-height:1.6}
 .analytics-redesign .amb-field input:focus,.analytics-redesign .amb-field textarea:focus,.analytics-redesign .amb-field select:focus{border-color:#7150eb;box-shadow:0 0 0 3px #7150eb16}
 .analytics-redesign .amb-field [aria-invalid=true]{border-color:#d66a91}

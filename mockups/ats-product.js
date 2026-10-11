@@ -381,7 +381,7 @@
       // Скрываем iframe на других маршрутах, сохраняя его выбранные фильтры и экран.
       document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
       if(!stagePanel.hidden)closeStagePanel();
-      if(!exactAnalyticsFrame.getAttribute('src'))exactAnalyticsFrame.src='analytics-dev-current.html?public=c6bd277ff9b6';
+      if(!exactAnalyticsFrame.getAttribute('src'))exactAnalyticsFrame.src='analytics-dev-current.html?public=883f459eecf8';
       return;
     }
     applyMode();

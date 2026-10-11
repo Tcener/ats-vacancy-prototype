@@ -1,5 +1,6 @@
 /* Компактные пять показателей; никаких сложенных баллов «активности». */
 body.analytics-redesign .ar-panel .ad-team-summary { margin-bottom: 20px; }
+body.analytics-redesign .ar-panel .ad-local-filters .ad-filter > span:first-child { font-size: 14px; line-height: 1.35; }
 body.analytics-redesign .ar-chart-head { margin-bottom: 14px; }
 body.analytics-redesign .ar-matrix-scroll { overflow-x: auto; border: 1px solid #E9E2F7; border-radius: 16px; background: #fff; }
 body.analytics-redesign .ar-activity-matrix { width: 100%; min-width: 620px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
@@ -16,7 +17,7 @@ body.analytics-redesign .ar-activity-cell { display: flex; flex-direction: colum
 body.analytics-redesign .ar-activity-cell strong { font-size: 17px; font-weight: 750; color: #211D29; line-height: 1; }
 body.analytics-redesign .ar-mini-track { height: 5px; width: 100%; max-width: 125px; border-radius: 5px; overflow: hidden; background: #F0EBF8; }
 body.analytics-redesign .ar-mini-track i { display: block; height: 100%; border-radius: inherit; }
-body.analytics-redesign .ar-chart-caption, body.analytics-redesign .ar-modal-caption { margin: 10px 0 0; color: #7A718B; font-size: 11px; line-height: 1.55; }
+body.analytics-redesign .ar-modal-caption { margin: 10px 0 0; color: #7A718B; font-size: 11px; line-height: 1.55; }
 body.analytics-redesign .ar-hires-scroll { overflow-x: auto; }
 body.analytics-redesign .ar-hires-columns { min-width: 620px; height: 215px; padding-top: 28px; }
 body.analytics-redesign .ar-hires-columns .ad-column-track { height: 130px; }
