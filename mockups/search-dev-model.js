@@ -265,14 +265,37 @@ window.SearchDevModel = (() => {
   }
   function criterionErrors(input, index) {
     if (!input || protectedText(input.text) || (Array.isArray(input.terms) && input.terms.some(term => protectedText(term)))) return [`Критерий ${index + 1}: используйте только понятное профессиональное требование.`];
+    if (!String(input.text ?? '').trim()) return [`Критерий ${index + 1}: добавьте понятное описание профессионального требования.`];
+    if (Array.isArray(input.terms) && input.terms.length > 50) return [`Критерий ${index + 1}: сократите условие до 50 проверяемых значений.`];
+    if (Array.isArray(input.terms) && input.terms.some(term => String(term).trim().length > 120)) return [`Критерий ${index + 1}: сократите каждое проверяемое значение до 120 символов.`];
+    // Пустое значение — незаполненный редактор, а не явно выбранные ноль лет.
+    if (input.kind === 'experience' && (input.minYears === null || input.minYears === undefined || String(input.minYears).trim() === '')) return [`Критерий ${index + 1}: укажите профильный опыт от 0 до 50 лет.`];
     const normalized = normalizeCriterion(input, index);
     if (!normalized) return [`Критерий ${index + 1}: выберите распознаваемое рабочее требование.`];
     if (normalized.kind === 'experience' && (!Number.isFinite(normalized.minYears) || normalized.minYears < 0 || normalized.minYears > 50)) return [`Критерий ${index + 1}: укажите профильный опыт от 0 до 50 лет.`];
     if (normalized.kind !== 'experience' && !normalized.terms.length) return [`Критерий ${index + 1}: укажите проверяемый навык или условие работы.`];
     return [];
   }
+  function validateCriteria(criteria) {
+    if (!Array.isArray(criteria) || !criteria.length) return ['Добавьте хотя бы одно профессиональное требование.'];
+    const errors = [], ids = new Set(), conditions = new Set();
+    criteria.forEach((input, index) => {
+      const itemErrors = criterionErrors(input, index), rule = normalizeCriterion(input, index);
+      errors.push(...itemErrors);
+      const id = String(input?.id ?? rule?.id ?? '').trim() || `criterion-${index + 1}`;
+      if (ids.has(id)) errors.push(`Критерий ${index + 1}: идентификатор требования повторяется.`);
+      ids.add(id);
+      if (itemErrors.length || !rule) return;
+      // Точное условие нельзя взвешивать дважды. Пересекающиеся условия не равны.
+      const value = rule.kind === 'experience' ? rule.minYears : [...new Set(rule.terms.map(fold))].sort();
+      const condition = JSON.stringify([rule.kind, value]);
+      if (conditions.has(condition)) errors.push(`Критерий ${index + 1}: такое профессиональное требование уже добавлено.`);
+      conditions.add(condition);
+    });
+    return errors;
+  }
   function scoreCandidate(candidate, inputCriteria = []) {
-    const errors = !Array.isArray(inputCriteria) || !inputCriteria.length ? ['Нет рабочих критериев для сравнения.'] : inputCriteria.flatMap(criterionErrors);
+    const errors = !Array.isArray(inputCriteria) || !inputCriteria.length ? ['Нет рабочих критериев для сравнения.'] : validateCriteria(inputCriteria);
     if (errors.length) return {score: null, status: 'uncertain', explanations: errors.map(text => ({criterionId: '', text, status: 'unknown', required: true}))};
     const explanations = inputCriteria.map((item, index) => {
       const rule = normalizeCriterion(item, index);
@@ -306,8 +329,7 @@ window.SearchDevModel = (() => {
     const vacancy = vacancies.find(item => item.id === config.vacancyId);
     if (!vacancy) errors.push('Выберите демовакансию.');
     if (!vacancy || !vacancy.stages.includes(config.initialStage) || ['Выход', 'Отказ'].includes(config.initialStage)) errors.push('Выберите начальный незавершающий этап вакансии.');
-    if (!Array.isArray(config.criteria) || !config.criteria.length) errors.push('Добавьте хотя бы одно профессиональное требование.');
-    else errors.push(...config.criteria.flatMap(criterionErrors));
+    errors.push(...validateCriteria(config.criteria));
     return errors;
   }
   function simulateAutoPick(config, options = {}) {
@@ -341,7 +363,7 @@ window.SearchDevModel = (() => {
     saved.page = 1;
     saved.mode = input?.mode === 'ai' ? 'ai' : 'base';
     saved.aiPrompt = String(input?.aiPrompt ?? '');
-    saved.aiCriteria = Array.isArray(input?.aiCriteria) ? input.aiCriteria.filter(item => item && typeof item === 'object').map(item => ({id: String(item.id ?? '').slice(0, 120), kind: String(item.kind ?? '').slice(0, 60), text: String(item.text ?? '').slice(0, 2400), required: item.required !== false, terms: Array.isArray(item.terms) ? item.terms.slice(0, 50).map(term => String(term).slice(0, 120)) : [], ...(Number.isFinite(Number(item.minYears)) && item.minYears !== null && item.minYears !== undefined ? {minYears: Number(item.minYears)} : {})})) : [];
+    saved.aiCriteria = Array.isArray(input?.aiCriteria) ? input.aiCriteria.filter(item => item && typeof item === 'object').map(item => ({id: String(item.id ?? '').slice(0, 120), kind: String(item.kind ?? '').slice(0, 60), text: String(item.text ?? '').slice(0, 2400), required: item.required !== false, terms: Array.isArray(item.terms) ? item.terms.slice(0, 50).map(term => String(term).trim().slice(0, 120)) : [], ...(Number.isFinite(Number(item.minYears)) && item.minYears !== null && item.minYears !== undefined && String(item.minYears).trim() !== '' ? {minYears: Number(item.minYears)} : {})})) : [];
     saved.aiOrigin = ['ai', 'resume', 'auto'].includes(input?.aiOrigin) ? input.aiOrigin : 'ai';
     const config = input?.aiSearchConfig || {}, threshold = Number(config.threshold), target = Number(config.target);
     saved.aiSearchConfig = {
@@ -415,5 +437,5 @@ window.SearchDevModel = (() => {
   }
   const validateBulkAssignment = (...args) => previewBulkAssignment(...args).errors;
   const catalogs = Object.fromEntries(Object.entries({scopes, conditions, joins, sources, searchProviders, employment, periods, sorts}).map(([key, catalog]) => [key, Object.entries(catalog).map(([id, label]) => ({id, label}))]));
-  return {now, scopes, conditions, joins, sources, searchProviders, providerCatalog, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, hhCandidates, selectResultsDataset, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, search, parseAiQuery, parseResumeQuery, scoreCandidate, defaultAutoPick, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment, previewBulkAssignment, validateBulkAssignment};
+  return {now, scopes, conditions, joins, sources, searchProviders, providerCatalog, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, hhCandidates, selectResultsDataset, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, search, parseAiQuery, parseResumeQuery, scoreCandidate, defaultAutoPick, validateCriteria, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment, previewBulkAssignment, validateBulkAssignment};
 })();

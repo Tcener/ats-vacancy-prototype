@@ -44,7 +44,7 @@
   const selectedCandidateIds = new Set();
   // Выбор формы — не запуск и не сохранённая выдача из прошлой загрузки страницы.
   let selectedSearchMode = '', resultsRevealed = false, searchFlow = null;
-  let querySequence = 0;
+  let querySequence = 0, autoCriterionSequence = 0;
   for (const assignment of state.assignments) {
     let candidate = findCandidate(assignment.candidateId);
     if (candidate?.searchProvider === 'hh' && !candidate.importedToATS) {
@@ -83,12 +83,12 @@
       if (window.parent !== window) window.parent.location.href = url; else location.href = url;
     } else if (allowedRoute(route)) {
       if (window.parent !== window) window.parent.location.hash = route;
-      else location.href = `ats-product.html?public=f3267642b266#${route}`;
+      else location.href = `ats-product.html?public=ee8046268b22#${route}`;
     }
   }
   function renderSidebar() {
     const nav = [['dashboard','Главная','home'],['search','Поиск','search'],['tasks','Мои задачи','check'],['calendar','Календарь','calendar'],['analytics','Аналитика','chart'],['requisitions','Заявки','list'],['settings','Настройки','settings']];
-    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=509f70c12929" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=f3267642b266#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${vacancies.map(vacancy => `<a href="ats-product.html?public=f3267642b266#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=f3267642b266#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><a class="sd-side-create" href="ats-product.html?public=f3267642b266#create" data-sd-route="create"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></a><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
+    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=509f70c12929" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=ee8046268b22#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${vacancies.map(vacancy => `<a href="ats-product.html?public=ee8046268b22#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=ee8046268b22#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><a class="sd-side-create" href="ats-product.html?public=ee8046268b22#create" data-sd-route="create"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></a><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
     $('#sd-shell').classList.toggle('sd-sidebar-collapsed', !!state.collapsed);
     $('#sd-shell').style.setProperty('--sd-sidebar-width',`${state.sidebarWidth || 276}px`);
     $('#sd-sidebar-resizer').setAttribute('aria-valuenow',String(state.sidebarWidth || 276));
@@ -212,7 +212,7 @@
     results.innerHTML = `<header class="sd-results-head"><div class="sd-results-title"><h2>${esc(title)}</h2><p>${esc(subtitle)}</p></div><div class="sd-result-controls">${controls}</div></header>${excluded ? `<p class="sd-run-status">${excluded} не подошли по условиям и не включены в выдачу.</p>` : ''}${runNote}${state.started ? (found.items.length ? found.items.map(candidateResult).join('') : running ? empty('Оцениваем кандидатов…','Подходящие кандидаты появятся в выдаче по мере проверки.') : empty('Кандидаты не найдены','Попробуйте изменить запрос, область поиска или выбранные фильтры.')) : empty('Кого будем искать?','Введите должность, навык, компанию или фрагмент резюме. Или попробуйте один из вариантов умного поиска.')}${state.started && found.total ? `<footer class="sd-pagination">${button('‹','prev','',`aria-label="Назад"${found.page <= 1 ? ' disabled' : ''}`)}${Array.from({length:found.pages},(_,index) => button(String(index+1),'page',index+1 === found.page ? 'page-active' : '',`data-page="${index+1}" aria-label="Страница ${index+1}"${index+1 === found.page ? ' aria-current="page"' : ''}`)).join('')}${button('›','next','',`aria-label="Вперёд"${found.page >= found.pages ? ' disabled' : ''}`)}</footer>` : ''}`;
     if (found.items.length) {
       const checked = found.items.filter(item => selectedCandidateIds.has(item.id)).length;
-      $('.sd-results-head',results).insertAdjacentHTML('afterend',`<div class="sd-bulk-toolbar"><label class="sd-bulk-select-page"><input type="checkbox" data-sd-select-page aria-label="Выбрать всех кандидатов на странице"${checked === found.items.length ? ' checked' : ''}>На странице</label><span aria-live="polite">Выбрано ${selectedCandidateIds.size}</span>${button('На вакансию','bulk-assign','green',selectedCandidateIds.size ? '' : 'disabled')}${selectedCandidateIds.size ? button('Снять выбор','bulk-clear','text') : ''}</div>`);
+      $('.sd-results-head',results).insertAdjacentHTML('afterend',`<div class="sd-bulk-toolbar"><label class="sd-bulk-select-page"><input type="checkbox" data-sd-select-page aria-label="Выбрать всех кандидатов на странице"${checked === found.items.length ? ' checked' : ''}>На странице</label><span aria-live="polite">Выбрано ${selectedCandidateIds.size}</span><div class="sd-bulk-actions">${button('На вакансию','bulk-assign','green',selectedCandidateIds.size ? '' : 'disabled')}${selectedCandidateIds.size ? button('Снять выбор','bulk-clear','text') : ''}</div></div>`);
       $('[data-sd-select-page]',results).indeterminate = checked > 0 && checked < found.items.length;
     }
     if (state.started && !found.allItems?.some(candidate => candidate.id === state.selectedCandidateId)) {state.selectedCandidateId = '';state.selectedResumeId = '';}
@@ -382,15 +382,76 @@
     const vacancy = vacancies.find(item => item.id === draft.vacancyId);
     draft.initialStage = vacancy?.initialStage || '';
     if (vacancy && !Object.prototype.hasOwnProperty.call(config,'criteria')) draft.criteria = clone(vacancy.criteria);
-    openSearchPanel('autopick','Поиск по вакансии','Соберём критерии из описания и требований вакансии.',`<div class="sd-dialog-fields">${select('Вакансия',vacancies.map(item => ({id:item.id,label:item.title})),draft.vacancyId,'id="sd-auto-vacancy"')}<label class="sd-field">Где искать<select class="sd-select" aria-label="Источник подборки" data-sd-form-provider disabled><option>${esc(providerName())}</option></select></label><div class="sd-form-two"><label class="sd-field">Минимальное соответствие, %<input class="sd-input" id="sd-auto-threshold" aria-label="Минимальное соответствие" type="number" min="0" max="100" value="${esc(draft.threshold)}"></label><label class="sd-field">Сколько подходящих найти<input class="sd-input" id="sd-auto-target" aria-label="Сколько подходящих найти" type="number" min="1" max="1000" value="${esc(draft.target)}"></label></div><p class="sd-help">Проверяем базу порциями до нужного количества. Подборка остановится, если закончится база, будет достигнут дневной лимит оценок или пройдено 15 попыток.</p><div><span class="sd-field">Критерии подборки</span>${vacancy ? `<div class="sd-criteria-list">${vacancy.criteria.map(criterion => `<label><input type="checkbox" data-sd-auto-criterion="${esc(criterion.id)}"${draft.criteria.some(item => item.id === criterion.id) ? ' checked' : ''}>${esc(criterion.text)}</label>`).join('')}</div>` : '<p class="sd-help">Выберите вакансию, чтобы увидеть критерии.</p>'}</div><div class="sd-counter-box">Сегодня осталось <strong data-sd-budget>${1000-state.usedToday}</strong> демооценок</div><p class="sd-help">Поиск в макете работает только с вымышленными данными, без отправки во внешние сервисы.</p></div>`, `${button('Изменить условия','search-back')}${button('Сформировать подборку','autopick-run','purple','disabled')}`, {draft});
+    const criterionRows = clone(draft.criteria || []).map(item => ({...item,enabled:true}));
+    openSearchPanel('autopick','Поиск по вакансии','Соберём критерии из описания и требований вакансии.',`<div class="sd-dialog-fields">${select('Вакансия',vacancies.map(item => ({id:item.id,label:item.title})),draft.vacancyId,'id="sd-auto-vacancy"')}<label class="sd-field">Где искать<select class="sd-select" aria-label="Источник подборки" data-sd-form-provider disabled><option>${esc(providerName())}</option></select></label><div class="sd-form-two"><label class="sd-field">Минимальное соответствие, %<input class="sd-input" id="sd-auto-threshold" aria-label="Минимальное соответствие" type="number" min="0" max="100" value="${esc(draft.threshold)}"></label><label class="sd-field">Сколько подходящих найти<input class="sd-input" id="sd-auto-target" aria-label="Сколько подходящих найти" type="number" min="1" max="1000" value="${esc(draft.target)}"></label></div><p class="sd-help">Проверяем базу порциями до нужного количества. Подборка остановится, если закончится база, будет достигнут дневной лимит оценок или пройдено 15 попыток.</p><section class="sd-auto-criteria"><header class="sd-auto-criteria-head"><span class="sd-label">Критерии подборки</span>${button('+ Добавить критерий','auto-add-criterion')}</header><p class="sd-help">Измените предложенные требования или добавьте свои. Они действуют только для этой подборки; смена вакансии соберёт критерии заново.</p><div class="sd-auto-criteria-list"></div><div class="sd-auto-criteria-errors" aria-live="polite"></div></section><p class="sd-help">Поиск в макете работает только с вымышленными данными, без отправки во внешние сервисы.</p></div>`, `${button('Изменить условия','search-back')}${button('Сформировать подборку','autopick-run','purple','disabled')}`, {draft,criterionRows});
+    renderAutoCriteria();updateAutopick();
+  }
+  function autoCriterionRow(item, index) {
+    const number = index + 1, kind = item.kind || 'skills';
+    const kinds = {skills:'Навыки',experience:'Опыт, лет',education:'Образование',workMode:'Локация и формат',language:'Рабочий язык',schedule:'График работы',responsibilities:'Задачи и отрасль',employment:'Процессы ATS'};
+    if (!Object.prototype.hasOwnProperty.call(kinds,kind)) kinds[kind] = 'Требует уточнения';
+    const value = kind === 'experience' ? item.minYears ?? '' : kind === 'unknown' ? item.text : (item.terms || []).join(', ');
+    const hint = kind === 'experience' ? 'Минимальный профильный опыт в годах — от 0 до 50.' : kind === 'employment' ? 'История процессов доступна только для кандидатов вашей ATS.' : kind === 'unknown' ? 'Выберите тип и укажите проверяемое профессиональное требование.' : 'Несколько значений через запятую: должны совпасть все. Только профессиональные требования.';
+    const placeholders = {skills:'Например: Kotlin, Jetpack Compose',education:'Например: высшее',workMode:'Например: Москва, удалённая работа',language:'Например: английский, B2',schedule:'Например: полный день',responsibilities:'Например: финтех'};
+    const valueField = kind === 'employment' ? `<select class="sd-select" data-sd-auto-field="value" aria-label="Значение критерия ${number}">${options([{id:'free',label:'Нет активных процессов'},{id:'inprocess',label:'Есть активные процессы'}],value)}</select>` : `<input class="sd-input" data-sd-auto-field="value" aria-label="Значение критерия ${number}" type="${kind === 'experience' ? 'number' : 'text'}"${kind === 'experience' ? ' min="0" max="50" step="0.5"' : ' maxlength="1200"'} value="${esc(value)}" placeholder="${esc(placeholders[kind] || 'Укажите значение')}">`;
+    return `<section class="sd-auto-criterion" data-sd-auto-row="${esc(item.id)}"><label class="sd-auto-criterion-toggle"><input type="checkbox" data-sd-auto-field="enabled" aria-label="Использовать критерий ${number}"${item.enabled !== false ? ' checked' : ''}><span>Критерий ${number}</span></label><select class="sd-select" data-sd-auto-field="kind" aria-label="Тип критерия ${number}">${options(entries(Object.entries(kinds)),kind)}</select>${valueField}${button('×','auto-delete-criterion','text',`data-id="${esc(item.id)}" aria-label="Удалить критерий ${number}" title="Удалить критерий"`)}<p class="sd-help sd-auto-criterion-hint">${hint}</p></section>`;
+  }
+  function renderAutoCriteria() {
+    if (searchFlow?.kind !== 'autopick') return;
+    const list = $('.sd-auto-criteria-list',searchFlowRoot());
+    if (list) list.innerHTML = searchFlow.criterionRows.length ? searchFlow.criterionRows.map(autoCriterionRow).join('') : '<p class="sd-help">Добавьте хотя бы один критерий, чтобы сформировать подборку.</p>';
+  }
+  function readAutoCriteria() {
+    if (searchFlow?.kind !== 'autopick') return [];
+    const rows = [...searchFlowRoot().querySelectorAll('[data-sd-auto-row]')].map((row,index) => {
+      const previous = searchFlow.criterionRows.find(item => item.id === row.dataset.sdAutoRow) || {};
+      const kind = $('[data-sd-auto-field="kind"]',row).value, value = $('[data-sd-auto-field="value"]',row).value;
+      const terms = kind === 'experience' || kind === 'unknown' ? [] : value.split(/[,;\n]/).map(term => term.trim()).filter(Boolean);
+      const text = kind === 'experience' ? `Профильный опыт от ${value} лет` : kind === 'employment' ? value === 'free' ? 'Без активного процесса подбора' : 'С активным процессом подбора' : kind === 'unknown' ? value : `${M.criterionKinds[kind] || 'Требование'}: ${terms.join(', ')}`;
+      return {id:previous.id || `auto-row-${index + 1}`,kind,text,terms,required:previous.required !== false,enabled:$('[data-sd-auto-field="enabled"]',row).checked,...(kind === 'experience' ? {minYears:value} : {})};
+    });
+    searchFlow.criterionRows = rows;
+    return clone(rows.filter(item => item.enabled).map(({enabled,...criterion}) => criterion));
+  }
+  function changeAutoCriterion(target) {
+    if (searchFlow?.kind !== 'autopick') return;
+    readAutoCriteria();
+    if (target.dataset.sdAutoField === 'kind') {
+      const id = target.closest('[data-sd-auto-row]').dataset.sdAutoRow;
+      const row = searchFlow.criterionRows.find(item => item.id === id);
+      row.terms = row.kind === 'employment' ? ['free'] : [];delete row.minYears;
+      if (row.kind === 'experience') row.minYears = '';
+      renderAutoCriteria();
+      [...searchFlowRoot().querySelectorAll('[data-sd-auto-row]')].find(node => node.dataset.sdAutoRow === id)?.querySelector('[data-sd-auto-field="value"]')?.focus();
+    }
     updateAutopick();
+  }
+  function addAutoCriterion() {
+    if (searchFlow?.kind !== 'autopick') return;
+    readAutoCriteria();
+    let id;do {id = `auto-manual-${++autoCriterionSequence}`;} while (searchFlow.criterionRows.some(item => item.id === id));
+    searchFlow.criterionRows.push({id,kind:'skills',text:'',terms:[],required:true,enabled:true});
+    renderAutoCriteria();updateAutopick();
+    [...searchFlowRoot().querySelectorAll('[data-sd-auto-row]')].find(node => node.dataset.sdAutoRow === id)?.querySelector('[data-sd-auto-field="value"]')?.focus();
+  }
+  function deleteAutoCriterion(id) {
+    if (searchFlow?.kind !== 'autopick') return;
+    readAutoCriteria();searchFlow.criterionRows = searchFlow.criterionRows.filter(item => item.id !== id);
+    renderAutoCriteria();updateAutopick();
+    $('[data-sd-action="auto-add-criterion"]',searchFlowRoot())?.focus();
   }
   function autopickConfig() {
     const vacancyId = $('#sd-auto-vacancy',searchFlowRoot())?.value || '', vacancy = vacancies.find(item => item.id === vacancyId);
-    const selected = new Set([...searchFlowRoot().querySelectorAll('[data-sd-auto-criterion]:checked')].map(input => input.dataset.sdAutoCriterion));
-    return {...searchFlow.draft,vacancyId,initialStage:vacancy?.initialStage || '',threshold:$('#sd-auto-threshold',searchFlowRoot())?.value,target:$('#sd-auto-target',searchFlowRoot())?.value,criteria:clone((vacancy?.criteria || []).filter(item => selected.has(item.id)))};
+    return {...searchFlow.draft,vacancyId,initialStage:vacancy?.initialStage || '',threshold:$('#sd-auto-threshold',searchFlowRoot())?.value,target:$('#sd-auto-target',searchFlowRoot())?.value,criteria:readAutoCriteria()};
   }
-  function updateAutopick() {if (searchFlow?.kind === 'autopick') $('[data-sd-action="autopick-run"]',searchFlowRoot()).disabled = M.validateAutoPick(autopickConfig()).length > 0 || state.usedToday >= 1000;}
+  function updateAutopick() {
+    if (searchFlow?.kind !== 'autopick') return;
+    const errors = M.validateAutoPick(autopickConfig());
+    if (state.usedToday >= 1000) errors.push('Демонстрационный лимит на сегодня исчерпан. Подборку можно запустить завтра.');
+    $('[data-sd-action="autopick-run"]',searchFlowRoot()).disabled = errors.length > 0 || state.usedToday >= 1000;
+    const feedback = $('.sd-auto-criteria-errors',searchFlowRoot());
+    if (feedback) feedback.innerHTML = errors.length ? `<p class="sd-error">${errors.map(esc).join('<br>')}</p>` : '';
+  }
   function openAssembled(criteria, origin = 'ai', parsedOverride = null, config = {}) {
     const parsed = parsedOverride || M.parseAiQuery(state.aiPrompt);
     const draft = clone(criteria || parsed.criteria || []);
@@ -523,6 +584,7 @@
       $('#sd-assign-vacancy',dialog).querySelectorAll('option').forEach(option => {option.hidden = !!option.value && !option.textContent.toLocaleLowerCase('ru').includes(value);});
     }
     else if (target.id === 'sd-auto-threshold' || target.id === 'sd-auto-target') updateAutopick();
+    else if (target.dataset.sdAutoField === 'value') changeAutoCriterion(target);
     else if (target.id === 'sd-ai-target') refreshSearchBudget();
   });
   document.addEventListener('change', event => {
@@ -551,7 +613,7 @@
     else if (target.id === 'sd-bulk-vacancy') {const config = bulkAssignmentConfig();config.initialStage = '';openBulkAssignment(overlay.candidateIds,config);$('#sd-bulk-vacancy',dialog).focus();}
     else if (target.id === 'sd-bulk-stage' || target.hasAttribute('data-sd-bulk-resume')) updateBulkAssignment();
     else if (target.id === 'sd-auto-vacancy') {const config = autopickConfig();delete config.criteria;openAutopick(config);$('#sd-auto-vacancy',searchFlowRoot()).focus();}
-    else if (target.dataset.sdAutoCriterion) updateAutopick();
+    else if (target.hasAttribute('data-sd-auto-field')) changeAutoCriterion(target);
     else if (target.hasAttribute('data-sd-history')) {
       if (searchRun && !searchRun.done) finishRun('cancelled');
       const history = state.autoHistory.find(item => item.id === target.value); if (!history) return;
@@ -598,6 +660,10 @@
     else if (action === 'page') {state.page = Number(control.dataset.page); renderResults(); persist();}
     else if (action === 'saved') openSaved();
     else if (action === 'saved-save') {
+      if (selectedSearchMode === 'vacancy' && searchFlow?.kind === 'autopick') {
+        const errors = M.validateCriteria(autopickConfig().criteria);
+        if (errors.length) {showErrors(['Перед сохранением исправьте критерии подборки.',...errors]);return;}
+      }
       const name = $('#sd-saved-name',dialog).value.trim(), errors = M.validateSavedSearch(name); if (errors.length) {showErrors(errors); return;}
       const recipe = searchRecipeState();
       if (!selectedSearchMode) {showErrors(['Сначала выберите способ поиска и задайте условия.']);return;}
@@ -658,6 +724,8 @@
       if (searchFlow?.kind !== 'resume' || !searchFlow.parsed?.criteria.length || searchFlow.parsed.uncertain) return;
       const parsed = clone(searchFlow.parsed);openAssembled(parsed.criteria,'resume',parsed);
     }
+    else if (action === 'auto-add-criterion') addAutoCriterion();
+    else if (action === 'auto-delete-criterion') deleteAutoCriterion(control.dataset.id);
     else if (action === 'autopick-run') {
       if (searchFlow?.kind !== 'autopick') return;
       const config = autopickConfig(), errors = M.validateAutoPick(config);if (errors.length) {showSearchErrors(errors);return;}
