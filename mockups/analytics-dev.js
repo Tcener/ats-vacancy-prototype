@@ -43,6 +43,8 @@
     state.demoRevision = 1;
   }
   state.localFilters ||= {};
+  state.sourceDisplay ||= {};
+  state.dynamics ||= {};
   const redesignViews = {};
   let recruiterMetric = 'hires';
   const demoData = (local = {}) => window.AnalyticsDemo?.query(state.filters, local);
@@ -65,10 +67,10 @@
   function closeDropdown() {
     activeDropdown?.remove(); activeDropdown = null;
     $$('.ant-select-open').forEach(node=>node.classList.remove('ant-select-open'));
-    $$('[aria-expanded="true"]').forEach(node=>node.setAttribute('aria-expanded','false'));
+    $$('.ant-select [aria-expanded="true"]').forEach(node=>node.setAttribute('aria-expanded','false'));
   }
   function closeOverlay() {
-    closeDropdown(); activeOverlay?.remove(); activeOverlay = null; formMetric = null; formDraft = null;
+    closeDropdown(); window.AnalyticsSelects?.close(); activeOverlay?.remove(); activeOverlay = null; formMetric = null; formDraft = null;
   }
   function openOverlay(key) {
     closeOverlay(); const node = overlayTemplate(key); if (!node) { notify('Этот экран ещё не снят'); return null; }
@@ -77,7 +79,7 @@
     $('.ant-drawer-close, .ant-modal-close',node)?.focus(); return node;
   }
   function localDrillLinks(node) {
-    $$('a[href]',node).forEach(link=>{const href=link.getAttribute('href');if(href.includes('candidacy=')||href.includes('/candidate')){link.href='candidate-card-current.html?public=b9f3518e687f';link.dataset.devCandidate='true';}else if(href.includes('/vacanc'))link.href='ats-product.html?public=3183591b8132#vacancy';});
+    $$('a[href]',node).forEach(link=>{const href=link.getAttribute('href');if(href.includes('candidacy=')||href.includes('/candidate')){link.href='candidate-card-current.html?public=b9f3518e687f';link.dataset.devCandidate='true';}else if(href.includes('/vacanc'))link.href='ats-product.html?public=2722b4011af8#vacancy';});
   }
   function setSelect(node, value) {
     if (!node) return;
@@ -106,6 +108,7 @@
   function openSelect(node, key, choose, extra = []) {
     if (node === activeDropdown?.devAnchor) {closeDropdown(); return;}
     closeDropdown();
+    window.AnalyticsSelects?.close();
     const options = [...extra, ...optionTexts(key,fallbackOptions[key]||[])];
     const menu = document.createElement('div');
     menu.className='ant-select-dropdown css-var-_r_0_ ant-select-css-var analytics-dev-dropdown';
@@ -118,7 +121,20 @@
     const input=$('input:not([readonly])',node);
     if(input){input.oninput=()=>$$('[data-dev-option]',menu).forEach(option=>option.hidden=!text(option).toLocaleLowerCase().includes(input.value.toLocaleLowerCase()));}
     menu.onclick=event=>{const option=event.target.closest('[data-dev-option]');if(!option)return;const value=options[+option.dataset.devOption];setSelect(node,value);if(input)input.value='';closeDropdown();choose(value);};
-    menu.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();event.target.click();}};
+    const focusOption=direction=>{
+      const visible=$$('[data-dev-option]',menu).filter(option=>!option.hidden);
+      if(!visible.length)return;
+      const index=visible.indexOf(document.activeElement);
+      const next=direction==='first'?0:direction==='last'?visible.length-1:Math.max(0,Math.min(visible.length-1,index+direction));
+      visible[next].focus();visible[next].scrollIntoView({block:'nearest'});
+    };
+    menu.onkeydown=event=>{
+      if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)){event.preventDefault();event.stopPropagation();focusOption(event.key==='Home'?'first':event.key==='End'?'last':event.key==='ArrowDown'?1:-1);}
+      else if(event.key==='Enter'||event.key===' '){event.preventDefault();event.stopPropagation();event.target.closest('[data-dev-option]')?.click();}
+      else if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeDropdown();$('input',node)?.focus();}
+      else if(event.key==='Tab')closeDropdown();
+    };
+    if(input)input.onkeydown=event=>{if(['ArrowDown','ArrowUp'].includes(event.key)){event.preventDefault();event.stopPropagation();focusOption(event.key==='ArrowDown'?'first':'last');}};
   }
   const filterKeys={'Период':'period','Рекрутер':'recruiter','Департамент':'department','Нанимающий менеджер':'manager'};
   const filterDefaults={recruiter:'Все рекрутеры',department:'Все департаменты',manager:'Все нанимающие'};
@@ -158,6 +174,9 @@
       main.innerHTML=window.AnalyticsRedesign.render(state,data,{views:redesignViews,localFilters:state.localFilters,sectionsData,recruiterMetric,rangeError:customIncomplete?(range.reason||'Выберите начало и конец периода.') : ''});
       $$('[data-ad-date]',main).forEach(input=>{input.dataset.devDate=input.dataset.adDate;input.setAttribute('aria-invalid',String(customIncomplete&&!!range.reason));});
       renderPins(); renderMetrics();
+      window.AnalyticsSources?.mount(main,{settings:state.sourceDisplay,onChange:settings=>{state.sourceDisplay=settings;save();renderScope();}});
+      window.AnalyticsDynamics?.mount(main,{settings:state.dynamics,onChange:(settings,options={})=>{state.dynamics=settings;save();if(options.render!==false)renderScope();}});
+      window.AnalyticsSelects?.enhance(main);
       const fmt=value=>Number.isFinite(value)?value.toLocaleString('ru-RU',{maximumFractionDigits:1}):'—';
       state.homeMetricSnapshot=[
         {id:'ttf',name:'Time to Fill',value:`${fmt(data.kpis.ttf)} дня`,delta:'Демоданные',tone:'purple',coverage:`${data.kpis.counts.ttf} наблюдений · ${data.range.label}`},
@@ -315,7 +334,7 @@
     if(!metric.versions.length&&original)metric.versions.push({number:original.version,formula:original.formulaDisplay||originalFormula,date:'10.10.2026 13:53'});
     if(!original||originalFormula!==nextFormula)metric.versions.push({number:version,formula:nextFormula,date:today()});
     if(original)state.metrics[state.metrics.indexOf(original)]=metric;else state.metrics.push(metric);
-    save();closeOverlay();renderMetrics();notify(original?`Метрика сохранена · версия ${version}`:'Метрика опубликована');
+    save();closeOverlay();renderScope();notify(original?`Метрика сохранена · версия ${version}`:'Метрика опубликована');
   }
   function openVersions(metric) {
     const overlay=openOverlay('metric-versions');if(!overlay)return;
@@ -425,7 +444,10 @@
       };
       const metric=definitions[key];if(!metric){closeOverlay();return;}
       overlay.devExportRows=[['Собесо · демонстрационные данные',data.range.from,data.range.to],['Показатель',metric[0]],['Значение',metric[1]],['Методика',metric[2]],['Наблюдений',metric[3]]];
-      title.textContent=metric[0];body.innerHTML=`<div class="ad-method-summary"><span class="ad-eyebrow">Методика расчёта</span><strong>${esc(metric[1])}</strong><p>${esc(metric[2])}</p><p>${metric[3]} наблюдений · ${esc(data.range.label)}</p><div class="ad-notice">Вымышленные данные для демонстрации интерфейса, не результаты Dev.</div></div>`;
+      const pinName={ttf:'Time to Fill',tto:'Time to Offer',acceptance:'Offer acceptance rate'}[key];
+      const pinned=pinName&&(state.pins[pinName]??true);
+      const pin=pinName?`<button type="button" class="ad-button ${pinned?'secondary':'primary'}" data-dev-pin="${esc(pinName)}" aria-pressed="${!!pinned}">${pinned?'✓ На главной':'＋ На главную'}</button>`:'';
+      title.textContent=metric[0];body.innerHTML=`<div class="ad-method-summary"><span class="ad-eyebrow">Методика расчёта</span><strong>${esc(metric[1])}</strong><p>${esc(metric[2])}</p><p>${metric[3]} наблюдений · ${esc(data.range.label)}</p>${pin}<div class="ad-notice">Вымышленные данные для демонстрации интерфейса, не результаты Dev.</div></div>`;
       return;
     }
     const collection={source:'sources',stage:'stages',reason:'reasons',recruiter:'recruiters',funnel:'stages'}[type];
@@ -439,7 +461,7 @@
     title.textContent=`${label} · ${records.length} кандидатов`;
     body.innerHTML=`<p class="ad-note">${esc(data.range.label)} · вымышленные записи. Карточка кандидата открывает общий пример интерфейса.</p><div class="ad-table-scroll"><table class="ad-table"><thead><tr><th>Кандидат</th><th>Вакансия</th><th>Текущий этап</th><th>Источник</th><th>Рекрутер</th></tr></thead><tbody></tbody></table></div><ul class="ant-pagination"></ul>`;
     overlay.dataset.adDemoDrill='true';overlay.dataset.devDrillLabel=label;overlay.dataset.devDrillCount=String(records.length);
-    overlay.devDrillRows=records.map(record=>{const row=document.createElement('tr');row.innerHTML=`<td><a href="ats-product.html?public=3183591b8132#vacancy/android" data-dev-route="vacancy/android">${esc(record.name||record.id)}</a></td><td>${esc(record.vacancy||record.vacancyName||'Демонстрационная вакансия')}</td><td>${esc(record.currentStage||record.stage||'—')}</td><td>${esc(record.source||'—')}</td><td>${esc(record.recruiter||'—')}</td>`;return row;});
+    overlay.devDrillRows=records.map(record=>{const row=document.createElement('tr');row.innerHTML=`<td><a href="ats-product.html?public=2722b4011af8#vacancy/android" data-dev-route="vacancy/android">${esc(record.name||record.id)}</a></td><td>${esc(record.vacancy||record.vacancyName||'Демонстрационная вакансия')}</td><td>${esc(record.currentStage||record.stage||'—')}</td><td>${esc(record.source||'—')}</td><td>${esc(record.recruiter||'—')}</td>`;return row;});
     const exportButton=$$('button',overlay).find(button=>text(button)==='Выгрузить в Excel');if(exportButton)exportButton.dataset.devAction='export';
     drillPage(1);
     if(!records.length)$('tbody',overlay).innerHTML='<tr><td colspan="5">Нет кандидатов в этой выборке.</td></tr>';
@@ -571,7 +593,7 @@
     else if(action==='edit'&&metric)openMetric(metric);
     else if(action==='versions'&&metric)openVersions(metric);
     else if(action==='breakdown'&&metric)openBreakdown(metric,metric.breakdowns?.[0]||'vacancy');
-    else if(action==='archive'&&metric){metric.archived=true;save();renderMetrics();notify(`«${metric.name}» в архиве`,()=>{metric.archived=false;save();renderMetrics();});}
+    else if(action==='archive'&&metric){metric.archived=true;save();renderScope();notify(`«${metric.name}» в архиве`,()=>{metric.archived=false;save();renderScope();});}
     else if(label==='Проверить на данных'||action==='preview')previewMetric();
     else if(action==='journal'||label==='Журнал выгрузок')openJournal();
     else if(label==='Выгрузить в Excel'||action==='export')downloadTables(activeOverlay||$('#ats-screen'));
@@ -581,6 +603,7 @@
   // Ссылки оболочки ведут в основной макет; они никогда не обращаются к стенду.
   const routes={'/home':'dashboard','/tasks':'tasks','/calendar':'calendar','/analytics':'analytics','/applications':'requisitions','/requisitions':'requisitions','/settings':'settings','/search':'search','/candidates':'search','/vacancies':'vacancy','/notifications':'tasks','/messages':'tasks','/archive':'portfolio'};
   $$('a').forEach(link=>{try{const path=new URL(link.getAttribute('href'),location.href).pathname;if(path==='/analytics'){link.href='#';return;}if(path==='/home'){link.href='./dashboard.html';link.dataset.devDocument='dashboard';}else if(routes[path]){link.href=`./ats-product.html#${routes[path]}`;link.dataset.devRoute=routes[path];}else if(path.startsWith('/vacanc')){link.href='./ats-product.html#vacancy';link.dataset.devRoute='vacancy';}else if(path.startsWith('/candidate'))link.href='./candidate-card-current.html';}catch(_){}});
+  window.AnalyticsSelects?.install(document);
   renderScope();
   save();
   window.AnalyticsDevCopy={reset(){localStorage.removeItem(storageKey);location.reload();},getState:()=>JSON.parse(JSON.stringify(state)),openMetric,openJournal,xlsx};

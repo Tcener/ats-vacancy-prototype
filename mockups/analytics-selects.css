@@ -1,0 +1,38 @@
+/* Одинаковый фирменный dropdown во всех фильтрах и настройках аналитики. */
+body.analytics-redesign .ad-select { display:block; position:relative; width:100%; min-width:0; color:var(--ad-ink,#19191e); }
+body.analytics-redesign select.ad-select-native { position:absolute !important; width:1px !important; height:1px !important; min-height:0 !important; padding:0 !important; margin:-1px !important; clip-path:inset(50%); overflow:hidden; white-space:nowrap; pointer-events:none; opacity:0; }
+body.analytics-redesign .ad-select-trigger { display:flex; align-items:center; justify-content:space-between; gap:14px; width:100%; min-height:43px; padding:10px 13px; border:1px solid #e2daf3; border-radius:14px; background:#f4efff; color:var(--ad-ink,#19191e); font-family:inherit; font-size:13px; font-weight:500; text-align:left; line-height:1.5; cursor:pointer; box-shadow:0 2px 6px rgba(107,83,213,.025); transition:border-color .15s,background .15s,box-shadow .15s; }
+body.analytics-redesign .ad-select-trigger:hover { border-color:#b7a3ea; background:#ede5ff; }
+body.analytics-redesign .ad-select-trigger:focus-visible,
+body.analytics-redesign .ad-select.is-open .ad-select-trigger { border-color:var(--ad-purple,#6b53d5); background:#f1eaff; outline:0; box-shadow:0 0 0 3px rgba(107,83,213,.12); }
+body.analytics-redesign .ad-select-trigger[aria-invalid="true"] { border-color:#e65384; }
+body.analytics-redesign .ad-select-value { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+body.analytics-redesign .ad-select-chevron { flex:none; width:12px; height:8px; border-right:1.8px solid #7962ba; border-bottom:1.8px solid #7962ba; transform:translateY(-2px) rotate(45deg) scale(.6); font-size:0; transition:transform .15s; }
+body.analytics-redesign .ad-select.is-open .ad-select-chevron { transform:translateY(2px) rotate(225deg) scale(.6); }
+body.analytics-redesign .ad-select.is-disabled .ad-select-trigger { opacity:.55; cursor:not-allowed; }
+body.analytics-redesign .ad-select-popup { position:fixed; z-index:4600; display:flex; flex-direction:column; gap:5px; box-sizing:border-box; padding:7px; border:1px solid #ded1f7; border-radius:17px; background:#fcfaff; box-shadow:0 16px 48px rgba(60,34,108,.18),0 3px 10px rgba(60,34,108,.05); font-family:inherit; font-size:13px; color:var(--ad-ink,#19191e); overflow:hidden; }
+body.analytics-redesign .ad-select-options { min-height:0; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#c8b7eb transparent; }
+body.analytics-redesign .ad-select-option { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:38px; padding:9px 11px; border-radius:11px; cursor:pointer; line-height:1.45; font-weight:500; }
+body.analytics-redesign .ad-select-option-label { min-width:0; overflow-wrap:anywhere; }
+body.analytics-redesign .ad-select-option.is-active { background:#eee6ff; color:var(--ad-purple-dark,#5431ba); }
+body.analytics-redesign .ad-select-option[aria-selected="true"] { background:#e7dcff; color:var(--ad-purple-dark,#5431ba); font-weight:650; }
+body.analytics-redesign .ad-select-option[aria-disabled="true"] { opacity:.42; cursor:not-allowed; }
+body.analytics-redesign .ad-select-check { flex:none; width:15px; color:var(--ad-purple,#6b53d5); font-size:15px; font-weight:700; }
+body.analytics-redesign .ad-select-group { padding:9px 11px 5px; color:#87749f; font-size:11px; font-weight:650; }
+body.analytics-redesign input.ad-select-search { flex:none; width:100%; min-height:37px; box-sizing:border-box; padding:8px 11px; border:1px solid #e1d6f5; border-radius:11px; background:#f3edff; color:var(--ad-ink,#19191e); font:inherit; outline:none; }
+body.analytics-redesign input.ad-select-search:focus { border-color:var(--ad-purple,#6b53d5); box-shadow:0 0 0 2px rgba(107,83,213,.08); }
+body.analytics-redesign .ad-select-empty { padding:13px 11px; color:var(--ad-muted,#71647f); font-size:12px; }
+body.analytics-redesign .ad-select-empty[hidden] { display:none; }
+
+/* Снятые из Dev формы кастомных метрик уже используют AntD и сохраняют свой контроллер. */
+body.analytics-redesign .ant-select,
+body.analytics-redesign .ant-select .ant-select-selector { border-radius:14px; background:#f4efff; border-color:#e2daf3; }
+body.analytics-redesign .ant-select:not(.ant-select-disabled):hover,
+body.analytics-redesign .ant-select:not(.ant-select-disabled):hover .ant-select-selector { background:#ede5ff; border-color:#b7a3ea; }
+body.analytics-redesign .ant-select-focused,
+body.analytics-redesign .ant-select-open { border-color:var(--ad-purple,#6b53d5); box-shadow:0 0 0 3px rgba(107,83,213,.12); }
+body.analytics-redesign .ant-select-dropdown.analytics-dev-dropdown { padding:7px; border:1px solid #ded1f7; border-radius:17px; background:#fcfaff; box-shadow:0 16px 48px rgba(60,34,108,.18); scrollbar-width:thin; scrollbar-color:#c8b7eb transparent; }
+body.analytics-redesign .analytics-dev-dropdown .ant-select-item { min-height:38px; padding:9px 11px; border-radius:11px; }
+body.analytics-redesign .analytics-dev-dropdown .ant-select-item-option-selected { background:#e7dcff !important; font-weight:650; }
+body.analytics-redesign .analytics-dev-dropdown .ant-select-item:hover { background:#eee6ff !important; }
+@media (prefers-reduced-motion:reduce) { body.analytics-redesign .ad-select-trigger,body.analytics-redesign .ad-select-chevron { transition:none; } }

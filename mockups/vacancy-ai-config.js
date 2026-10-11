@@ -34,7 +34,7 @@ window.VacancyAiConfig = (() => {
     if(dialog)return;
     dialog=document.createElement('dialog');dialog.id='vacancy-ai-config-dialog';dialog.className='ve68-config-dialog';dialog.setAttribute('aria-labelledby','ve68-config-title');document.body.append(dialog);
     dialog.addEventListener('click',event=>{const b=event.target.closest('[data-ai-config-action]');if(b)act(b)});
-    dialog.addEventListener('cancel',event=>{if(flow.overlay){event.preventDefault();flow.overlay='';render()}});
+    dialog.addEventListener('cancel',event=>{if(flow.overlay){event.preventDefault();if(flow.overlay==='catalog'&&flow.rule)flow.rule=null;else flow.overlay='';flow.error='';render()}});
     dialog.addEventListener('input',event=>{if(event.target.matches('[data-question-row][data-list="fixedQuestions"] [data-prop="answer"]')){const row=event.target.closest('[data-question-row]');row.querySelector('[data-fixed-score]').textContent=`${event.target.value.trim()?'Повлияет':'Не повлияет'} на итоговую оценку`}});
     dialog.addEventListener('change',event=>{
       if(event.target.matches('[data-english-preset]')){capture();const q=flow.draft.voiceQuestions[Number(event.target.dataset.englishPreset)];q.preset=event.target.value;if(q.preset)q.text=englishPresets[q.preset];render()}
@@ -46,10 +46,14 @@ window.VacancyAiConfig = (() => {
       }
       if(event.target.matches('[data-welcome-video]')){capture();flow.draft.welcomeVideo=event.target.files[0]?.name||'';render()}
     });
+    dialog.addEventListener('dragstart',event=>{const grip=event.target.closest('.joon-grip');if(!grip)return;capture();flow.dragIndex=Number(grip.dataset.index);event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',String(flow.dragIndex))});
+    dialog.addEventListener('dragover',event=>{if(flow.dragIndex===undefined)return;const target=event.target.closest('[data-requirement], [data-joon-group]');if(target){event.preventDefault();event.dataTransfer.dropEffect='move'}});
+    dialog.addEventListener('drop',event=>{if(flow.dragIndex===undefined)return;const target=event.target.closest('[data-requirement], [data-joon-group]');if(!target)return;event.preventDefault();const from=flow.dragIndex,to=target.hasAttribute('data-requirement')?Number(target.dataset.requirement):null,required=target.closest('[data-joon-group]').dataset.joonGroup==='required';moveRequirement(from,to,required);flow.dragIndex=undefined;render()});
+    dialog.addEventListener('dragend',()=>{if(flow)flow.dragIndex=undefined});
   }
   function open(context,update){
     init();onUpdate=update;
-    flow={context,kind:kind(context.stage),view:kind(context.stage)==='resume'?'choice':kind(context.stage)==='bot'?'bot':'criteria',step:0,draft:clone(saved[key(context)]||defaults()),error:'',overlay:'',catalogGroup:true};
+    flow={context,kind:kind(context.stage),view:kind(context.stage)==='resume'?'choice':kind(context.stage)==='bot'?'bot':'criteria',step:0,draft:clone(saved[key(context)]||defaults()),error:'',overlay:'',catalogGroup:true,resetScroll:true};
     render();if(!dialog.open)dialog.showModal();
   }
   function toggle(context,update){
@@ -67,9 +71,12 @@ window.VacancyAiConfig = (() => {
   }
   function capture(){
     if(flow.overlay==='rule')window.NativeAiRequirements.read(flow.rule,dialog);
+    if(flow.overlay==='catalog'&&flow.rule){const editor=dialog.querySelector('.joon-catalog-editor');if(editor)window.NativeAiRequirements.read(flow.rule,editor)}
+    const replace=dialog.querySelector('[data-template-replace]');if(replace)flow.templateReplace=replace.checked;
     dialog.querySelectorAll('[data-bind]').forEach(el=>{if(el.type==='radio'&&!el.checked)return;put(flow.draft,el.dataset.bind,el.type==='checkbox'?el.checked:el.value)});
     dialog.querySelectorAll('[data-requirement]').forEach(row=>{
       const item=flow.draft[row.dataset.list][Number(row.dataset.requirement)];if(row.querySelector('[data-title]'))item.title=row.querySelector('[data-title]').value;
+      if(item.params){window.NativeAiRequirements.read(item,row);item.title=window.NativeAiRequirements.summary(item)}
       if(row.querySelector('[data-group]')){item.required=row.querySelector('[data-group]').value==='required';item.critical=item.required&&row.querySelector('[data-critical]').checked}
       if(row.querySelector('[data-condition]'))item.condition=row.querySelector('[data-condition]').value;
     });
@@ -81,39 +88,54 @@ window.VacancyAiConfig = (() => {
   }
   function neighbours(list,index){return list==='criteria'?flow.draft[list].map((r,i)=>r.required===flow.draft[list][index].required?i:-1).filter(i=>i!==-1):flow.draft[list].map((_,i)=>i)}
   function move(list,index,direction){const indices=neighbours(list,index),t=indices[indices.indexOf(index)+direction];if(t===undefined)return;[flow.draft[list][index],flow.draft[list][t]]=[flow.draft[list][t],flow.draft[list][index]]}
+  function moveRequirement(from,to,required){
+    if(from===to)return;const item=flow.draft.criteria.splice(from,1)[0];if(!item)return;item.required=required;if(!required)item.critical=false;
+    const target=to===null?flow.draft.criteria.length:to-(from<to?1:0);flow.draft.criteria.splice(target,0,item);
+  }
   function act(b){
     const action=b.dataset.aiConfigAction,list=b.dataset.list,index=Number(b.dataset.index);
     if(action==='cancel'){dialog.close();return}
     capture();flow.error='';
-    if(action==='close-overlay'){flow.overlay='';render();return}
-    if(action==='catalog'){flow.overlay='catalog';flow.catalogGroup=b.dataset.group!=='desired'}
-    if(action==='catalog-group')flow.catalogGroup=b.dataset.group==='required';
+    if(action==='close-overlay'){flow.overlay='';flow.rule=null;render();return}
+    if(action==='catalog'){flow.overlay='catalog';flow.rule=null;flow.catalogGroup=b.dataset.group!=='desired'}
+    if(action==='catalog-group'){flow.catalogGroup=b.dataset.group==='required';if(flow.rule){flow.rule.required=flow.catalogGroup;if(!flow.catalogGroup)flow.rule.critical=false}}
+    if(action==='row-menu')flow.rowMenu=flow.rowMenu===index?null:index;
+    if(action==='change-group'){const r=flow.draft.criteria[index];r.required=!r.required;r.critical=false;flow.rowMenu=null}
+    if(action==='pin'){const r=flow.draft.criteria[index];if(r.required)r.critical=!r.critical}
+    if(action==='inline-decision'){const r=flow.draft.criteria[index];r.params[b.dataset.field]=r.params[b.dataset.field]==='одобрить'?'отклонить':'одобрить';r.title=window.NativeAiRequirements.summary(r)}
+    if(action==='inline-place-add')flow.draft.criteria[index].params.years.push('1');
+    if(action==='inline-place-remove'&&flow.draft.criteria[index].params.years.length>1)flow.draft.criteria[index].params.years.pop();
     if(action==='add-rule'){
-      if(b.dataset.type==='text'){flow.draft.criteria.push({title:'',required:flow.catalogGroup,critical:false,type:'text'});flow.overlay=''}
-      else{flow.rule=window.NativeAiRequirements.create(b.dataset.type,b.dataset.label,flow.catalogGroup);flow.ruleIndex=null;flow.overlay='rule'}
+      if(b.dataset.type==='text'){flow.draft.criteria.push({title:'',required:flow.catalogGroup,critical:false,type:'text'});flow.rule=null;flow.overlay='catalog'}
+      else{const existing=flow.draft.criteria.findIndex(r=>r.type===b.dataset.type&&r.params);flow.ruleIndex=existing===-1?null:existing;flow.rule=existing===-1?window.NativeAiRequirements.create(b.dataset.type,b.dataset.label,flow.catalogGroup):clone(flow.draft.criteria[existing]);flow.overlay='catalog'}
     }
     if(action==='edit-rule'){flow.rule=clone(flow.draft.criteria[index]);flow.ruleIndex=index;flow.overlay='rule'}
     if(action==='rule-place-add')flow.rule.params.years.push('1');
     if(action==='rule-place-remove'&&flow.rule.params.years.length>1)flow.rule.params.years.splice(index,1);
+    if(action==='rule-decision')flow.rule.params[b.dataset.field]=flow.rule.params[b.dataset.field]==='одобрить'?'отклонить':'одобрить';
+    if(action==='rule-pin'&&flow.rule.required)flow.rule.critical=!flow.rule.critical;
+    if(action==='rule-close')flow.rule=null;
+    if(action==='rule-delete'){if(flow.ruleIndex!==null)flow.draft.criteria.splice(flow.ruleIndex,1);flow.rule=null}
     if(action==='rule-confirm'){
       flow.error=window.NativeAiRequirements.validate(flow.rule);
-      if(!flow.error){flow.rule.title=window.NativeAiRequirements.summary(flow.rule);if(flow.ruleIndex===null)flow.draft.criteria.push(clone(flow.rule));else flow.draft.criteria[flow.ruleIndex]=clone(flow.rule);flow.overlay=''}
+      if(!flow.error){flow.rule.title=window.NativeAiRequirements.summary(flow.rule);if(flow.ruleIndex===null)flow.draft.criteria.push(clone(flow.rule));else flow.draft.criteria[flow.ruleIndex]=clone(flow.rule);flow.overlay=flow.overlay==='catalog'?'catalog':'';flow.rule=null}
     }
     if(action==='add-requirement')flow.draft[list].push({title:'',condition:'Подходит если'});
     if(action==='remove'){if(list==='voiceQuestions')flow.draft.deletedQuestions.push(clone(flow.draft[list][index]));flow.draft[list].splice(index,1)}
     if(action==='deleted')flow.overlay='deleted';
     if(action==='restore'){flow.draft.voiceQuestions.push(flow.draft.deletedQuestions.splice(index,1)[0]);flow.overlay=''}
-    if(action==='up'||action==='down')move(list,index,action==='up'?-1:1);
+    if(action==='up'||action==='down'){move(list,index,action==='up'?-1:1);flow.rowMenu=null}
     if(action==='generate'){
       const items=generatedCriteria();if(!items.length)flow.error='В описании вакансии пока нет требований. Добавьте их вручную.';
-      else for(const item of items)if(!flow.draft[list].some(v=>v.title.toLowerCase()===item.title.toLowerCase()))flow.draft[list].push(list==='criteria'?item:{title:item.title,condition:'Подходит если'});
+      else for(const item of items)if(!flow.draft[list].some(v=>v.title.toLowerCase()===item.title.toLowerCase()))flow.draft[list].push(list==='criteria'?{...item,origin:'ai'}:{title:item.title,condition:'Подходит если'});
       if(items.length)notify('Пример требований подготовлен из описания — проверьте формулировки');
     }
     if(action==='correct'){flow.draft.criteria[index].title=flow.draft.criteria[index].title.trim().replace(/^•\s*/,'').replace(/;\s*$/,'');notify('В макете убраны лишние пробелы; AI-корректировка потребует движка Джуна')}
-    if(action==='templates')flow.overlay='templates';
+    if(action==='templates'){flow.overlay='templates';flow.selectedTemplate=null;flow.templateReplace=true}
+    if(action==='template-preview')flow.selectedTemplate=index;
     if(action==='template-save'){if(!validRequirements('criteria')){render();return}flow.overlay='template-name'}
     if(action==='template-confirm'){const name=dialog.querySelector('[data-template-name]').value.trim();if(!name)flow.error='Укажите название шаблона.';else{templates.push({name,criteria:clone(flow.draft.criteria)});flow.overlay='';notify('Шаблон сохранён в памяти макета')}}
-    if(action==='template-use'){flow.draft.criteria=clone(templates[index].criteria);flow.overlay=''}
+    if(action==='template-use'){const t=templates[flow.selectedTemplate];if(!t)return;flow.draft.criteria=flow.templateReplace?clone(t.criteria):[...flow.draft.criteria,...clone(t.criteria)];flow.overlay=''}
     if(action==='reuse'){
       const s=responseSettings();if(!s?.criteria?.length)return;
       for(const p of ['criteria','refusalMode','threshold'])flow.draft[p]=clone(s[p]);flow.draft.criteriaSource='response';finish();return;
@@ -148,7 +170,8 @@ window.VacancyAiConfig = (() => {
   }
   function validRequirements(list){
     if(!flow.draft[list].length){flow.error='Добавьте требования вручную или перенесите из описания вакансии.';return false}
-    if(flow.draft[list].some(v=>!v.title.trim()||/:\s*$/.test(v.title))){flow.error='Заполните требования или удалите пустые строки.';return false}return true;
+    if(flow.draft[list].some(v=>!v.title.trim()||/:\s*$/.test(v.title))){flow.error='Заполните требования или удалите пустые строки.';return false}
+    for(const r of flow.draft[list])if(r.params){const error=window.NativeAiRequirements.validate(r);if(error){flow.error=error;return false}}return true;
   }
   const steps=()=>['format',...(flow.draft.channels.chat?['requirements']:[]),'questions','settings','invite','review'];
   const stepNames={requirements:'Требования',questions:'Вопросы',settings:'Настройки',invite:'Приглашения',review:'Проверка'};
@@ -181,13 +204,24 @@ window.VacancyAiConfig = (() => {
   function orderButtons(list,i){const indices=neighbours(list,i);return `<div class="ve68-native-order">${icon('↑','up',`data-list="${list}" data-index="${i}" aria-label="Поднять строку ${i+1}" ${i===indices[0]?'disabled':''}`)}${icon('↓','down',`data-list="${list}" data-index="${i}" aria-label="Опустить строку ${i+1}" ${i===indices[indices.length-1]?'disabled':''}`)}</div>`}
   function requirementRows(list,required){
     const joon=list==='criteria';
+    if(joon)return joonRows(required);
     return `<div class="ve68-native-requirements">${flow.draft[list].map((r,i)=>joon&&r.required!==required?'':`<div class="ve68-native-requirement" data-requirement="${i}" data-list="${list}">${orderButtons(list,i)}<div class="ve68-native-requirement-content">${!joon?`<select data-condition aria-label="Условие требования ${i+1}">${opt(['Подходит если','Не подходит если'],r.condition)}</select>`:''}${r.params?`<p class="ve68-native-rule-summary">${esc(r.title)}</p>${btn('Параметры','edit-rule',`data-index="${i}"`,'small')}`:`<textarea data-title rows="2" aria-label="Требование ${i+1}" placeholder="Сформулируйте требование к опыту или навыкам">${esc(r.title)}</textarea>`}${joon?`<div class="ve68-native-requirement-tools"><select data-group data-refresh aria-label="Обязательность требования ${i+1}">${opt([['required','Обязательное'],['desired','Желательное']],r.required?'required':'desired')}</select><label class="ve68-native-critical"><input type="checkbox" data-critical ${r.critical?'checked':''} ${!r.required?'disabled':''}>Критичное <span title="Несоответствие критичному обязательному требованию означает, что кандидат не подходит.">ⓘ</span></label>${!r.params?btn('✦ Скорректировать','correct',`data-index="${i}"`,'small'):''}</div>`:''}</div>${icon('×','remove',`data-list="${list}" data-index="${i}" aria-label="Удалить требование ${i+1}"`)}</div>`).join('')||'<p class="ve68-native-empty">Требований пока нет</p>'}</div>`;
+  }
+  const joonIcon=name=>window.NativeAiRequirements.icons[name];
+  const joonButton=(name,label,action,attrs='',style='')=>`<button type="button" class="joon-btn ${style}" data-ai-config-action="${action}" ${attrs}>${joonIcon(name)}<span>${label}</span></button>`;
+  function joonRows(required){
+    return `<div class="joon-requirements-list" role="list" aria-label="${required?'Обязательные':'Желательные'} требования">${flow.draft.criteria.map((r,i)=>{
+      if(r.required!==required)return '';const origin=r.params?window.NativeAiRequirements.symbols[r.type]:joonIcon(r.origin==='ai'?'ai':'plain');
+      const content=r.params?window.NativeAiRequirements.inline(r,i):`<div class="joon-text-line"><input data-title aria-label="Требование ${i+1}" placeholder="впишите требование…" value="${esc(r.title)}">${joonButton('ai','скорректировать','correct',`data-index="${i}" title="AI перепишет формулировку требования. В макете — демонстрационная корректировка."`,'joon-refine')}</div>`;
+      return `<div class="joon-requirement" role="listitem" data-requirement="${i}" data-list="criteria"><div class="joon-grip-wrap"><button type="button" class="joon-grip" draggable="true" data-ai-config-action="row-menu" data-index="${i}" aria-label="Переместить требование ${i+1}" aria-expanded="${flow.rowMenu===i}" title="Перетащите, чтобы изменить порядок или перенести в другую группу">${joonIcon('grip')}</button>${flow.rowMenu===i?`<div class="joon-row-menu" role="group" aria-label="Порядок требования">${orderButtons('criteria',i)}${btn(required?'В желательные':'В обязательные','change-group',`data-index="${i}"`)}</div>`:''}</div><span class="joon-origin ${r.origin==='ai'?'ai':''}" aria-label="${r.params?'Готовое условие':r.origin==='ai'?'Из описания вакансии':'Своё требование'}">${origin}</span><div class="joon-requirement-content">${content}</div><button type="button" class="joon-pin" data-ai-config-action="pin" data-index="${i}" aria-label="Критичное требование ${i+1}" aria-pressed="${!!r.critical}" ${required?'':'disabled'} title="${required?'Критичное: несоответствие сразу означает отрицательный результат':'Критичность доступна только обязательным требованиям'}">${joonIcon('pin')}</button><button type="button" class="joon-delete" data-ai-config-action="remove" data-list="criteria" data-index="${i}" aria-label="Удалить требование ${i+1}">${joonIcon('trash')}</button></div>`;
+    }).join('')||'<p class="joon-empty">Требований пока нет. Добавьте своё или перенесите из вакансии.</p>'}</div>`;
   }
   function times(list){return `<div class="ve68-native-times">${flow.draft[list].map((t,i)=>`<label>Время <input type="time" data-time-list="${list}" aria-label="Время ${i+1}" value="${esc(t)}">${icon('×','remove',`data-list="${list}" data-index="${i}" aria-label="Удалить время ${i+1}"`)}</label>`).join('')}${btn('+ Ещё одно время','time-add',`data-list="${list}"`)}</div>`}
   function threshold(){return `<div class="ve68-native-score" role="group" aria-label="Проходной балл">${Array.from({length:10},(_,i)=>btn(i+1,'score',`data-index="${i+1}" aria-pressed="${Number(flow.draft.botThreshold)===i+1}"`,Number(flow.draft.botThreshold)===i+1?'selected':'')).join('')}</div>`}
   function criteriaBody(){
     const d=flow.draft;
-    return `<div class="ve68-criteria-toolbar"><h3>Требования</h3><div class="ve68-native-toolbar">${btn('+ Добавить требование','catalog')}${btn('✦ Перенести из вакансии','generate','data-list="criteria"','purple')}${btn('Выбрать шаблон','templates')}${btn('Сохранить в шаблон','template-save')}</div></div><p class="ve68-config-demo">В макете генерация демонстрационная. Требования можно изменить перед включением.</p>${section('Обязательные',requirementRows('criteria',true)+btn('+ Обязательное требование','catalog','data-group="required"'),'Сильно влияют на оценку. Критичное требование исключает кандидата при несоответствии.')}${section('Желательные',requirementRows('criteria',false)+btn('+ Желательное требование','catalog','data-group="desired"'),'Помогают ранжировать кандидатов, но не служат самостоятельным фильтром.')}${section('Общие настройки',`<h4>В каком случае отказывать кандидату</h4><div class="ve68-native-radio"><label><input type="radio" name="refusal-mode" data-bind="refusalMode" data-refresh value="required" ${d.refusalMode==='required'?'checked':''}>По обязательным требованиям</label><label><input type="radio" name="refusal-mode" data-bind="refusalMode" data-refresh value="score" ${d.refusalMode==='score'?'checked':''}>По проходному баллу</label></div>${d.refusalMode==='score'?`<label class="ve68-config-field">Проходной балл: <b>${esc(d.threshold)} из 10</b><input type="range" min="1" max="10" step="1" data-bind="threshold" data-refresh value="${esc(d.threshold)}"></label><p class="ve68-native-help">Обязательные требования — 80% оценки, желательные — 20%. Расчёт выполняет встроенный движок, а не этот макет.</p>`:''}`)}${flow.kind==='response'?section('Автоматический разбор откликов с вакансии',times('parseTimes'),'Настройте время разбора входящих откликов.') : ''}<p class="ve68-native-help">Оценка «подходит / не подходит» сама не отправляет отказ. Перемещение и сообщения настраиваются в колонке «Автоматизация».</p>`;
+    const group=(required,title,help)=>`<section class="joon-group" data-joon-group="${required?'required':'desired'}"><h4>${title}</h4><p class="joon-help">${help}</p>${joonRows(required)}</section>`;
+    return `<section class="joon-requirements-card"><header class="joon-requirements-head"><h3>Требования</h3><div class="joon-requirements-actions">${joonButton('plus','Добавить требование','catalog','','add')}${joonButton('transfer','перенести из вакансии','generate','data-list="criteria"')}${joonButton('layers','выбрать шаблон','templates')}${joonButton('save','сохранить в шаблон','template-save')}</div></header>${group(true,'Обязательные','Каждое совпадение заметно повышает оценку кандидата — эти требования весят больше всего. Отметьте требование <b>критичным</b> (булавкой) — тогда несоответствие сразу отклоняет кандидата.')}${group(false,'Желательные','Совпадение добавляет к оценке, но с меньшим весом. Не отсеивают, а помогают ранжировать кандидатов.')}</section><section class="joon-settings-card"><p class="joon-eyebrow">Автоматизация разбора</p><h3>Общие настройки</h3><h4>В каком случае отказывать кандидату</h4><div class="ve68-native-radio"><label><input type="radio" name="refusal-mode" data-bind="refusalMode" data-refresh value="required" ${d.refusalMode==='required'?'checked':''}>По обязательным требованиям</label><label><input type="radio" name="refusal-mode" data-bind="refusalMode" data-refresh value="score" ${d.refusalMode==='score'?'checked':''}>По проходному баллу</label></div>${d.refusalMode==='score'?`<p class="joon-help">Отказ уходит, если итоговая оценка кандидата ниже выбранного балла. Обязательные требования дают 80% оценки, желательные — 20%.</p><label class="ve68-config-field joon-threshold">Проходной балл<input type="range" min="1" max="10" step="1" data-bind="threshold" data-refresh value="${esc(d.threshold)}"><b>${esc(d.threshold)} / 10</b></label>`:''}${flow.kind==='response'?`<h4>Автоматический разбор откликов с вакансии</h4>${times('parseTimes')}`:''}</section><p class="joon-demo-note">Демонстрационный макет: генерация, справочники и шаблоны локальные. Движок Джуна не подключён. Оценка сама не отправляет отказ — действия настраиваются в автоматизациях этапа.</p>`;
   }
   function choice(){const s=responseSettings(),available=!!s?.criteria?.length;return `<p class="ve68-config-intro">Как AI должен разбирать резюме на этапе скоринга?</p><div class="ve68-config-choices"><button class="ve68-config-choice" data-ai-config-action="reuse" ${available?'':'disabled'}><b>Разбирать по тем же критериям, что и отклики</b><span>${available?`${s.criteria.length} требований, режим оценки и проходной балл из авторазбора откликов`:'Сначала сохраните требования в модуле «Авторазбор откликов».'}</span></button><button class="ve68-config-choice" data-ai-config-action="custom"><b>Настроить</b><span>Собственные обязательные и желательные требования.</span></button></div>`}
   function chatRequirements(){return section('Требования для интервью',requirementRows('chatRequirements')+`<div class="ve68-native-toolbar">${btn('+ Добавить требование','add-requirement','data-list="chatRequirements"')}${btn('✦ Сгенерировать','generate','data-list="chatRequirements"','purple')}</div>`,'По этим требованиям кандидату будут заданы вопросы.')+section('Требования для скоринга резюме',requirementRows('resumeRequirements')+`<div class="ve68-native-toolbar">${btn('+ Добавить требование','add-requirement','data-list="resumeRequirements"')}${btn('✦ Сгенерировать','generate','data-list="resumeRequirements"')}</div>`,'По этим требованиям вопрос не задаётся — только оценка резюме.')}
@@ -213,20 +247,29 @@ window.VacancyAiConfig = (() => {
     return step==='settings'?botSettings():step==='invite'?invitation():review();
   }
   const catalog=[['Своё требование',[['text','Своё требование текстом']]],['Опыт и карьера',[['experience','Опыт работы'],['tenure','Не смотрим бегунов'],['gap','Перерыв в работе'],['companies-count','Кол-во мест работы'],['freelance','Фрилансеры'],['courses','После курсов']]],['Компании',[['industry','Отрасль'],['company','Компания']]],['Локация',[['country','Страна'],['city','Город'],['metro','Метро'],['timezone','Часовой пояс'],['work-format','Формат работы']]],['О кандидате',[['salary','Зарплата'],['age','Возраст'],['citizenship','Гражданство'],['education','Уровень образования'],['gender','Пол'],['photo','Фото кандидата'],['hh-test','hh-тест'],['hh-comments','Комментарии в hh'],['position','Желаемая должность']]]];
+  function catalogEditor(){
+    if(flow.overlay!=='catalog'||!flow.rule)return '';
+    const r=flow.rule;
+    return `<article class="joon-catalog-editor" role="group" aria-label="Параметры: ${esc(r.label)}"><header><h4><span aria-hidden="true">${window.NativeAiRequirements.symbols[r.type]}</span> ${esc(r.label)}</h4>${icon('×','rule-close','aria-label="Закрыть параметры требования"')}</header>${flow.error?`<p role="alert" class="ve68-config-error">${esc(flow.error)}</p>`:''}${window.NativeAiRequirements.inline(r,flow.ruleIndex??flow.draft.criteria.length,true)}<footer><button type="button" class="joon-catalog-critical ${r.critical?'active':''}" data-ai-config-action="rule-pin" aria-pressed="${r.critical}" ${r.required?'':'disabled'}>${joonIcon('pin')} критично</button>${flow.ruleIndex!==null?btn('убрать','rule-delete'):''}${btn('готово','rule-confirm','','primary')}</footer></article>`;
+  }
   function overlay(){
     if(!flow.overlay)return '';let title='',body='';
-    if(flow.overlay==='catalog'){title='Добавить требование';body=`<div class="ve68-native-toolbar">${btn('✳ Обязательное','catalog-group','data-group="required"',flow.catalogGroup?'selected':'')}${btn('🔥 Желательное','catalog-group','data-group="desired"',!flow.catalogGroup?'selected':'')}</div><p class="ve68-config-demo">Выберите готовое условие и настройте его параметры или добавьте требование своим текстом.</p><div class="ve68-native-catalog">${catalog.map(([group,items])=>`<section><h4>${group}</h4>${items.map(([type,label])=>btn(esc(label),'add-rule',`data-type="${type}" data-label="${esc(label)}"`)).join('')}</section>`).join('')}</div>`}
+    if(flow.overlay==='catalog'){title='добавить требование';body=`<div class="joon-catalog-target"><span>куда:</span>${btn('✳ обязательное','catalog-group','data-group="required"',flow.catalogGroup?'selected':'')}${btn('🔥 желательное','catalog-group','data-group="desired"',!flow.catalogGroup?'selected':'')}</div><div class="joon-catalog">${catalog.map(([group,items],g)=>`<section class="joon-catalog-group">${g?`<h4>${group}</h4>`:''}<div class="joon-catalog-grid">${items.map(([type,label])=>`<button type="button" class="joon-catalog-item ${type==='text'?'custom':''}" data-ai-config-action="add-rule" data-type="${type}" data-label="${esc(label)}"><span class="joon-origin">${window.NativeAiRequirements.symbols[type]}</span><span><b>${esc(label)}</b><small>${window.NativeAiRequirements.hints[type]}</small></span>${flow.draft.criteria.some(r=>r.type===type)&&type!=='text'?'<span class="joon-catalog-present">✓</span>':''}${type==='text'?'<span class="joon-catalog-present">→</span>':''}</button>`).join('')}</div></section>`).join('')}</div><div class="joon-catalog-footer"><small>Выберите требование — их можно добавить несколько подряд</small>${btn('готово','close-overlay','','primary')}</div>`}
     if(flow.overlay==='rule'){title=flow.rule.label;body=window.NativeAiRequirements.fields(flow.rule)+btn(flow.ruleIndex===null?'Добавить требование':'Сохранить параметры','rule-confirm','','primary')}
-    if(flow.overlay==='templates'){title='Шаблоны требований';body=templates.length?`<div class="ve68-config-choices">${templates.map((t,i)=>`<button class="ve68-config-choice" data-ai-config-action="template-use" data-index="${i}"><b>${esc(t.name)}</b><span>${t.criteria.length} требований</span></button>`).join('')}</div>`:'<p>Шаблонов пока нет. Сохраните набор требований кнопкой «Сохранить в шаблон».</p>'}
+    if(flow.overlay==='templates'){title='Шаблоны требований';const t=templates[flow.selectedTemplate];body=`<p class="joon-help">Шаблон — сохранённый набор требований. При применении он заменяет требования вакансии или добавляется к ним — на выбор.</p><div class="joon-template-layout"><aside><h4>Локальные шаблоны</h4>${templates.map((t,i)=>`<button class="joon-template-item ${flow.selectedTemplate===i?'selected':''}" data-ai-config-action="template-preview" data-index="${i}"><b>${esc(t.name)}</b><small>требований: ${t.criteria.length} · обязательных: ${t.criteria.filter(r=>r.required).length}</small></button>`).join('')||'<p class="joon-help">Шаблонов пока нет. Сохраните набор требований кнопкой «сохранить в шаблон».</p>'}</aside><section>${t?`<h4>${esc(t.name)}</h4>${[true,false].map(required=>`<h5>${required?'Обязательные':'Желательные'}</h5>${t.criteria.filter(r=>r.required===required).map(r=>`<p class="joon-template-rule">${esc(r.title)}${r.critical?' · критичное':''}</p>`).join('')}`).join('')}`:'<p class="joon-help">Выберите шаблон слева, чтобы увидеть его требования</p>'}</section></div><div class="joon-template-footer"><label><input type="checkbox" data-template-replace ${flow.templateReplace?'checked':''}>заменить текущие требования вакансии</label>${btn('Закрыть','close-overlay')}${btn('Применить шаблон','template-use',t?'':'disabled')}</div>`}
     if(flow.overlay==='template-name'){title='Сохранить в шаблон';body=`<label class="ve68-config-field">Название шаблона<input data-template-name placeholder="Например: Android Senior"></label>${btn('Сохранить шаблон','template-confirm','','primary')}`}
     if(flow.overlay==='knowledge'){title='База знаний AI-бота';body='<p>Ответы о вакансии дополняют общие сведения о компании. Кандидат может задать вопросы после интервью.</p><p class="ve68-native-help">В макете редактируются вопросы и ответы этой вакансии. Общая база знаний компании сюда не копируется.</p>'}
     if(flow.overlay==='deleted'){title='Удалённые вопросы';body=flow.draft.deletedQuestions.length?flow.draft.deletedQuestions.map((q,i)=>`<section class="ve68-native-question"><p>${esc(q.text)||'Пустой вопрос'}</p>${btn('Восстановить','restore',`data-index="${i}"`)}</section>`).join(''):'<p>Удалённых вопросов нет.</p>'}
-    return `<div class="ve68-native-overlay"><section role="dialog" aria-modal="true" aria-label="${title}"><header><h3>${title}</h3>${icon('×','close-overlay','aria-label="Закрыть дополнительное окно"')}</header>${flow.error?`<p role="alert" class="ve68-config-error">${esc(flow.error)}</p>`:''}${body}</section></div>`;
+    return `<div class="ve68-native-overlay ${flow.overlay==='catalog'?'joon-catalog-overlay':flow.overlay==='templates'?'joon-template-overlay':''}"><section role="dialog" aria-modal="true" aria-label="${title}"><header><h3>${title}</h3>${icon('×','close-overlay','aria-label="Закрыть дополнительное окно"')}</header>${flow.error&&!(flow.overlay==='catalog'&&flow.rule)?`<p role="alert" class="ve68-config-error">${esc(flow.error)}</p>`:''}${body}</section>${catalogEditor()}</div>`;
   }
   function render(){
     const bot=flow.view==='bot',choiceView=flow.view==='choice',step=bot?steps()[flow.step]:'';
+    const scrollTop=flow.resetScroll?0:dialog.querySelector('.ve68-config-body')?.scrollTop||0;
+    const overlayScroll=dialog.querySelector('.ve68-native-overlay > section')?.scrollTop||0;flow.resetScroll=false;
+    dialog.classList.toggle('ve68-joon-dialog',flow.view==='criteria');
     dialog.innerHTML=`<header ${flow.overlay?'inert':''}><div><h2 id="ve68-config-title">${bot&&step==='format'?'AI бот · формат общения':names[flow.kind]}</h2><p>${esc(flow.context.vacancyName)} · ${esc(flow.context.stage)}</p></div>${icon('×','cancel','aria-label="Закрыть настройку AI"')}</header><div class="ve68-config-body" ${flow.overlay?'inert':''}>${bot&&flow.step>0?`<nav class="ve68-config-steps" aria-label="Шаги настройки">${steps().slice(1).map((name,i)=>`<span class="${flow.step===i+1?'current':flow.step>i+1?'complete':''}">${i+1}. ${stepNames[name]}</span>`).join('')}</nav>`:''}${flow.error&&!flow.overlay?`<p class="ve68-config-error" role="alert">${esc(flow.error)}</p>`:''}${choiceView?choice():bot?botBody():criteriaBody()}</div><footer ${flow.overlay?'inert':''}>${btn('Отмена','cancel')}${bot&&flow.step>0?btn('Назад','back'):''}${!choiceView?btn(bot?(step==='format'?'Подтвердить выбор':step==='review'?'Сохранить и включить':'Далее'):'Сохранить и включить','next','','primary'):''}</footer>${overlay()}`;
-    if(flow.overlay)dialog.querySelector('.ve68-native-overlay input, .ve68-native-overlay button')?.focus();
+    const body=dialog.querySelector('.ve68-config-body');if(body)body.scrollTop=scrollTop;
+    if(flow.overlay){dialog.querySelector(flow.overlay==='catalog'&&flow.rule?'.joon-catalog-editor input, .joon-catalog-editor button':'.ve68-native-overlay input, .ve68-native-overlay button')?.focus({preventScroll:true});const pane=dialog.querySelector('.ve68-native-overlay > section');if(pane)pane.scrollTop=overlayScroll}
   }
   return {kind,names,isOn,toggle,open};
 })();

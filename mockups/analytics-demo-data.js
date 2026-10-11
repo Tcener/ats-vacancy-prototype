@@ -37,7 +37,9 @@
     {id:'alexey',name:'Алексей Смирнов',initials:'АС',department:'commercial',manager:'viktor',load:8,target:40},
     {id:'irina',name:'Ирина Волкова',initials:'ИВ',department:'operations',manager:'daria',load:9,target:37}
   ];
-  const sources = [
+  // Шесть исходных корзин генератора сохраняют весь остальной демонстрационный
+  // год неизменным. Последняя корзина затем распределяется по реальным источникам.
+  const seedSources = [
     {id:'hh',name:'hh.ru',taken:1660,hires:106,interviews:297,rejectedOffers:18,pending:6},
     {id:'avito',name:'Avito',taken:840,hires:40,interviews:125,rejectedOffers:11,pending:4},
     {id:'database',name:'Из базы',taken:430,hires:53,interviews:130,rejectedOffers:10,pending:3},
@@ -45,6 +47,19 @@
     {id:'habr',name:'Хабр Карьера',taken:370,hires:22,interviews:100,rejectedOffers:5,pending:2},
     {id:'other',name:'Другие источники',taken:490,hires:11,interviews:100,rejectedOffers:3,pending:3}
   ];
+  const smallSources = [
+    {id:'linkedin',name:'LinkedIn',taken:80}, {id:'telegram',name:'Telegram',taken:60},
+    {id:'career-site',name:'Сайт компании',taken:45}, {id:'superjob',name:'SuperJob',taken:35},
+    {id:'rabota',name:'Работа.ру',taken:30}, {id:'zarplata',name:'Зарплата.ру',taken:25},
+    {id:'github',name:'GitHub',taken:25}, {id:'communities',name:'Профсообщества',taken:22},
+    {id:'events',name:'Карьерные мероприятия',taken:20}, {id:'universities',name:'Вузы',taken:18},
+    {id:'tenchat',name:'TenChat',taken:18}, {id:'vc',name:'VC.ru',taken:16},
+    {id:'joon',name:'Джун',taken:15}, {id:'agency-north',name:'Агентство «Север»',taken:14},
+    {id:'agency-vector',name:'Агентство «Вектор»',taken:12}, {id:'meetups',name:'Митапы',taken:12},
+    {id:'alumni',name:'Сообщество выпускников',taken:9}, {id:'job-fair',name:'Ярмарка вакансий',taken:8},
+    {id:'career-day',name:'День карьеры',taken:8}, {id:'unknown',name:'Источник не указан',taken:18}
+  ];
+  const sources = [...seedSources.slice(0,5), ...smallSources];
   const stages = [
     {id:'new',name:'Новый кандидат',weight:.7}, {id:'response',name:'Отклик',weight:.8},
     {id:'review',name:'Ревью',weight:1.5}, {id:'ai',name:'ИИ Скрининг',weight:1.8},
@@ -103,6 +118,7 @@
   const stageById = id => stages.find(item=>item.id===id);
   const allRecords = [];
   function buildYear(current) {
+    const sources = seedSources;
     const takenTotals = sources.map(source=>current?source.taken:Math.round(source.taken*.8));
     const takenMonths = current ? monthTaken : [220,228,236,248,256,260,268,276,284,300,312,312];
     const hireTotals = current ? sources.map(source=>source.hires) : [85,32,42,28,18,9];
@@ -202,6 +218,21 @@
     allRecords.push(...yearRecords);
   }
   buildYear(false);buildYear(true);
+  // «Другие» — только представление аналитики, никогда не источник процесса.
+  // Перераспределяем исходную малую корзину после генерации, не меняя кандидатов,
+  // даты, стадии, исходы, опросы, нагрузку и показатели команды.
+  for (const current of [false,true]) {
+    const records=allRecords.filter(record=>record.sourceId==='other'&&(record.date>='2025-10-01')===current);
+    const remaining=distributed(smallSources.map(source=>source.taken),[records.length,490-records.length])[0];
+    const groups=[records.filter(record=>record.hires),records.filter(record=>!record.hires&&record.offerResolved),records.filter(record=>record.offer&&!record.offerResolved),records.filter(record=>!record.offer)];
+    for (const group of groups) {
+      if(!group.length)continue;
+      const portion=distributed(remaining,[group.length,sum(remaining)-group.length])[0];
+      const assignments=quotaList(portion);
+      group.forEach((record,index)=>{const source=smallSources[assignments[index]];record.sourceId=source.id;record.source=source.name;});
+      portion.forEach((count,index)=>{remaining[index]-=count;});
+    }
+  }
   const vacancies=[...new Map(allRecords.map(record=>[record.vacancyId,{id:record.vacancyId,name:`${record.vacancy} · ${record.recruiter}`}])).values()];
   function parseDate(value) {
     if(!value)return null;

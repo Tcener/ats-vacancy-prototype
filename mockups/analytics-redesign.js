@@ -62,18 +62,17 @@
     return `<span class="ad-kpi-delta ${number === 0 ? 'ad-muted' : good ? 'ad-positive' : 'ad-negative'}">${number < 0 ? '↘' : number > 0 ? '↗' : '→'} ${number > 0 ? '+' : ''}${n(number,1)}${unit ? ` ${esc(unit)}` : ''} <small>к предыдущему периоду</small></span>`;
   }
   function kpis(state, data) {
-    const k = data.kpis || {}, counts = k.counts || {}, deltas = k.deltas || {}, months = data.months || [];
+    const k = data.kpis || {}, deltas = k.deltas || {};
     const definitions = [
-      {key:'ttf',name:'Time to Fill',value:k.ttf,unit:'дня',hint:'От согласования заявки до принятия оффера',sample:`${n(counts.ttf)} закрытых позиций`,lower:true,tone:'#6B53D5'},
-      {key:'tto',name:'Time to Offer',value:k.tto,unit:'дня',hint:'От добавления на вакансию до отправки оффера',sample:`${n(counts.tto)} кандидатов с оффером`,lower:true,tone:'#FF6FB8'},
-      {key:'acceptance',name:'Offer acceptance rate',value:k.acceptance,unit:'%',hint:'Принятые офферы среди офферов с итоговым ответом',sample:`${n(counts.offersAccepted)} из ${n(counts.offersResolved)} офферов`,tone:'#5EDB8A'},
-      {key:'nps',name:'NPS нанимающих',value:k.nps,unit:'',hint:'Готовность нанимающих рекомендовать сервис подбора',sample:`${n(counts.nps)} ответов · шкала от −100 до +100`,tone:'#6B53D5'},
-      {key:'csi',name:'CSI кандидатов',value:k.csi,unit:'/ 5',hint:'Удовлетворённость кандидатов процессом найма',sample:`${n(counts.csi)} ответов · шкала от 1 до 5`,tone:'#5EDB8A'}
+      {key:'ttf',name:'Time to Fill',value:k.ttf,unit:'дня',lower:true,tone:'purple'},
+      {key:'tto',name:'Time to Offer',value:k.tto,unit:'дня',lower:true,tone:'pink'},
+      {key:'acceptance',name:'Offer acceptance rate',value:k.acceptance,unit:'%',tone:'mint'},
+      {key:'nps',name:'NPS нанимающих',value:k.nps,unit:'',tone:'lavender'},
+      {key:'csi',name:'CSI кандидатов',value:k.csi,unit:'/ 5',tone:'lime'}
     ];
-    return `<section class="ad-kpis" aria-label="Ключевые показатели">${definitions.map((item,index) => {
+    return `<section class="ad-kpis ad-kpis-compact" aria-label="Ключевые показатели">${definitions.map(item => {
       const value = data.empty || item.value === null || item.value === undefined ? '—' : `${item.key === 'nps' && item.value > 0 ? '+' : ''}${n(item.value,item.key === 'nps' ? 0 : 1)}`;
-      const pinned = state.pins?.[item.name] !== false;
-      return `<article class="ad-kpi"><div class="ad-kpi-top"><span class="ad-kpi-label">${esc(item.name)}</span>${index < 3 ? `<button type="button" class="ad-pin ${pinned ? 'active' : ''}" data-dev-pin="${item.name}" aria-pressed="${pinned}" title="${pinned ? 'Убрать с главной' : 'Вывести на главную'}">${pinned ? '✓' : '＋'} ${pinned ? 'На главной' : 'На главную'}</button>` : ''}</div><button type="button" class="ad-kpi-detail" ${detail('kpi',item.key)} aria-label="Как считается ${esc(item.name)}"><div class="ad-kpi-value">${value}<small>${data.empty ? '' : esc(item.unit)}</small></div>${delta(data.empty ? null : deltas[item.key],item.lower,item.key === 'csi' ? 'балла' : item.key === 'ttf' || item.key === 'tto' ? 'дня' : 'п.п.')}<p>${esc(item.hint)}</p><span class="ad-kpi-foot">${esc(item.sample)}</span>${data.empty ? '' : sparkline(months.map(month => month[item.key]),item.tone)}</button></article>`;
+      return `<article class="ad-kpi ad-kpi-${item.tone}"><button type="button" class="ad-kpi-detail" ${detail('kpi',item.key)} aria-label="Как считается ${esc(item.name)}"><h2 class="ad-kpi-label">${esc(item.name)}</h2><div class="ad-kpi-value">${value}<small>${data.empty || item.value == null ? '' : esc(item.unit)}</small></div>${delta(data.empty ? null : deltas[item.key],item.lower,item.key === 'csi' ? 'балла' : item.key === 'ttf' || item.key === 'tto' ? 'дня' : 'п.п.')}</button></article>`;
     }).join('')}</section>`;
   }
   function trend(data) {
@@ -195,8 +194,8 @@
     const customMetrics = `<article class="ad-panel">${panelHead('Своя система показателей','Кастомные метрики','Настраиваемые показатели компании: формулы, разрезы и история версий.',`<button type="button" class="ad-button primary" data-dev-action="new-metric"><span aria-hidden="true">${icon('plus')}</span> Новая метрика</button>`)}<div class="ad-panel-body"><div class="ad-metric-cards Analytics_metricCards__redesign"></div></div></article>`;
     const rangeNote = settings.rangeError ? `<div class="ad-data-notice" role="alert"><strong>Проверьте даты периода</strong><span>${esc(typeof settings.rangeError === 'string' ? settings.rangeError : settings.rangeError.reason || 'Введите корректные начальную и конечную даты.')}</span></div>` : data.empty ? `<div class="ad-data-notice">${esc(data.emptyReason || 'Нет наблюдений в выбранной области.')} Показатели не подменяются общими данными.</div>` : '';
     const hero = `<header class="ad-hero"><div><span class="ad-eyebrow">Аналитика найма</span><h1 class="ad-title">Дашборд подбора</h1><p class="ad-subtitle">От общей картины — к причинам и решениям.</p></div><div class="ad-hero-actions"><span class="ad-demo">Демонстрационные данные · 2025–2026</span><button type="button" class="ad-button secondary" data-dev-action="journal"><span aria-hidden="true">${icon('journal')}</span> Журнал выгрузок</button><button type="button" class="ad-button action" data-dev-action="export"><span aria-hidden="true">${icon('export')}</span> Выгрузить в Excel</button></div></header>`;
-    const speed = `<article class="ad-panel">${panelHead('Динамика','Скорость найма','Как менялись сроки подбора за последние месяцы.',`<span class="ad-pill">${esc(rangeLabel(data))}</span>`)}<div class="ad-panel-body">${trend(data)}</div></article>`;
-    const sources = `<section class="ad-sources-section" data-ad-section="sources"><div class="ad-section-head"><div><span class="ad-eyebrow">Каналы привлечения</span><h2>Источники кандидатов</h2></div></div>${filters('sources',local.sources,['period','recruiter','department','pipeline'])}<div class="ad-grid two">${sourceShare(sourcesData,views)}${sourceEfficiency(sourcesData,views)}</div></section>`;
+    const speed = window.AnalyticsDynamics ? window.AnalyticsDynamics.render(data,state.metrics || [],state.dynamics || {},f) : `<article class="ad-panel">${panelHead('Динамика','Скорость найма','Как менялись сроки подбора за последние месяцы.',`<span class="ad-pill">${esc(rangeLabel(data))}</span>`)}<div class="ad-panel-body">${trend(data)}</div></article>`;
+    const sources = `<section class="ad-sources-section" data-ad-section="sources"><div class="ad-section-head"><div><span class="ad-eyebrow">Каналы привлечения</span><h2>Источники кандидатов</h2></div></div>${filters('sources',local.sources,['period','recruiter','department','pipeline'])}<div class="ad-grid two">${window.AnalyticsSources ? window.AnalyticsSources.render(sourcesData,views,state.sourceDisplay || {}) : sourceShare(sourcesData,views)+sourceEfficiency(sourcesData,views)}</div></section>`;
     return `<div class="ad-page">${[
       hero,globalFilters,rangeNote,kpis(state,data),speed,customMetrics,sources,
       funnel(sectional.funnel || data,views),stages(sectional.stages || data,views,local.stages),
