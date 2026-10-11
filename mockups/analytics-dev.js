@@ -81,7 +81,7 @@
     $('.ant-drawer-close, .ant-modal-close',node)?.focus(); return node;
   }
   function localDrillLinks(node) {
-    $$('a[href]',node).forEach(link=>{const href=link.getAttribute('href');if(href.includes('candidacy=')||href.includes('/candidate')){link.href='candidate-card-current.html?public=b9f3518e687f';link.dataset.devCandidate='true';}else if(href.includes('/vacanc'))link.href='ats-product.html?public=19d1ad2510ee#vacancy';});
+    $$('a[href]',node).forEach(link=>{const href=link.getAttribute('href');if(href.includes('candidacy=')||href.includes('/candidate')){link.href='candidate-card-current.html?public=b9f3518e687f';link.dataset.devCandidate='true';}else if(href.includes('/vacanc'))link.href='ats-product.html?public=e18d6b491900#vacancy';});
   }
   function setSelect(node, value) {
     if (!node) return;
@@ -512,7 +512,7 @@
     title.textContent=`${label} · ${records.length} кандидатов`;
     body.innerHTML=`<p class="ad-note">${esc(data.range.label)} · вымышленные записи. Карточка кандидата открывает общий пример интерфейса.</p><div class="ad-table-scroll"><table class="ad-table"><thead><tr><th>Кандидат</th><th>Вакансия</th><th>Текущий этап</th><th>Источник</th><th>Рекрутер</th></tr></thead><tbody></tbody></table></div><ul class="ant-pagination"></ul>`;
     overlay.dataset.adDemoDrill='true';overlay.dataset.devDrillLabel=label;overlay.dataset.devDrillCount=String(records.length);
-    overlay.devDrillRows=records.map(record=>{const row=document.createElement('tr');row.innerHTML=`<td><a href="ats-product.html?public=19d1ad2510ee#vacancy/android" data-dev-route="vacancy/android">${esc(record.name||record.id)}</a></td><td>${esc(record.vacancy||record.vacancyName||'Демонстрационная вакансия')}</td><td>${esc(record.currentStage||record.stage||'—')}</td><td>${esc(record.source||'—')}</td><td>${esc(record.recruiter||'—')}</td>`;return row;});
+    overlay.devDrillRows=records.map(record=>{const row=document.createElement('tr');row.innerHTML=`<td><a href="ats-product.html?public=e18d6b491900#vacancy/android" data-dev-route="vacancy/android">${esc(record.name||record.id)}</a></td><td>${esc(record.vacancy||record.vacancyName||'Демонстрационная вакансия')}</td><td>${esc(record.currentStage||record.stage||'—')}</td><td>${esc(record.source||'—')}</td><td>${esc(record.recruiter||'—')}</td>`;return row;});
     const exportButton=$$('button',overlay).find(button=>text(button)==='Выгрузить в Excel');if(exportButton)exportButton.dataset.devAction='export';
     drillPage(1);
     if(!records.length)$('tbody',overlay).innerHTML='<tr><td colspan="5">Нет кандидатов в этой выборке.</td></tr>';
