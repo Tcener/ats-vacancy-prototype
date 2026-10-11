@@ -450,7 +450,7 @@
       if(vacancyId)activeVacancyId=vacancyId;
       document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
       if(!stagePanel.hidden)closeStagePanel();
-      if(!colleagueFrame.getAttribute('src'))colleagueFrame.src='colleague-current.html?public=5a008280ae79';
+      if(!colleagueFrame.getAttribute('src'))colleagueFrame.src='colleague-current.html?public=f003a130905e';
       else colleagueFrame.contentWindow?.dispatchEvent(new Event('colleague-context-refresh'));
       return;
     }
