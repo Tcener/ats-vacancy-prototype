@@ -25,7 +25,7 @@
   state.filters ||= {period:'Текущий квартал', recruiter:'', department:'', manager:'', from:'', to:''};
   state.pins ||= {}; state.exports ||= [];
   let sourceView = 'Диаграмма', funnelView = 'Диаграмма', formMetric = null, formDraft = null;
-  let activeOverlay = null, activeDropdown = null, calendarStart = null, calendarDate = new Date(2026, 8, 1), calendarLimit = null;
+  let activeOverlay = null, overlayReturnFocus = null, activeDropdown = null, calendarStart = null, calendarDate = new Date(2026, 8, 1), calendarLimit = null;
   let manualDatePending = false, dateCommitTimer = null;
   const save = () => { try { localStorage.setItem(storageKey, JSON.stringify(state)); } catch (_) {} };
   const seedCards = $$(cls('metricCard'), base).map((card, index) => ({
@@ -46,7 +46,7 @@
   state.sourceDisplay ||= {};
   state.dynamics ||= {};
   const redesignViews = {};
-  let recruiterMetric = 'hires';
+  let recruiterMetric = state.recruiterMetric === 'activity' ? 'activity' : 'hires';
   const demoData = (local = {}) => window.AnalyticsDemo?.query(state.filters, local);
   const button = (label, action, primary = false) => `<button type="button" data-dev-action="${action}" class="ant-btn css-var-_r_0_ ${primary?'ant-btn-primary ant-btn-color-primary ant-btn-variant-solid':'ant-btn-default ant-btn-color-default ant-btn-variant-outlined'}"><span>${esc(label)}</span></button>`;
   function notify(message, undo) {
@@ -71,9 +71,11 @@
   }
   function closeOverlay() {
     closeDropdown(); window.AnalyticsSelects?.close(); activeOverlay?.remove(); activeOverlay = null; formMetric = null; formDraft = null;
+    if(overlayReturnFocus?.isConnected)overlayReturnFocus.focus({preventScroll:true});overlayReturnFocus=null;
   }
   function openOverlay(key) {
     closeOverlay(); const node = overlayTemplate(key); if (!node) { notify('Этот экран ещё не снят'); return null; }
+    overlayReturnFocus=document.activeElement;
     node.dataset.devOverlay = key; document.body.append(node); activeOverlay = node;
     localDrillLinks(node);
     $('.ant-drawer-close, .ant-modal-close',node)?.focus(); return node;
@@ -260,6 +262,7 @@
     return {value:metric.fields['Агрегирование']==='Среднее'?'2,4 дня':'0,1 дня',observations:5};
   }
   function formula(metric) {
+    if(window.AnalyticsMetricBuilder&&metric.fields['Конструктор']==='v2')return window.AnalyticsMetricBuilder.summary(metric,window.AnalyticsDemo?.options||{});
     const f=metric.fields,withDetail=key=>f[key]+(f[`${key}:detail`]?` «${f[`${key}:detail`]}»`:'');
     if(f['Способ расчёта']==='Количество')return `Количество: ${withDetail('Событие')} · ${f['Считать']||'Процессы на вакансиях'}`;
     if(f['Способ расчёта']==='Средняя оценка ИИ')return `Средняя оценка ИИ · ${f['Оценка на этапе']||'Любой этап — последняя оценка'}`;
@@ -274,10 +277,15 @@
   function directLabels(form) {return $$(':scope > label',form);}
   function collectForm() {
     const form=$(cls('metricForm'),activeOverlay); if(!form)return formDraft;
+    if(form.matches('.amb-form')){
+      const fields={...formDraft.fields};$$('[data-metric-field]',form).forEach(input=>fields[input.dataset.metricField]=input.value);
+      return {...formDraft,fields,visibility:fields['Кто видит']||formDraft.visibility,breakdowns:$$('[data-metric-breakdown]:checked',form).map(input=>input.value),pause:$('.ant-switch',form)?.getAttribute('aria-checked')==='true'};
+    }
     const fields={...formDraft.fields};directLabels(form).forEach(label=>{const key=text($(':scope > span',label));if(!key)return;const input=$('input:not([type="radio"]):not([type="checkbox"]):not(.ant-select-input),textarea',label),selects=$$('.ant-select',label);if(input)fields[key]=input.value;else if(selects.length){fields[key]=selects[0].dataset.devValue||text($('.ant-select-content-value',selects[0]));if(selects[1])fields[`${key}:detail`]=selects[1].dataset.devValue||text($('.ant-select-content-value',selects[1]));else delete fields[`${key}:detail`];}else if($('.ant-segmented',label))fields[key]=text($('.ant-segmented-item-selected .ant-segmented-item-label',label));});
     return {...formDraft,fields,visibility:fields['Кто видит']||formDraft.visibility,breakdowns:$$('input[type="checkbox"]:checked',form).map(input=>input.value),pause:$('.ant-switch',form)?$('.ant-switch',form).getAttribute('aria-checked')==='true':formDraft.pause};
   }
   function setFormValues(draft) {
+    if(window.AnalyticsMetricBuilder){renderMetricBuilder(draft);return;}
     const form=$(cls('metricForm'),activeOverlay);if(!form)return;
     directLabels(form).forEach(label=>{const key=text($(':scope > span',label));if(!key)return;const value=draft.fields[key];const input=$('input:not([type="radio"]):not([type="checkbox"]):not(.ant-select-input),textarea',label);if(input&&value!==undefined)input.value=value;
       let selects=$$('.ant-select',label);selects.forEach((select,index)=>select.dataset.devField=index?`${key}:detail`:key);
@@ -291,8 +299,34 @@
   }
   function validateForm() {
     const form=$(cls('metricForm'),activeOverlay);if(!form)return;
+    if(form.matches('.amb-form')){
+      const draft=collectForm(),status=window.AnalyticsMetricBuilder.validate(draft);
+      const publish=$('.ant-drawer-extra button',activeOverlay);if(publish)publish.disabled=!status.valid;
+      const alert=$('.amb-errors',form);if(alert){alert.hidden=status.valid;alert.innerHTML=status.errors.map(error=>`<p data-metric-error="${esc(error.field)}">${esc(error.message)}</p>`).join('');}
+      $$('[data-metric-field]',form).forEach(input=>{const invalid=status.errors.some(error=>error.field===input.dataset.metricField);input.setAttribute('aria-invalid',String(invalid));input.closest('.ad-select-wrap')?.querySelector('.ad-select-trigger')?.setAttribute('aria-invalid',String(invalid));});
+      const summary=$('[data-metric-summary]',form);if(summary)summary.textContent=window.AnalyticsMetricBuilder.summary(draft,window.AnalyticsDemo?.options||{});
+      const result=$('.amb-preview',form);
+      if(result?.dataset.signature&&result.dataset.signature!==window.AnalyticsMetricBuilder.signature(draft)){
+        result.innerHTML='<button type="button" data-dev-action="preview">Проверить на данных</button><small>Настройки изменились — проверьте результат заново.</small>';delete result.dataset.signature;
+      }
+      const preview=$('[data-dev-action="preview"]',form);if(preview)preview.disabled=!status.valid;
+      return;
+    }
     const input=$('input[maxlength="120"]',form);const publish=$('.ant-drawer-extra button',activeOverlay);if(publish)publish.disabled=!input?.value.trim();
     const alert=$('.ant-alert',form);if(alert)alert.hidden=!!input?.value.trim();
+  }
+  function renderMetricBuilder(draft, changedField) {
+    window.AnalyticsSelects?.close();
+    formDraft=window.AnalyticsMetricBuilder.defaults(draft);
+    const form=$(cls('metricForm'),activeOverlay),body=$('.ant-drawer-body',activeOverlay);
+    if(!body)return;
+    const conditionsOpen=$('.amb-conditions',form)?.open,focusField=changedField||document.activeElement?.closest('.amb-field')?.querySelector('[data-metric-field]')?.dataset.metricField;
+    const content=parse(window.AnalyticsMetricBuilder.render(formDraft,window.AnalyticsDemo?.options||{}));
+    if(form)form.replaceWith(content);else body.replaceChildren(content);
+    activeOverlay.classList.add('amb-overlay');
+    if(conditionsOpen!==undefined){const conditions=$('.amb-conditions',body);if(conditions)conditions.open=conditionsOpen;}
+    window.AnalyticsSelects?.enhance(body);validateForm();
+    if(focusField){const input=$$('[data-metric-field]',body).find(node=>node.dataset.metricField===focusField);(input?.closest('.ad-select-wrap')?.querySelector('.ad-select-trigger')||input)?.focus({preventScroll:true});}
   }
   function openMetric(metric) {
     const method=metric?.fields['Способ расчёта']||'Длительность между событиями';
@@ -307,6 +341,7 @@
   }
   function switchMethod(method) {
     const draft=collectForm();const metricId=formMetric;
+    if(window.AnalyticsMetricBuilder){draft.fields['Способ расчёта']=method;renderMetricBuilder(draft);formMetric=metricId;return;}
     const key={'Доля дошедших':'metric-share','Количество':'metric-count','Средняя оценка ИИ':'metric-ai'}[method]||'metric-new';
     const template=overlayTemplate(key); const form=$(cls('metricForm'),template);if(!form)return;
     draft.fields['Способ расчёта']=method;
@@ -325,14 +360,16 @@
   }
   function publishMetric() {
     const draft=collectForm();const name=draft.fields['Название']?.trim();if(!name){$('input[maxlength="120"]',activeOverlay)?.focus();return;}
+    if(window.AnalyticsMetricBuilder&&!window.AnalyticsMetricBuilder.validate(draft).valid){validateForm();return;}
     const original=state.metrics.find(metric=>metric.id===formMetric);
     const originalFormula=original?formula(original):'',nextFormula=formula(draft);
-    const version=original?original.version+(originalFormula!==nextFormula?1:0):1;
+    const changed=original?(window.AnalyticsMetricBuilder?window.AnalyticsMetricBuilder.signature(original)!==window.AnalyticsMetricBuilder.signature(draft):originalFormula!==nextFormula):true;
+    const version=original?original.version+(changed?1:0):1;
     const metric={...draft,name,description:draft.fields['Что показывает и зачем']?.trim()||'',version,archived:false,...calculation(draft)};
     delete metric.formulaDisplay;
     metric.versions=[...(original?.versions||[])];
     if(!metric.versions.length&&original)metric.versions.push({number:original.version,formula:original.formulaDisplay||originalFormula,date:'10.10.2026 13:53'});
-    if(!original||originalFormula!==nextFormula)metric.versions.push({number:version,formula:nextFormula,date:today()});
+    if(!original||changed)metric.versions.push({number:version,formula:nextFormula,date:today()});
     if(original)state.metrics[state.metrics.indexOf(original)]=metric;else state.metrics.push(metric);
     save();closeOverlay();renderScope();notify(original?`Метрика сохранена · версия ${version}`:'Метрика опубликована');
   }
@@ -345,13 +382,15 @@
   let breakdownMetric=null;
   function openBreakdown(metric, key='vacancy') {
     if(!metric||metric.breakdowns?.length===0)return;
-    const overlay=openOverlay(`metric-breakdown-${key}`);if(!overlay)return;
+    const overlay=openOverlay(`metric-breakdown-${['vacancy','recruiter','source'].includes(key)?key:'vacancy'}`);if(!overlay)return;
     breakdownMetric=metric.id;overlay.dataset.devMetric=metric.id;
     $('.ant-drawer-title',overlay).textContent=`${metric.name} — по разрезу`;
-    $$('.ant-segmented-item',overlay).forEach((item,index)=>{item.dataset.devBreakdown=['vacancy','recruiter','source'][index];if(metric.breakdowns&&!metric.breakdowns.includes(item.dataset.devBreakdown))item.hidden=true;});
+    const group=$('.ant-segmented',overlay),names={vacancy:'Вакансии',recruiter:'Рекрутеры',source:'Источники',department:'Департаменты',pipeline:'Шаблоны воронки'};
+    if(group){const controls=document.createElement('div');controls.className='ad-view-toggle amb-breakdown-controls';controls.setAttribute('aria-label','Разрез метрики');controls.innerHTML=(metric.breakdowns||['vacancy','recruiter','source']).map(id=>`<button type="button" data-dev-breakdown="${esc(id)}" class="${key===id?'active':''}" aria-pressed="${key===id}">${esc(names[id]||id)}</button>`).join('');group.replaceWith(controls);}
     if(window.AnalyticsDemo){
       const data=demoData();
-      const groups=key==='source'?data.sources:key==='recruiter'?data.recruiters:(data.vacancies||[]);
+      const dimension={vacancy:['vacancyId','vacancy'],recruiter:['recruiterId','recruiter'],source:['sourceId','source'],department:['departmentId','department'],pipeline:['pipelineId','pipeline']}[key]||['vacancyId','vacancy'];
+      const groups=[...new Map((data.observationRecords||data.records).map(record=>[record[dimension[0]],{id:record[dimension[0]],name:record[dimension[1]]}])).values()].filter(group=>group.id);
       const tbody=$('tbody',overlay);
       const rows=groups.length?groups:(key==='vacancy'?[...new Map(data.records.map(record=>[record.vacancyId,{id:record.vacancyId,name:record.vacancy}])).values()]:[]);
       if(tbody)tbody.innerHTML=rows.map(group=>{const local={[key]:group.id};const result=window.AnalyticsDemo.calculate(metric.fields,state.filters,local,!!metric.pause);return `<tr class="ant-table-row"><td class="ant-table-cell">${esc(group.name)}</td><td class="ant-table-cell">${esc(result.display)}</td><td class="ant-table-cell">${esc(result.observations)}</td></tr>`;}).join('')||'<tr><td colspan="3">Нет данных для выбранного периода и фильтров.</td></tr>';
@@ -363,7 +402,13 @@
     if(method!=='Доля дошедших')$$('tbody tr',overlay).forEach((row,index)=>{const cells=$$('td',row);if(!cells[1])return;cells[1].textContent=method==='Количество'?text(cells[2]):method==='Средняя оценка ИИ'?['7,4 / 10','8,1 / 10','6,8 / 10'][index%3]:['0,1 дня','1,2 дня','0 дней'][index%3];});
   }
   function previewMetric() {
-    const draft=collectForm(),result=calculation(draft),preview=$(cls('metricPreview'),activeOverlay);if(!preview)return;
+    const draft=collectForm(),preview=$(cls('metricPreview'),activeOverlay);if(!preview)return;
+    if(window.AnalyticsMetricBuilder&&preview.matches('.amb-preview')){
+      if(!window.AnalyticsMetricBuilder.validate(draft).valid){validateForm();return;}
+      const result=window.AnalyticsDemo.calculate(draft.fields,state.filters,{},!!draft.pause);
+      preview.innerHTML=window.AnalyticsMetricBuilder.preview(result);preview.dataset.signature=window.AnalyticsMetricBuilder.signature(draft);return;
+    }
+    const result=calculation(draft);
     const capture=overlayTemplate('metric-preview'),resultTemplate=$(cls('metricPreview'),capture);
     if(resultTemplate)preview.innerHTML=resultTemplate.innerHTML;
     else preview.innerHTML=`${button('Проверить на данных','preview')}<strong>${esc(result.value)}</strong><small>За период экрана, с его фильтрами: по ${result.observations} наблюдениям</small>`;
@@ -431,6 +476,12 @@
   function openDemoDetail(trigger) {
     const type=trigger.dataset.adDetail,key=trigger.dataset.adKey,section=trigger.closest('[data-ad-section]')?.dataset.adSection;
     const data=demoData(state.localFilters[section]||{});
+    if(type==='recruiter-vacancies'&&window.AnalyticsRecruiters){
+      closeOverlay();overlayReturnFocus=trigger;
+      const node=document.createElement('div');node.className='ant-modal-root ar-modal-root';node.dataset.devOverlay='recruiter-vacancies';
+      node.innerHTML=`<div class="ant-modal-mask"></div><div class="ar-modal-wrap"><div class="ar-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ar-modal-title"><header class="ar-modal-header"><div><span class="ad-eyebrow">Текущая нагрузка</span><h2 id="ar-modal-title">Вакансии рекрутера</h2></div><button type="button" class="ant-modal-close" aria-label="Закрыть вакансии рекрутера">×</button></header><div class="ar-modal-body">${window.AnalyticsRecruiters.modalVacancies(data,key)}</div></div></div>`;
+      document.body.append(node);activeOverlay=node;$('.ant-modal-close',node).focus();return;
+    }
     const overlay=openOverlay('source-drill');if(!overlay)return;
     const body=$('.ant-drawer-body',overlay),title=$('.ant-drawer-title',overlay);
     const fmt=value=>Number.isFinite(value)?value.toLocaleString('ru-RU',{maximumFractionDigits:1}):'—';
@@ -477,6 +528,10 @@
       rows=[['Собесо · демонстрационные данные',rangeLabel(data)],['Общие фильтры',state.filters.recruiter||'Все рекрутеры',state.filters.department||'Все департаменты',state.filters.manager||'Все нанимающие'],['Показатель','Значение'],...Object.entries(data.kpis).filter(([key])=>['ttf','tto','acceptance','nps','csi'].includes(key)),['Помесячная динамика','TTF, дни','TTO, дни','Выходы'],...data.months.map(m=>[m.label,m.ttf??'—',m.tto??'—',m.hires]),['Источники',rangeLabel(sourceData)],['Источник','Взято в работу','Интервью','Офферы','Выходы','Доля выходов, %','Конверсия, %'],...sourceData.sources.map(s=>[s.name,s.taken,s.interviews,s.offers,s.hires,sourceData.totals.hires?s.hires/sourceData.totals.hires*100:'—',s.taken?s.hires/s.taken*100:'—']),['Воронка','Кандидатов','Перешли дальше','Конверсия, %'],...data.funnel.map(s=>[s.name,s.count,s.nextCount??'—',s.conversion??'—']),['Отказ в когорте',data.funnelRejected],['Время на этапах',rangeLabel(stageData)],['Этап','Среднее, дней','Завершённых прохождений'],...stageData.stages.map(s=>[s.name,s.days??(s.terminal?'Завершение пути':'Нет наблюдений'),s.completedVisits??s.visits]),['Причины отказов',rangeLabel(reasonData)],['Причина','Инициатор','Количество'],...reasonData.reasons.map(r=>[r.name,r.initiatorName||r.initiator,r.count]),['Рекрутеры',rangeLabel(teamData)],['Рекрутер','Вакансий сейчас','Кандидатов сейчас','Выходы за период','Офферы','Добавлены','Обработаны','Интервью','Задачи закрыты'],...teamData.recruiters.map(r=>[r.name,r.loadVacancies,r.loadCandidates,r.hires,r.offers,r.added,r.screened,r.interviews,r.tasksClosed]),['Кастомные метрики'],...state.metrics.filter(m=>!m.archived).map(m=>[m.name,m.value])];
     }
     if(!rows.length)rows=[['Показатель','Значение'],...state.metrics.filter(metric=>!metric.archived).map(metric=>[metric.name,metric.value])];
+    if(window.AnalyticsDemo&&!activeOverlay){
+      const team=demoData(state.localFilters.recruiters||{}),start=rows.findIndex(row=>row[0]==='Рекрутеры');
+      if(start>=0)rows.splice(start+1,team.recruiters.length+1,['Рекрутер','Вакансий сейчас','Кандидатов сейчас','Выходы выбранной когорты','Добавлено в базу (дата события)','HR интервью проведено','Технических интервью проведено','Финальных интервью проведено','Офферов отправлено (дата события)'],...team.recruiters.map(row=>[row.name,row.loadVacancies,row.loadCandidates,row.hires,row.addedBase,row.hrInterviews,row.techInterviews,row.finalInterviews,row.activityOffers]));
+    }
     rows=rows.map(row=>row.map(value=>value&&typeof value==='object'?(value.count??JSON.stringify(value)):value));
     const blob=xlsx(rows),url=URL.createObjectURL(blob),link=document.createElement('a');
     link.href=url;link.download=`Собесо — ${activeOverlay?text($('.ant-drawer-title',activeOverlay)):'Аналитика'} — ${new Date().toISOString().slice(0,10)}.xlsx`;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
@@ -552,19 +607,36 @@
   }
   document.addEventListener('change',event=>{
     const target=event.target;
-    if(target.matches('[data-ad-filter]')){state.filters[target.dataset.adFilter]=target.value;save();renderScope();}
+    if(target.matches('[data-metric-field], [data-metric-breakdown]')){
+      formDraft=collectForm();
+      const field=target.dataset.metricField;
+      if(['От события','До события','Из тех, у кого было','Сколько потом дошли до','Событие'].includes(field))delete formDraft.fields[`${field}:detail`];
+      if(field==='Способ расчёта'&&target.value==='Средняя оценка ИИ')formDraft.fields['Агрегирование']='Среднее';
+      if(target.matches('select[data-metric-field]'))renderMetricBuilder(formDraft,field);else validateForm();
+    }
+    else if(target.matches('[data-ad-filter]')){state.filters[target.dataset.adFilter]=target.value;save();renderScope();}
     else if(target.matches('[data-ad-localkey]')){const section=target.dataset.adSection;state.localFilters[section]||={};state.localFilters[section][target.dataset.adLocalkey]=target.value;save();renderScope();}
     else if(target.matches('[data-ad-date]')){updateManualDate(target);commitManualDates(event);}
     else if(target.matches('[data-dev-date]')){updateManualDate(target);commitManualDates(event);}else if(target.matches('input[type="checkbox"]'))syncCheckbox(target);
   });
   document.addEventListener('input',event=>{if(event.target.matches('[data-dev-date]'))updateManualDate(event.target);else if(event.target.closest(cls('metricForm')))validateForm();});
   document.addEventListener('focusout',event=>{if(event.target.matches('[data-dev-date]')){updateManualDate(event.target);commitManualDates(event);}});
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'){if(activeDropdown)closeDropdown();else closeOverlay();}if(event.key==='Enter'&&event.target.closest('.ant-select'))event.target.closest('.ant-select').click();if(['Enter',' '].includes(event.key)&&event.target.matches('.ant-pagination-item a[role="button"]')){event.preventDefault();event.target.click();}});
+  document.addEventListener('keydown',event=>{
+    if(window.AnalyticsFlow?.handleKeydown(event))return;
+    if(event.key==='Tab'&&activeOverlay?.matches('.ar-modal-root')&&!document.querySelector('.ad-select-popup')){
+      const controls=$$('button:not([disabled]), a[href], summary, [tabindex="0"]',activeOverlay).filter(node=>node.getClientRects().length);
+      if(controls.length){const first=controls[0],last=controls.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}
+    }
+    if(event.key==='Escape'){if(activeDropdown)closeDropdown();else if(!document.querySelector('.ad-select-popup'))closeOverlay();}
+    if(event.key==='Enter'&&event.target.closest('.ant-select'))event.target.closest('.ant-select').click();if(['Enter',' '].includes(event.key)&&event.target.matches('.ant-pagination-item a[role="button"]')){event.preventDefault();event.target.click();}
+  });
   document.addEventListener('click',event=>{
     const target=event.target,select=target.closest('.ant-select');
+    if(window.AnalyticsFlow?.handleClick(target))return;
     const detail=target.closest('[data-ad-detail]');if(detail){openDemoDetail(detail);return;}
     const view=target.closest('[data-ad-view]');if(view){redesignViews[view.dataset.adView]=view.dataset.adMode;renderScope();return;}
-    const activity=target.closest('[data-ad-recruiter-metric]');if(activity){recruiterMetric=activity.dataset.adRecruiterMetric;renderScope();return;}
+    const activity=target.closest('[data-ad-recruiter-metric]');if(activity){recruiterMetric=activity.dataset.adRecruiterMetric;state.recruiterMetric=recruiterMetric;save();renderScope();return;}
+    const breakdown=target.closest('[data-dev-breakdown]');if(breakdown){openBreakdown(state.metrics.find(metric=>metric.id===breakdownMetric),breakdown.dataset.devBreakdown);return;}
     const resetLocal=target.closest('[data-ad-reset]');if(resetLocal){state.localFilters[resetLocal.dataset.adReset]={};save();renderScope();return;}
     const routeLink=target.closest('[data-dev-route], [data-dev-document]');
     if(routeLink&&window.parent!==window){event.preventDefault();if(routeLink.dataset.devDocument)window.parent.location.href=routeLink.href;else window.parent.location.hash=routeLink.dataset.devRoute;return;}
@@ -582,7 +654,7 @@
     if(segmented){setSegmented(segmented);if(segmented.dataset.devBreakdown){const metric=state.metrics.find(metric=>metric.id===breakdownMetric);openBreakdown(metric,segmented.dataset.devBreakdown);return;}
       const article=segmented.closest('article'),name=text($('h2',article)),mode=text($('.ant-segmented-item-label',segmented));if(name==='Эффективность источников'){sourceView=mode;tableArticle(name,mode);}else if(name==='Конверсии из этапа в этап'){funnelView=mode;tableArticle(name,mode);}return;}
     const pin=target.closest('[data-dev-pin]');if(pin){state.pins[pin.dataset.devPin]=!(state.pins[pin.dataset.devPin]??true);save();renderPins();return;}
-    const switchButton=target.closest('.ant-switch');if(switchButton){const on=switchButton.getAttribute('aria-checked')!=='true';switchButton.setAttribute('aria-checked',String(on));switchButton.classList.toggle('ant-switch-checked',on);return;}
+    const switchButton=target.closest('.ant-switch');if(switchButton){const on=switchButton.getAttribute('aria-checked')!=='true';switchButton.setAttribute('aria-checked',String(on));switchButton.classList.toggle('ant-switch-checked',on);if(switchButton.closest('.amb-form'))validateForm();return;}
     const pagination=target.closest('.ant-pagination-item, .ant-pagination-next, .ant-pagination-prev');
     if(pagination&&activeOverlay){event.preventDefault();if(pagination.classList.contains('ant-pagination-disabled'))return;const current=Number(activeOverlay.dataset.devPage)||1,page=pagination.classList.contains('ant-pagination-next')?current+1:pagination.classList.contains('ant-pagination-prev')?current-1:Number(pagination.title||text(pagination));drillPage(page);return;}
     const buttonTarget=target.closest('button');if(!buttonTarget)return;

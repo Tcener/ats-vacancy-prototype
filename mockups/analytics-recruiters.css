@@ -1,0 +1,62 @@
+/* Компактные пять показателей; никаких сложенных баллов «активности». */
+body.analytics-redesign .ar-panel .ad-team-summary { margin-bottom: 20px; }
+body.analytics-redesign .ar-chart-head { margin-bottom: 14px; }
+body.analytics-redesign .ar-matrix-scroll { overflow-x: auto; border: 1px solid #E9E2F7; border-radius: 16px; background: #fff; }
+body.analytics-redesign .ar-activity-matrix { width: 100%; min-width: 620px; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+body.analytics-redesign .ar-activity-matrix caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+body.analytics-redesign .ar-activity-matrix thead th { padding: 12px 14px; background: #F6F2FC; color: #62596E; font-size: 12px; font-weight: 600; text-align: left; line-height: 1.3; }
+body.analytics-redesign .ar-activity-matrix th:first-child { width: 24%; }
+body.analytics-redesign .ar-activity-matrix thead i { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+body.analytics-redesign .ar-activity-matrix tbody th, body.analytics-redesign .ar-activity-matrix td { border-top: 1px solid #F0EBF7; padding: 11px 14px; text-align: left; }
+body.analytics-redesign .ar-activity-matrix tbody tr:hover { background: #FBF8FF; }
+body.analytics-redesign .ar-recruiter-name { display: flex; align-items: center; gap: 9px; border: 0; padding: 0; background: transparent; color: #211D29; font: inherit; font-size: 13px; font-weight: 600; text-align: left; line-height: 1.35; }
+body.analytics-redesign .ar-recruiter-name:hover { color: #6B53D5; }
+body.analytics-redesign .ar-recruiter-name .ad-avatar { flex: 0 0 28px; width: 28px; height: 28px; margin: 0; font-size: 10px; }
+body.analytics-redesign .ar-activity-cell { display: flex; flex-direction: column; gap: 7px; }
+body.analytics-redesign .ar-activity-cell strong { font-size: 17px; font-weight: 750; color: #211D29; line-height: 1; }
+body.analytics-redesign .ar-mini-track { height: 5px; width: 100%; max-width: 125px; border-radius: 5px; overflow: hidden; background: #F0EBF8; }
+body.analytics-redesign .ar-mini-track i { display: block; height: 100%; border-radius: inherit; }
+body.analytics-redesign .ar-chart-caption, body.analytics-redesign .ar-modal-caption { margin: 10px 0 0; color: #7A718B; font-size: 11px; line-height: 1.55; }
+body.analytics-redesign .ar-hires-scroll { overflow-x: auto; }
+body.analytics-redesign .ar-hires-columns { min-width: 620px; height: 215px; padding-top: 28px; }
+body.analytics-redesign .ar-hires-columns .ad-column-track { height: 130px; }
+body.analytics-redesign .ar-hires-columns .ad-column { min-width: 96px; }
+body.analytics-redesign .ar-results-table th, body.analytics-redesign .ar-results-table td { padding: 13px 14px; }
+body.analytics-redesign .ar-results-table tbody th { font-weight: 600; border-bottom: 1px solid #F0EBF7; }
+body.analytics-redesign .ar-methodology { margin-top: 17px; border-radius: 12px; padding: 10px 14px; background: #F7F3FD; color: #776D87; font-size: 11px; line-height: 1.6; }
+body.analytics-redesign .ar-methodology summary { cursor: pointer; color: #6B53D5; font-weight: 600; }
+body.analytics-redesign .ar-methodology p { margin: 10px 0 0; }
+body.analytics-redesign .ar-vacancies-modal { color: #211D29; }
+body.analytics-redesign .ar-vacancies-summary { display: flex; align-items: center; gap: 12px; padding: 15px 18px; border-radius: 16px; background: #EFE7FB; border: 1px solid #DFD3F5; }
+body.analytics-redesign .ar-vacancies-summary .ad-avatar { margin: 0; background: #fff; flex-shrink: 0; }
+body.analytics-redesign .ar-vacancies-summary strong { display: block; font-size: 18px; font-weight: 750; }
+body.analytics-redesign .ar-vacancies-summary span:not(.ad-avatar) { display: block; margin-top: 4px; color: #756986; font-size: 12px; }
+body.analytics-redesign .ar-vacancies-list { display: grid; gap: 10px; margin-top: 20px; }
+body.analytics-redesign .ar-vacancy-card { border: 1px solid #E6DCF6; border-radius: 15px; overflow: hidden; background: #fff; }
+body.analytics-redesign .ar-vacancy-card summary { display: flex; align-items: center; gap: 12px; padding: 15px 17px; cursor: pointer; list-style: none; }
+body.analytics-redesign .ar-vacancy-card summary::-webkit-details-marker { display: none; }
+body.analytics-redesign .ar-vacancy-card summary:hover, body.analytics-redesign .ar-vacancy-card[open] summary { background: #F8F4FD; }
+body.analytics-redesign .ar-vacancy-order { display: grid; place-items: center; width: 28px; height: 28px; flex: 0 0 28px; border-radius: 10px; background: #EBE1FA; color: #6B53D5; font-size: 12px; font-weight: 700; }
+body.analytics-redesign .ar-vacancy-title { flex: 1; min-width: 0; }
+body.analytics-redesign .ar-vacancy-title strong { display: block; font-size: 14px; font-weight: 650; line-height: 1.4; }
+body.analytics-redesign .ar-vacancy-title small { display: block; color: #82758E; font-size: 11px; line-height: 1.5; margin-top: 3px; }
+body.analytics-redesign .ar-status { flex-shrink: 0; color: #39794E; background: #E8F6DF; white-space: nowrap; }
+body.analytics-redesign .ar-vacancy-chevron { color: #A28BBC; transition: transform .15s; }
+body.analytics-redesign .ar-vacancy-card[open] .ar-vacancy-chevron { transform: rotate(180deg); }
+body.analytics-redesign .ar-vacancy-details { padding: 0 17px 16px 57px; background: #F8F4FD; }
+body.analytics-redesign .ar-vacancy-details dl { display: flex; flex-wrap: wrap; gap: 13px 24px; margin: 0; padding-top: 10px; border-top: 1px solid #EAE1F5; }
+body.analytics-redesign .ar-vacancy-details dt { color: #94879F; font-size: 11px; }
+body.analytics-redesign .ar-vacancy-details dd { margin: 4px 0 0; color: #61546F; font-size: 12px; }
+body.analytics-redesign .ar-vacancy-stages { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+body.analytics-redesign .ar-vacancy-stages span { padding: 5px 9px; border-radius: 8px; background: #fff; color: #766389; font-size: 11px; }
+body.analytics-redesign .ar-vacancy-stages b { margin-left: 5px; color: #6B53D5; }
+body.analytics-redesign .ar-demo-hint { margin: 14px 0 0; color: #9985AA; font-size: 11px; line-height: 1.5; }
+body.analytics-redesign .ar-open-vacancy { display: inline-flex; margin-top: 14px; text-decoration: none; }
+body.analytics-redesign .ar-panel button:focus-visible, body.analytics-redesign .ar-vacancies-modal summary:focus-visible, body.analytics-redesign .ar-vacancies-modal a:focus-visible { outline: 3px solid #CDBAF3; outline-offset: 3px; }
+@media (max-width: 680px) {
+  body.analytics-redesign .ar-activity-matrix th:first-child { width: 190px; }
+  body.analytics-redesign .ar-vacancy-card summary { gap: 8px; padding: 13px 11px; flex-wrap: wrap; }
+  body.analytics-redesign .ar-vacancy-title { min-width: 170px; }
+  body.analytics-redesign .ar-vacancy-details { padding: 0 13px 14px; }
+  body.analytics-redesign .ar-status { margin-left: 36px; }
+}

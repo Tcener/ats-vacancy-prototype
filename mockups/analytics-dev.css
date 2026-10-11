@@ -26,3 +26,14 @@
   [data-analytics-dev] .ant-drawer-content-wrapper { width: min(720px, 100vw) !important; }
   .analytics-dev-calendar { left: 10px !important; max-width: calc(100vw - 20px); overflow-x: auto; }
 }
+/* Текущие вакансии рекрутера — отдельная модалка, не список кандидатов. */
+body.analytics-redesign .ar-modal-root { position:fixed; inset:0; z-index:3500; }
+body.analytics-redesign .ar-modal-root .ant-modal-mask { position:absolute; inset:0; z-index:0; background:rgba(29,22,45,.36); backdrop-filter:blur(5px); }
+body.analytics-redesign .ar-modal-wrap { position:absolute; inset:0; z-index:1; display:grid; place-items:center; padding:24px; pointer-events:none; }
+body.analytics-redesign .ar-modal-dialog { width:min(850px,100%); max-height:calc(100dvh - 48px); display:flex; flex-direction:column; border:1px solid #e9e0f6; border-radius:26px; overflow:hidden; background:#fff; box-shadow:0 24px 90px #35204738; pointer-events:auto; }
+body.analytics-redesign .ar-modal-header { display:flex; justify-content:space-between; align-items:center; padding:22px 25px; border-bottom:1px solid #eee7f8; background:#fcfaff; }
+body.analytics-redesign .ar-modal-header h2 { margin:6px 0 0; font-size:23px; font-weight:800; letter-spacing:-.6px; }
+body.analytics-redesign .ar-modal-header .ant-modal-close { position:static; width:34px; height:34px; flex:none; border:0; border-radius:12px; background:#eee7fa; color:#6b53d5; font-size:25px; cursor:pointer; }
+body.analytics-redesign .ar-modal-body { overflow-y:auto; overscroll-behavior:contain; padding:22px 25px; }
+body.analytics-redesign .amb-breakdown-controls { flex-wrap:wrap; }
+@media(max-width:680px) { body.analytics-redesign .ar-modal-wrap { padding:12px; } body.analytics-redesign .ar-modal-dialog { max-height:calc(100dvh - 24px); } body.analytics-redesign .ar-modal-header,body.analytics-redesign .ar-modal-body { padding:18px; } }

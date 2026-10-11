@@ -25,7 +25,7 @@
     monthlyCache.set(key,result);return result;
   }
   const activeMetrics = metrics => (metrics || []).filter(metric => !metric.archived && metric.id != null);
-  const customUnit = fields => /Длительность/.test(fields?.['Способ расчёта'] || fields?.method || '') ? 'дн.' : /Доля/.test(fields?.['Способ расчёта'] || fields?.method || '') ? '%' : /оценка ИИ/i.test(fields?.['Способ расчёта'] || fields?.method || '') ? '/ 10' : '';
+  const customUnit = fields => window.AnalyticsMetricBuilder?.unitFor(fields || {}) ?? (/Длительность/.test(fields?.['Способ расчёта'] || fields?.method || '') ? 'дн.' : /Доля/.test(fields?.['Способ расчёта'] || fields?.method || '') ? '%' : /оценка ИИ/i.test(fields?.['Способ расчёта'] || fields?.method || '') ? '/ 10' : '');
   const groupFor = unit => ['дн.','дня','дней','days'].includes(unit) ? 'days' : unit === '%' ? 'percent' : unit === '/ 5' ? 'score-5' : unit === '/ 10' ? 'score-10' : unit ? `unit:${unit}` : 'count';
   const available = metrics => [...definitions.map(item => ({...item})), ...activeMetrics(metrics).map((metric, index) => ({id:`custom:${metric.id}`, name:metric.name || 'Кастомная метрика', custom:true, metric, unit:customUnit(metric.fields), group:groupFor(customUnit(metric.fields)), color:palette[(index + 5) % palette.length], version:metric.version || 1}))];
   function normalizeSettings(settings = {}, metrics = []) {
@@ -52,7 +52,9 @@
         let value = null, observations = 0, unit = item.unit;
         if (item.custom) {
           const result = calculateMonth(item.metric,filters,range);
-          value = cohort.length && present(result?.value) ? Number(result.value) : null;
+          // Событийная метрика может иметь наблюдения из более ранней когорты.
+          const fields=item.metric.fields||{},eventBased=fields['Конструктор']==='v2'&&fields['Способ расчёта']==='Количество'&&['Людей','Офферы','HR интервью','Технические интервью','Финальные интервью','Закрытые задачи'].includes(fields['Считать']);
+          value = (cohort.length || eventBased&&result?.empty===false) && present(result?.value) ? Number(result.value) : null;
           observations = Number(result?.observations) || 0;
           unit = result?.unit ?? unit;
         } else if (item.id === 'acceptance') {
@@ -123,7 +125,7 @@
     const custom = series.filter(item => item.custom);
     const date = value => /^\d{4}-\d{2}-\d{2}$/.test(value || '') ? value.split('-').reverse().join('.') : '';
     const range = data.range?.from && data.range?.to ? `${date(data.range.from)} — ${date(data.range.to)}` : 'Период не выбран';
-    return `<article class="ad-panel ad-dynamics" data-ad-dynamics><header class="ad-panel-head"><div><span class="ad-eyebrow">Динамика</span><h2>Как меняются показатели</h2><p>Сроки, конверсии и качество подбора — по месяцам. <span class="ad-dynamics-range">${esc(range)}</span></p></div><div class="ad-panel-actions">${picker}${view}</div></header><div class="ad-panel-body">${body}<p class="ad-dynamics-note">${groups.size > 1 ? 'Показатели с разными единицами показаны на отдельных шкалах. ' : ''}Когорты по месяцу добавления на вакансию; исходы известны до 30.09.2026. Пропуск — нет наблюдений.${custom.length ? ` Кастомные показатели рассчитаны по текущей версии формулы для каждого месяца, а не из текущего итогового значения.` : ''}</p></div></article>`;
+    return `<article class="ad-panel ad-dynamics" data-ad-dynamics><header class="ad-panel-head"><div><span class="ad-eyebrow">Динамика</span><h2>Как меняются показатели</h2><p>Сроки, конверсии и качество подбора — по месяцам. <span class="ad-dynamics-range">${esc(range)}</span></p></div><div class="ad-panel-actions">${picker}${view}</div></header><div class="ad-panel-body">${body}<p class="ad-dynamics-note">${groups.size > 1 ? 'Показатели с разными единицами показаны на отдельных шкалах. ' : ''}Основные показатели — по месяцу добавления на вакансию; исходы известны до 30.09.2026. Пропуск — нет наблюдений.${custom.length ? ` Кастомные показатели рассчитаны по своей версии формулы для каждого месяца: когорта либо дата события, как задано в метрике.` : ''}</p></div></article>`;
   }
   const mounted = new WeakMap();
   function mount(main, options = {}) {

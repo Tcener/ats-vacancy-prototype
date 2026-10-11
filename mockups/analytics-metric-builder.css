@@ -1,0 +1,66 @@
+/* Конструктор метрик: выразительные секции, не язык запросов. */
+.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-content-wrapper{width:min(680px,calc(100vw - 28px))!important}
+.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-content{border-radius:28px 0 0 28px;overflow:hidden;background:#faf8ff}
+.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-header{background:#fff;border-bottom:1px solid #ece5ff;padding:23px 24px}
+.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-title{font-size:23px!important;font-weight:800!important;letter-spacing:-.6px;color:#19191b}
+.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-extra button{border:0!important;background:#6950df!important;color:#fff!important;border-radius:14px!important;font-weight:750!important;height:42px;padding:0 19px;box-shadow:0 6px 16px #6950df20}
+.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-extra button:disabled{background:#e3dcf6!important;color:#8b83a2!important;box-shadow:none}
+.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-body{padding:20px!important;background:#faf8ff}
+.analytics-redesign .amb-form{display:flex!important;flex-direction:column;gap:14px;font-size:13px;color:#19191b}
+.analytics-redesign .amb-panel{padding:20px;border:1px solid #e4dcfa;border-radius:22px;background:#fff}
+.analytics-redesign .amb-panel header{display:flex;align-items:center;gap:12px;margin-bottom:17px}
+.analytics-redesign .amb-panel h3{font-size:18px;font-weight:800;letter-spacing:-.3px;line-height:1.2;margin:0;color:#19191b}
+.analytics-redesign .amb-panel header p{font-size:12px;color:#6d657e;margin:5px 0 0;line-height:1.5}
+.analytics-redesign .amb-step{display:inline-flex;align-items:center;justify-content:center;width:31px;height:31px;flex:none;border-radius:11px;background:#ece4ff;color:#613dd6;font-size:13px;font-weight:800}
+.analytics-redesign .amb-calculate{background:#f0eaff;border-color:#d6c9fa}
+.analytics-redesign .amb-calculate .amb-step{background:#6a4ce0;color:#fff}
+.analytics-redesign .amb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;align-items:start}
+.analytics-redesign .amb-wide{grid-column:1/-1}
+.analytics-redesign .amb-field{display:flex;flex-direction:column;gap:7px;min-width:0;margin:0!important}
+.analytics-redesign .amb-field>span{font-size:12px;line-height:1.4;font-weight:650;color:#4c445d}
+.analytics-redesign .amb-field input,.analytics-redesign .amb-field textarea,.analytics-redesign .amb-field select{width:100%;min-width:0;border:1px solid #ddd2f5;border-radius:13px;background:#fff;padding:10px 12px;font:inherit;color:#19191b;outline:none}
+.analytics-redesign .amb-field textarea{min-height:66px;resize:vertical;line-height:1.6}
+.analytics-redesign .amb-field input:focus,.analytics-redesign .amb-field textarea:focus,.analytics-redesign .amb-field select:focus{border-color:#7150eb;box-shadow:0 0 0 3px #7150eb16}
+.analytics-redesign .amb-field [aria-invalid=true]{border-color:#d66a91}
+.analytics-redesign .amb-field input[readonly],.analytics-redesign .amb-field textarea[readonly]{background:#f1edf7;color:#776c8a}
+.analytics-redesign .amb-field .ad-select-wrap{min-width:0;width:100%}
+.analytics-redesign .amb-field .ad-select-trigger{min-height:42px;border-radius:13px!important;background:#faf8ff;border-color:#ddd2f5}
+.analytics-redesign .amb-event{display:flex;flex-direction:column;gap:10px;min-width:0}
+.analytics-redesign .amb-help{font-size:12px;line-height:1.6;color:#746a85;margin:11px 0 0}
+.analytics-redesign .amb-time-note{font-size:11px;line-height:1.6;color:#67567f;padding:11px 13px;background:#fff9;border-radius:12px;margin:15px 0 0}
+.analytics-redesign .amb-pause{display:flex;align-items:center;gap:9px;align-self:end;min-height:42px;color:#4c445d;font-size:12px}
+.analytics-redesign .amb-pause .ant-switch{position:relative;flex:none;width:36px;min-width:36px;height:21px;padding:0;border:0;border-radius:20px;background:#b9b1c7;cursor:pointer}
+.analytics-redesign .amb-pause .ant-switch[aria-checked=true]{background:#6950df}
+.analytics-redesign .amb-pause .ant-switch-handle{position:absolute;inset:3px auto auto 3px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 3px #30234d30;transition:transform .15s}
+.analytics-redesign .amb-pause .ant-switch[aria-checked=true] .ant-switch-handle{transform:translateX(15px)}
+.analytics-redesign .amb-pause .ant-switch:focus-visible{outline:3px solid #c4b2f0;outline-offset:3px}
+.analytics-redesign .amb-conditions{background:#fff6fb;border-color:#f0d3e5}
+.analytics-redesign .amb-conditions summary{display:flex;align-items:center;gap:12px;cursor:pointer;list-style:none;outline:none}
+.analytics-redesign .amb-conditions summary::-webkit-details-marker{display:none}
+.analytics-redesign .amb-conditions summary:focus-visible{outline:3px solid #7150eb55;outline-offset:6px;border-radius:10px}
+.analytics-redesign .amb-conditions .amb-step{background:#f8ddec;color:#a93d7e}
+.analytics-redesign .amb-conditions summary b{display:block;font-size:18px;letter-spacing:-.3px}
+.analytics-redesign .amb-conditions summary small{display:block;margin-top:5px;color:#85677b;font-size:12px}
+.analytics-redesign .amb-conditions .amb-chevron{margin-left:auto;font-size:21px;color:#a77b96;transition:transform .15s ease}
+.analytics-redesign .amb-conditions[open] .amb-chevron{transform:rotate(180deg)}
+.analytics-redesign .amb-conditions[open] .amb-grid{margin-top:18px}
+.analytics-redesign .amb-display{background:#faffef;border-color:#e0ecc2}
+.analytics-redesign .amb-display .amb-step{background:#e2efbd;color:#5c711f}
+.analytics-redesign .amb-breakdowns{display:flex;flex-wrap:wrap;gap:8px;border:0;margin:0 0 15px;padding:0}
+.analytics-redesign .amb-breakdowns label{display:flex;align-items:center;gap:7px;border:1px solid #dce6c8;border-radius:11px;padding:8px 10px;background:#fff;font-size:12px;cursor:pointer}
+.analytics-redesign .amb-breakdowns input{accent-color:#6a4de0;width:14px;height:14px;margin:0}
+.analytics-redesign .amb-breakdowns label:has(input:checked){border-color:#baa6f0;background:#f1eaff;color:#5934c5}
+.analytics-redesign .amb-check{background:#fff;border-color:#d9cbed}
+.analytics-redesign .amb-formula{padding:14px;border-left:3px solid #7451df;border-radius:12px;background:#f5efff;color:#4c3769;font-size:12px;line-height:1.7;overflow-wrap:anywhere}
+.analytics-redesign .amb-errors{padding:11px 13px;background:#fff1f5;color:#ac4167;border:1px solid #f1d0de;border-radius:12px;margin-top:11px;font-size:12px}
+.analytics-redesign .amb-errors p{margin:0;line-height:1.5}
+.analytics-redesign .amb-errors[hidden]{display:none}
+.analytics-redesign .amb-preview{display:flex;flex-wrap:wrap;align-items:center;gap:11px;padding:14px!important;background:#ece4ff!important;border-radius:15px!important;margin-top:12px}
+.analytics-redesign .amb-preview button{border:0;background:#6950df;color:#fff;padding:10px 15px;font:inherit;font-weight:750;border-radius:11px;cursor:pointer}
+.analytics-redesign .amb-preview button:disabled{background:#ddd3ef;color:#8c80a5;cursor:not-allowed}
+.analytics-redesign .amb-preview button:focus-visible{outline:3px solid #a18bed;outline-offset:3px}
+.analytics-redesign .amb-preview strong{font-size:25px;font-weight:800;color:#5833c3;line-height:1.2}
+.analytics-redesign .amb-preview small,.analytics-redesign .amb-preview p{font-size:11px;color:#77678e;line-height:1.5;margin:0}
+.analytics-redesign .amb-preview p{width:100%}
+.analytics-redesign .amb-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:620px){.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-content-wrapper{width:100vw!important}.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-body{padding:12px!important}.analytics-redesign .amb-panel{padding:16px}.analytics-redesign .amb-grid{grid-template-columns:1fr}.analytics-redesign .amb-panel header p{font-size:11px}.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-header{padding:17px 14px}.analytics-redesign .ant-drawer:has(.amb-form) .ant-drawer-title{font-size:19px!important}}

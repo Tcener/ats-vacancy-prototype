@@ -134,6 +134,7 @@
     return `<article class="ad-panel" data-ad-section="sources">${panelHead('Эффективность','Какие источники лучше конвертируют','Выходы из кандидатов, взятых в работу на вакансии.',toggle('sources-efficiency',views))}<div class="ad-panel-body">${body}<p class="ad-note">Проценты — конверсия внутри каждого источника, а не доля общей массы. Сравнивайте с учётом размера выборки и сложности вакансий.</p></div></article>`;
   }
   function funnel(data, views) {
+    if(window.AnalyticsFlow)return window.AnalyticsFlow.funnel(data,views);
     const supplied = Array.isArray(data.funnel) && data.funnel.length;
     const rows = supplied ? data.funnel.filter(stage => stage.name !== 'Отказ') : (data.stages || []).filter(stage => !['Выход','Отказ'].includes(stage.name)).map(stage => ({...stage,count:stage.visits}));
     if (!rows.length || data.empty) return `<article class="ad-panel" data-ad-section="funnel">${panelHead('Воронка','Конверсии из этапа в этап','Общая картина по выбранным вакансиям.',toggle('funnel',views))}<div class="ad-panel-body">${empty()}</div></article>`;
@@ -145,6 +146,7 @@
     return `<article class="ad-panel" data-ad-section="funnel">${panelHead('Воронка','Конверсии из этапа в этап','Общие переходы по всем вакансиям выбранного периода.',toggle('funnel',views))}<div class="ad-panel-body">${body}${terminalBranch}<p class="ad-note">Когорта — кандидаты, добавленные в выбранном периоде; последующие события учтены до даты снимка. Каждая конверсия рассчитывается по кандидатам, прошедшим соответствующий переход, не как среднее процентов вакансий. Пропущенные и альтернативные этапы учитываются отдельно.</p></div></article>`;
   }
   function stages(data, views, local) {
+    if(window.AnalyticsFlow)return window.AnalyticsFlow.stages(data,views,local);
     const rows = (data.stages || []).map(row => ({...row,sample:row.completedVisits ?? row.visits})), durationRows = rows.filter(row => Number.isFinite(row.days) && row.sample > 0);
     const max = Math.max(1,...durationRows.map(row => row.days));
     let body;
@@ -170,6 +172,7 @@
     return `<article class="ad-panel" data-ad-section="reasons">${panelHead('Причины отказов','Почему процесс заканчивается отказом','Отказы компании и кандидатов — отдельно, с понятными причинами.',toggle('reasons',views))}<div class="ad-panel-body">${filters('reasons',local,['period','recruiter','pipeline','source','initiator'])}<div class="ad-team-summary"><div class="ad-stat"><strong>${n(total)}</strong><span>отказов за период</span></div><div class="ad-stat"><strong>${n(company)}</strong><span>решение компании</span></div><div class="ad-stat"><strong>${n(candidate)}</strong><span>решение кандидата</span></div><div class="ad-stat"><strong>${n(automatic)}</strong><span>автоматический переход</span></div></div>${body}<p class="ad-note">Считаются переходы на этап «Отказ» по дате отказа, а не по дате добавления кандидата. Поэтому число отказов не обязано совпадать с потерями когорты воронки. Возврат и повторный отказ отражаются отдельными событиями.</p></div></article>`;
   }
   function recruiters(data, views, local, metric = 'hires') {
+    if(window.AnalyticsRecruiters)return window.AnalyticsRecruiters.render(data,views,local,metric);
     const rows = data.recruiters || [], hires = sum(rows,'hires'), activity = row => (Number(row.added)||0)+(Number(row.screened)||0)+(Number(row.interviews)||0)+(Number(row.tasksClosed)||0);
     const max = Math.max(1,...rows.map(row => metric === 'activity' ? activity(row) : row.hires));
     const teamSummary = `<div class="ad-team-summary"><div class="ad-stat"><strong>${n(sum(rows,'loadVacancies'))}</strong><span>вакансий в работе сейчас</span></div><div class="ad-stat"><strong>${n(hires)}</strong><span>выходов за период</span></div><div class="ad-stat"><strong>${n(sum(rows,'interviews'))}</strong><span>проведённых интервью</span></div><div class="ad-stat"><strong>${n(sum(rows,'tasksClosed'))}</strong><span>закрытых задач</span></div></div>`;
