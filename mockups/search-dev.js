@@ -17,7 +17,10 @@
   let state = defaults();
   try {
     const stored = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
-    if (stored && stored.version === 1 && stored.state) state = {...defaults(), ...stored.state, ...M.restoreSnapshot({version:1,state:stored.state})};
+    if (stored && stored.version === 1 && stored.state) {
+      state = {...defaults(), ...stored.state, ...M.restoreSnapshot({version:1,state:stored.state})};
+      state.queries.forEach((query,index) => {if (typeof stored.state.queries?.[index]?.runtimeId === 'string') query.runtimeId = stored.state.queries[index].runtimeId;});
+    }
   } catch (_) { /* Блокировка хранилища не мешает проверять макет. */ }
   if (!Array.isArray(state.savedSearches)) state.savedSearches = [];
   if (!Array.isArray(state.assignments)) state.assignments = [];
@@ -30,11 +33,16 @@
   if (restoredHistory?.summary && state.resultKind === 'auto' && !state.autoSummary) state.autoSummary = clone(restoredHistory.summary);
   if (restoredHistory?.summary && state.modeResults.ai?.resultKind === 'auto' && !state.modeResults.ai.autoSummary) state.modeResults.ai.autoSummary = clone(restoredHistory.summary);
   if (!Array.isArray(state.queries) || !state.queries.length) state.queries = [M.defaultQuery()];
+  // Черновик строки не меняет уже показанную выдачу до нажатия «Найти».
+  let submittedBaseQuery = M.normalizeState(state);
   let localCandidates = clone(M.candidates || []), localHhCandidates = clone(M.hhCandidates || []);
   const allCandidates = () => [...localCandidates,...localHhCandidates.filter(item => !localCandidates.some(internal => internal.id === item.id))];
   const findCandidate = id => allCandidates().find(item => item.id === id);
   const currentDataset = () => M.selectResultsDataset(state.searchProvider,localCandidates,localHhCandidates);
-  const providerName = () => state.searchProvider === 'hh' ? 'hh.ru · Демо' : 'База ATS';
+  const providerName = () => state.searchProvider === 'both' ? 'База ATS + hh.ru · Демо' : state.searchProvider === 'hh' ? 'hh.ru · Демо' : 'База ATS';
+  // Выбор строк — временное состояние выдачи, не часть сохранённого запроса.
+  const selectedCandidateIds = new Set();
+  let querySequence = 0;
   for (const assignment of state.assignments) {
     let candidate = findCandidate(assignment.candidateId);
     if (candidate?.searchProvider === 'hh' && !candidate.importedToATS) {
@@ -48,7 +56,7 @@
   const workspace = $('#sd-workspace'), results = $('#sd-results'), dialog = $('#sd-dialog');
   const stashResult = () => {state.modeResults[state.mode] = clone({started:state.started,resultKind:state.resultKind,page:state.page,aiResults:state.aiResults,autoSummary:state.autoSummary});};
   const persist = () => {stashResult(); try { sessionStorage.setItem(storageKey, JSON.stringify({version:1,state})); } catch (_) {} };
-  function switchMode(mode) {stashResult(); state.mode = mode;if (mode === 'base') state.showAiEditor = false; Object.assign(state,state.modeResults[mode] || emptyResult(mode === 'ai' ? 'ai' : 'base')); renderModes(); renderBase(); renderResults(); persist();}
+  function switchMode(mode) {selectedCandidateIds.clear();stashResult(); state.mode = mode;if (mode === 'base') state.showAiEditor = false; Object.assign(state,state.modeResults[mode] || emptyResult(mode === 'ai' ? 'ai' : 'base')); renderModes(); renderBase(); renderResults(); persist();}
   const labelFor = (catalog, id) => (C[catalog] || []).find(item => item.id === id)?.label || id;
   const tagLabel = id => tags.find(item => item.id === id)?.label || id;
   const plural = (number, forms) => forms[Math.abs(number)%100 >= 11 && Math.abs(number)%100 <= 14 ? 2 : Math.abs(number)%10 === 1 ? 0 : Math.abs(number)%10 >= 2 && Math.abs(number)%10 <= 4 ? 1 : 2];
@@ -73,12 +81,12 @@
       if (window.parent !== window) window.parent.location.href = url; else location.href = url;
     } else if (allowedRoute(route)) {
       if (window.parent !== window) window.parent.location.hash = route;
-      else location.href = `ats-product.html?public=385de6c6febb#${route}`;
+      else location.href = `ats-product.html?public=19d1ad2510ee#${route}`;
     }
   }
   function renderSidebar() {
     const nav = [['dashboard','Главная','home'],['search','Поиск','search'],['tasks','Мои задачи','check'],['calendar','Календарь','calendar'],['analytics','Аналитика','chart'],['requisitions','Заявки','list'],['settings','Настройки','settings']];
-    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=509f70c12929" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=385de6c6febb#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${vacancies.map(vacancy => `<a href="ats-product.html?public=385de6c6febb#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=385de6c6febb#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><a class="sd-side-create" href="ats-product.html?public=385de6c6febb#create" data-sd-route="create"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></a><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
+    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=509f70c12929" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=19d1ad2510ee#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${vacancies.map(vacancy => `<a href="ats-product.html?public=19d1ad2510ee#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=19d1ad2510ee#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><a class="sd-side-create" href="ats-product.html?public=19d1ad2510ee#create" data-sd-route="create"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></a><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
     $('#sd-shell').classList.toggle('sd-sidebar-collapsed', !!state.collapsed);
     $('#sd-shell').style.setProperty('--sd-sidebar-width',`${state.sidebarWidth || 276}px`);
     $('#sd-sidebar-resizer').setAttribute('aria-valuenow',String(state.sidebarWidth || 276));
@@ -94,8 +102,8 @@
     return `<div class="sd-query-row${index ? '' : ' is-first'}" data-sd-row="${index}">${index ? `<select class="sd-select" aria-label="Связка строки ${index+1}" data-sd-query="join">${options(C.joins,query.join)}</select>` : ''}<input class="sd-input" aria-label="${index ? `Условие поиска ${index+1}` : 'Поисковый запрос'}" placeholder="${index ? 'Добавьте ещё одно условие' : 'Должность, навык, компания или текст из резюме'}" value="${esc(query.text)}" data-sd-query="text"><select class="sd-select" aria-label="Область поиска ${index+1}" data-sd-query="scope">${options(C.scopes,query.scope)}</select><select class="sd-select" aria-label="Условие строки ${index+1}" data-sd-query="condition">${options(C.conditions,query.condition)}</select>${index ? `<button type="button" class="sd-icon-button" data-sd-action="remove-query" data-index="${index}" aria-label="Удалить строку ${index+1}">×</button>` : button('Найти','search','primary')}</div>`;
   }
   function renderBase() {
-    const external = state.searchProvider === 'hh';
-    const providers = `<div class="sd-provider-row" aria-label="Где искать"><span class="sd-provider-label">Где искать</span><button type="button" class="sd-provider" data-sd-action="provider" data-provider="ats" aria-pressed="${!external}"><span class="sd-provider-dot" aria-hidden="true"></span>База ATS <small>${localCandidates.length}</small></button><button type="button" class="sd-provider" data-sd-action="provider" data-provider="hh" aria-pressed="${external}"><span class="sd-provider-hh" aria-hidden="true">hh</span>hh.ru <small>Демо</small></button><div class="sd-tooltip-wrap sd-provider-sleep" tabindex="0" aria-label="Авито Работа — недоступно" aria-describedby="sd-avito-tip"><button type="button" class="sd-provider" disabled><span class="sd-provider-muted">Авито Работа</span></button><span class="sd-tooltip" role="tooltip" id="sd-avito-tip">Функционал пока спит</span></div><span class="sd-provider-note">${external ? 'Отдельная вымышленная выдача hh.ru. Подключение к сервису не используется.' : 'Поиск в собственной базе, с метками и историей подбора.'}</span></div>`;
+    const external = state.searchProvider !== 'ats';
+    const providers = `<div class="sd-provider-row" aria-label="Где искать"><span class="sd-provider-label">Где искать</span><button type="button" class="sd-provider" data-sd-action="provider" data-provider="ats" aria-pressed="${state.searchProvider !== 'hh'}"><span class="sd-provider-dot" aria-hidden="true"></span>База ATS <small>${localCandidates.length}</small></button><button type="button" class="sd-provider" data-sd-action="provider" data-provider="hh" aria-pressed="${external}"><span class="sd-provider-hh" aria-hidden="true">hh</span>hh.ru <small>Демо</small></button><div class="sd-tooltip-wrap sd-provider-sleep" tabindex="0" aria-label="Авито Работа — недоступно" aria-describedby="sd-avito-tip"><button type="button" class="sd-provider" disabled><span class="sd-provider-muted">Авито Работа</span></button><span class="sd-tooltip" role="tooltip" id="sd-avito-tip">Функционал пока спит</span></div><span class="sd-provider-note">${state.searchProvider === 'both' ? 'Общая выдача двух источников. Внешние резюме не добавляются в ATS автоматически.' : external ? 'Вымышленная выдача hh.ru. Подключение к сервису не используется.' : 'Поиск в собственной базе, с метками и историей подбора.'}</span></div>`;
     const actions = [
       ['autopick','Поиск по вакансии','Выберите вакансию, запустится поиск по описанию и требованиям','Умная подборка','✦',''],
       ['resume-search','Поиск по резюме','Загрузите резюме, поиск найдет похожие','Похожие кандидаты','↥','resume'],
@@ -110,6 +118,7 @@
       $('.sd-tag-picker summary',workspace).addEventListener('click',event => event.preventDefault());
       workspace.querySelectorAll('[data-sd-query="scope"]').forEach(node => {node.querySelectorAll('option').forEach(option => {option.disabled = option.value === 'feedback';});});
     }
+    if (external) $('.sd-search-footer',workspace).firstElementChild.textContent = 'Для hh.ru и совместного поиска доступны общие поля резюме; история и метки ATS не используются.';
     if (state.mode === 'ai' && state.aiCriteria.length) {
       if (!$('.sd-ai-context',workspace)) workspace.insertAdjacentHTML('beforeend',`<div class="sd-ai-context"><p><b>Условия поиска восстановлены</b> · ${esc(providerName())}</p>${button('Обычный поиск','mode-base')}</div>`);
       $('.sd-ai-context',workspace).insertAdjacentHTML('beforeend',button('Проверить условия','review-recipe'));
@@ -129,13 +138,17 @@
     const processes = candidate.processes || [], experience = candidate.experience?.[0];
     const score = state.resultKind !== 'base' ? state.aiResults.find(item => item.candidateId === candidate.id) : null;
     const external = candidate.searchProvider === 'hh' && !candidate.importedToATS;
-    return `<article class="sd-candidate${state.selectedCandidateId === candidate.id ? ' is-selected' : ''}" data-sd-candidate="${esc(candidate.id)}"><button type="button" class="sd-avatar" style="${esc(portraitStyle(candidate))}" data-sd-action="profile" data-id="${esc(candidate.id)}" aria-label="Открыть профиль ${esc(candidate.name)}">${portraitFallback(candidate)}</button><div><div class="sd-candidate-title-line"><div><button type="button" class="sd-candidate-name" data-sd-action="profile" data-id="${esc(candidate.id)}">${esc(candidate.name)}</button><p class="sd-candidate-role">${esc(candidate.position || candidate.role)}</p></div><span class="sd-chip ${external ? 'pink' : 'green'}">${external ? 'hh.ru · Демо' : 'Своя база'}</span></div><div class="sd-candidate-meta"><span>${esc(age)}</span><span>${esc(candidate.city)}</span><span>${esc(labelFor('sources',candidate.source))}</span><span>${esc(dateLabel(candidate.updatedAt))}</span></div><div class="sd-candidate-process${external ? ' external' : ''}">${external ? 'История ATS недоступна' : processes.length ? `В работе: ${processes.length} ${plural(processes.length,['вакансия','вакансии','вакансий'])}` : 'Нет активных процессов'}</div><div class="sd-candidate-experience"><span>Последний опыт</span><div><b>${esc(experience?.company || candidate.company)}</b> · ${esc(experience?.role || candidate.position)}</div></div><div class="sd-candidate-skills">${(candidate.skills || []).slice(0,6).map(skill => `<span>${esc(skill)}</span>`).join('')}</div></div><div class="sd-candidate-actions">${score ? `<div class="sd-score"><strong>${score.score === null ? '—' : esc(score.score)+'%'}</strong>${score.score === null ? 'Нужна проверка' : 'соответствие'}</div>` : ''}${button('На вакансию','assign','green',`data-id="${esc(candidate.id)}"`)}${button('Открыть профиль','profile','',`data-id="${esc(candidate.id)}"`)}${state.resultKind === 'auto' ? button('×','exclude-auto','text',`data-id="${esc(candidate.id)}" aria-label="Исключить из подборки: ${esc(candidate.name)}" title="Исключить из подборки"`) : ''}</div></article>`;
+    return `<article class="sd-candidate${state.selectedCandidateId === candidate.id ? ' is-selected' : ''}" data-sd-candidate="${esc(candidate.id)}" tabindex="0" aria-label="Просмотреть резюме: ${esc(candidate.name)}">
+      <button type="button" class="sd-avatar" style="${esc(portraitStyle(candidate))}" data-sd-action="profile" data-id="${esc(candidate.id)}" aria-label="Просмотреть резюме ${esc(candidate.name)}">${portraitFallback(candidate)}</button>
+      <div><div class="sd-candidate-title-line"><div><button type="button" class="sd-candidate-name" data-sd-action="profile" data-id="${esc(candidate.id)}">${esc(candidate.name)}</button><p class="sd-candidate-role">${esc(candidate.position || candidate.role)}</p></div></div><div class="sd-candidate-meta"><span>${esc(age)}</span><span>${esc(candidate.city)}</span><span>${esc(labelFor('sources',candidate.source))}</span><span>${esc(dateLabel(candidate.updatedAt))}</span></div><div class="sd-candidate-process${external ? ' external' : ''}">${external ? 'История ATS недоступна' : processes.length ? `В работе: ${processes.length} ${plural(processes.length,['вакансия','вакансии','вакансий'])}` : 'Нет активных процессов'}</div><div class="sd-candidate-experience"><span>Последний опыт</span><div><b>${esc(experience?.company || candidate.company)}</b> · ${esc(experience?.role || candidate.position)}</div></div><div class="sd-candidate-skills">${(candidate.skills || []).slice(0,6).map(skill => `<span>${esc(skill)}</span>`).join('')}</div></div>
+      <div class="sd-candidate-checkbox-column"><label class="sd-candidate-select"><input type="checkbox" data-sd-check-candidate="${esc(candidate.id)}" aria-label="Выбрать кандидата: ${esc(candidate.name)}"${selectedCandidateIds.has(candidate.id) ? ' checked' : ''}></label><span class="sd-chip ${external ? 'pink' : 'green'}">${external ? 'hh.ru · Демо' : 'Своя база'}</span></div>
+      <div class="sd-candidate-actions">${score ? `<div class="sd-score"><strong>${score.score === null ? '—' : esc(score.score)+'%'}</strong>${score.score === null ? 'Нужна проверка' : 'соответствие'}</div>` : ''}${button('На вакансию','assign','green',`data-id="${esc(candidate.id)}"`)}${state.resultKind === 'auto' ? button('×','exclude-auto','text',`data-id="${esc(candidate.id)}" aria-label="Исключить из подборки: ${esc(candidate.name)}" title="Исключить из подборки"`) : ''}</div></article>`;
   }
   const portraitStyle = candidate => window.SearchDemoPortraits?.style(candidate.photoIndex) || '';
   const portraitFallback = candidate => portraitStyle(candidate) ? '' : `<span class="sd-photo-fallback">${esc(candidate.initials || candidate.name.split(' ').slice(0,2).map(word => word[0]).join(''))}</span>`;
   function activeSearch() {
     let source = currentDataset();
-    let query = state;
+    let query = {...submittedBaseQuery,page:state.page,pageSize:state.pageSize,sort:state.sort};
     if (state.resultKind !== 'base') {
       const ids = new Set(state.aiResults.map(item => item.candidateId));
       source = currentDataset().filter(item => ids.has(item.id));
@@ -151,6 +164,8 @@
   function renderResults() {
     results.hidden = false;
     const found = state.started ? activeSearch() : {items:[],total:0,page:1,pages:1,pageSize:state.pageSize};
+    const available = new Set((found.allItems || []).map(item => item.id));
+    for (const id of selectedCandidateIds) if (!available.has(id)) selectedCandidateIds.delete(id);
     state.page = found.page;
     const summary = state.autoSummary;
     const running = !!searchRun && !searchRun.done && searchRun.mode === state.mode;
@@ -163,6 +178,11 @@
     const controls = `${state.resultKind === 'auto' && state.autoHistory.length ? select('Подборка вакансии',state.autoHistory.filter(item => item.vacancyId === currentVacancyId && (item.searchProvider || 'ats') === state.searchProvider).map(item => ({id:item.id,label:`${item.dateLabel} · ${item.results.length} из ${item.target} · от ${item.threshold}% · ${item.status}`})),state.autoHistoryId,'data-sd-history') : ''}${!ai ? select('Период обновления резюме',C.periods,state.period,'data-sd-state="period"') : ''}${select('Сортировка',ai ? [{id:'match',label:'По соответствию'}] : C.sorts,ai ? 'match' : state.sort,'data-sd-state="sort"')}${select('Размер страницы',[{id:20,label:'20 резюме'},{id:50,label:'50 резюме'}],state.pageSize,'data-sd-state="pageSize"')}`;
     const runNote = running ? `<div class="sd-run-progress"><div><b>${searchRun.paused ? 'Поиск на паузе' : 'Ищем подходящих'}</b><span>${state.aiResults.length} из ${searchRun.target}</span></div><progress max="${searchRun.target}" value="${state.aiResults.length}" aria-label="Сколько подходящих уже найдено"></progress>${button(searchRun.paused ? 'Продолжить' : 'Пауза','pause-run')}${button('Остановить','stop-run')}<p>Резюме появляются по мере оценки. Уже найденные не потеряются.</p><small>Локальная демонстрация · осталось ${1000-state.usedToday} оценок сегодня</small></div>` : summary && ai ? `<p class="sd-run-status">${summary.stopReason === 'datasetEnd' && summary.accepted < summary.target ? `Оценили всю демобазу (${summary.processed}). Подходящих ${summary.accepted} из ${summary.target}.` : esc(stopReason(summary.stopReason))}</p>` : '';
     results.innerHTML = `<header class="sd-results-head"><div class="sd-results-title"><h2>${esc(title)}</h2><p>${esc(subtitle)}</p></div><div class="sd-result-controls">${controls}</div></header>${excluded ? `<p class="sd-run-status">${excluded} не подошли по условиям и не включены в выдачу.</p>` : ''}${runNote}${state.started ? (found.items.length ? found.items.map(candidateResult).join('') : running ? empty('Оцениваем кандидатов…','Подходящие кандидаты появятся в выдаче по мере проверки.') : empty('Кандидаты не найдены','Попробуйте изменить запрос, область поиска или выбранные фильтры.')) : empty('Кого будем искать?','Введите должность, навык, компанию или фрагмент резюме. Или попробуйте один из вариантов умного поиска.')}${state.started && found.total ? `<footer class="sd-pagination">${button('‹','prev','',`aria-label="Назад"${found.page <= 1 ? ' disabled' : ''}`)}${Array.from({length:found.pages},(_,index) => button(String(index+1),'page',index+1 === found.page ? 'page-active' : '',`data-page="${index+1}" aria-label="Страница ${index+1}"${index+1 === found.page ? ' aria-current="page"' : ''}`)).join('')}${button('›','next','',`aria-label="Вперёд"${found.page >= found.pages ? ' disabled' : ''}`)}</footer>` : ''}`;
+    if (found.items.length) {
+      const checked = found.items.filter(item => selectedCandidateIds.has(item.id)).length;
+      $('.sd-results-head',results).insertAdjacentHTML('afterend',`<div class="sd-bulk-toolbar"><label class="sd-bulk-select-page"><input type="checkbox" data-sd-select-page aria-label="Выбрать всех кандидатов на странице"${checked === found.items.length ? ' checked' : ''}>На странице</label><span aria-live="polite">Выбрано ${selectedCandidateIds.size}</span>${button('На вакансию','bulk-assign','green',selectedCandidateIds.size ? '' : 'disabled')}${selectedCandidateIds.size ? button('Снять выбор','bulk-clear','text') : ''}</div>`);
+      $('[data-sd-select-page]',results).indeterminate = checked > 0 && checked < found.items.length;
+    }
     if (state.started && !found.allItems?.some(candidate => candidate.id === state.selectedCandidateId)) {state.selectedCandidateId = '';state.selectedResumeId = '';}
     renderPreview();
   }
@@ -231,16 +251,8 @@
     state.selectedResumeId = resume?.id || '';
     const resumeKey = `${candidate.id}:${state.selectedResumeId}`, changedDocument = preview.dataset.resumeKey !== resumeKey;
     const external = candidate.searchProvider === 'hh' && !candidate.importedToATS;
-    const consent = {given:'Получено',unknown:'Не указано',requested:'Запрошено'}[candidate.consent] || 'Не указано';
     const score = state.resultKind !== 'base' ? state.aiResults.find(item => item.candidateId === candidate.id) : null;
-    preview.innerHTML = `<header class="sd-preview-head">
-      <div class="sd-preview-topline"><span>${external ? 'Внешний демопрофиль hh.ru' : 'Кандидат в вашей базе'}</span><button type="button" class="sd-icon-button" data-sd-action="clear-preview" aria-label="Закрыть просмотр резюме">×</button></div>
-      <div class="sd-preview-identity"><div class="sd-photo" style="${esc(portraitStyle(candidate))}" role="img" aria-label="Вымышленный портрет ${esc(candidate.name)}">${portraitFallback(candidate)}</div><div><h2>${esc(candidate.name)}</h2><p>${esc(resume?.position || candidate.position || candidate.role)}</p>${score ? `<span class="sd-chip" style="margin-top:9px">${score.score === null ? 'Нужна проверка' : `${esc(score.score)}% соответствия`}</span>` : ''}</div></div>
-      <div class="sd-preview-facts"><span>${esc(candidate.city)}</span>${candidate.age ? `<span>${candidate.age} ${plural(candidate.age,['год','года','лет'])}</span>` : ''}<span>${esc(labelFor('sources',resume?.source || candidate.source))}</span><span>Обновлено ${esc(dateLabel(resume?.updatedAt || candidate.updatedAt))}</span></div>
-      ${!external && (candidate.contacts?.email || candidate.contacts?.phone) ? `<div class="sd-preview-contacts">${candidate.contacts.email ? `<a href="mailto:${esc(candidate.contacts.email)}">${esc(candidate.contacts.email)}</a>` : ''}${candidate.contacts.phone ? `<span>${esc(candidate.contacts.phone)}</span>` : ''}</div>` : ''}
-    </header>
-    <div class="sd-preview-resume">${select('Резюме кандидата',candidate.resumes.map(item => ({id:item.id,label:item.title})),state.selectedResumeId,'id="sd-preview-resume"')}<span class="sd-help">${candidate.resumes.length} резюме · данные выбранного документа</span></div>
-    <section class="sd-preview-section"><div class="sd-preview-consent">${svg('check')}Согласие на обработку данных: <b>${external ? 'неизвестно — внешний профиль' : esc(consent)}</b></div></section>
+    preview.innerHTML = `${window.SearchPreviewHeader.render(candidate,resume,{external,score,selectedResumeId:state.selectedResumeId,esc,select,svg,portraitStyle,portraitFallback,labelFor,dateLabel,tagLabel})}
     <div class="sd-resume-document" aria-label="Содержание выбранного резюме">${renderResumeExperience(resume)}${renderResumeDetails(resume)}</div>
     <div class="sd-preview-ats-history"><section class="sd-preview-section"><h3>Процессы подбора <small>${external ? 'Неизвестны' : candidate.processes.length}</small></h3>${external ? '<p>Это внешнее деморезюме. История, метки и заметки ATS появятся только после явного добавления кандидата на вакансию.</p>' : candidate.processes.length ? candidate.processes.map(process => `<div class="sd-profile-process"><div><b>${esc(process.title || vacancies.find(vacancy => vacancy.id === process.vacancyId)?.title || 'Вакансия')}</b><small>${esc(process.stage)}</small></div>${button('Открыть на вакансии','candidate-route','',`data-id="${esc(candidate.id)}" data-route="vacancy/${esc(process.vacancyId)}"`)}</div>`).join('') : '<p>Нет активных процессов.</p>'}</section>${!external ? `<section class="sd-preview-section"><h3>Метки и комментарии</h3><div class="sd-preview-skills">${(candidate.tags || []).map(tag => `<span>${esc(tagLabel(tag))}</span>`).join('') || '<p>Меток пока нет.</p>'}</div>${candidate.feedback ? `<p style="margin-top:12px">${esc(candidate.feedback)}</p>` : ''}</section>` : ''}</div>
     <footer class="sd-preview-footer"><small>Демопрофиль и фото вымышлены</small>${button(external ? 'Добавить на вакансию' : 'Взять на вакансию','assign','green',`data-id="${esc(candidate.id)}"`)}</footer>`;
@@ -270,6 +282,40 @@
     const duplicate = candidate?.processes.some(process => process.vacancyId === config.vacancyId);
     $('[data-sd-action="assign-confirm"]',dialog).disabled = !config.vacancyId || errors.length > 0 || duplicate;
     if (duplicate) showErrors(['Кандидат уже находится в активном процессе этой вакансии.']); else showErrors([]);
+  }
+  function bulkAssignmentConfig() {
+    const resumeIds = {...overlay.draft.resumeIds};
+    dialog.querySelectorAll('[data-sd-bulk-resume]').forEach(node => {resumeIds[node.dataset.sdBulkResume] = node.value;});
+    return {vacancyId:$('#sd-bulk-vacancy',dialog)?.value || '',initialStage:$('#sd-bulk-stage',dialog)?.value || '',resumeIds};
+  }
+  function openBulkAssignment(ids = [...selectedCandidateIds], config = {}) {
+    const candidates = [...new Set(ids)].map(findCandidate);
+    if (!candidates.length || candidates.some(item => !item)) {toast('Выберите кандидатов из текущей выдачи.');return;}
+    const resumeIds = Object.fromEntries(candidates.map(candidate => [candidate.id,state.selectedCandidateId === candidate.id && candidate.resumes.some(resume => resume.id === state.selectedResumeId) ? state.selectedResumeId : candidate.resumes[0]?.id || '']));
+    const draft = {vacancyId:'',initialStage:'',...config,resumeIds:{...resumeIds,...config.resumeIds}};
+    const vacancy = vacancies.find(item => item.id === draft.vacancyId);
+    const body = `<div class="sd-dialog-fields">${select('Вакансия',vacancies.map(item => ({id:item.id,label:item.title})),draft.vacancyId,'id="sd-bulk-vacancy"','Выберите вакансию')}${select('Начальный этап',(vacancy?.stages || []).map(stage => typeof stage === 'string' ? {id:stage,label:stage} : {id:stage.id || stage.name,label:stage.label || stage.name}),draft.initialStage,'id="sd-bulk-stage"','Первый этап вакансии')}<p class="sd-help">Один этап для всей группы. Для каждого кандидата выберите его собственное резюме.</p><div class="sd-bulk-candidates">${candidates.map(candidate => `<section class="sd-bulk-candidate" data-sd-bulk-id="${esc(candidate.id)}"><strong>${esc(candidate.name)}</strong>${select(`Резюме: ${candidate.name}`,candidate.resumes.map(resume => ({id:resume.id,label:resume.title})),draft.resumeIds[candidate.id],`data-sd-bulk-resume="${esc(candidate.id)}"`)}<small data-sd-bulk-status></small></section>`).join('')}</div><p class="sd-bulk-summary" id="sd-bulk-summary" aria-live="polite">Выберите вакансию, чтобы проверить группу.</p><p class="sd-help">Уже добавленных на эту вакансию пропустим, без дублей.${candidates.some(candidate => candidate.searchProvider === 'hh' && !candidate.importedToATS) ? ' Внешние деморезюме будут импортированы в демонстрационную базу только после подтверждения.' : ''} Реальная ATS и hh.ru не меняются.</p></div>`;
+    openDialog('bulk-assign','Добавить группу на вакансию',`Выбрано ${candidates.length} ${plural(candidates.length,['кандидат','кандидата','кандидатов'])}`,body,`${button('Отмена','close')}${button('Добавить кандидатов','bulk-confirm','primary','disabled')}`,{candidateIds:candidates.map(candidate => candidate.id),draft});
+    $('#sd-bulk-stage',dialog).disabled = !draft.vacancyId;
+    updateBulkAssignment();
+  }
+  function updateBulkAssignment() {
+    if (overlay?.kind !== 'bulk-assign') return;
+    const config = bulkAssignmentConfig();overlay.draft = config;
+    const preview = M.previewBulkAssignment(overlay.candidateIds.map(findCandidate),config,vacancies);
+    $('[data-sd-action="bulk-confirm"]',dialog).disabled = !config.vacancyId || !!preview.errors.length;
+    $('#sd-bulk-summary',dialog).textContent = config.vacancyId ? `Добавим: ${preview.eligible.length} · Пропустим: ${preview.skipped.length}` : 'Выберите вакансию, чтобы проверить группу.';
+    dialog.querySelectorAll('[data-sd-bulk-id]').forEach(node => {
+      const skipped = preview.skipped.find(item => item.candidateId === node.dataset.sdBulkId);
+      $('[data-sd-bulk-status]',node).textContent = skipped ? skipped.reason : config.vacancyId && !preview.errors.length ? 'Будет добавлен' : '';
+    });
+    showErrors(config.vacancyId ? preview.errors : []);
+  }
+  function commitDemoAssignment(item) {
+    let candidate = findCandidate(item.candidateId);
+    if (candidate.searchProvider === 'hh' && !candidate.importedToATS) {candidate = {...clone(candidate),importedToATS:true,internalHistoryAvailable:true};localCandidates.push(candidate);}
+    candidate.processes.push({vacancyId:item.vacancyId,title:item.vacancyTitle,stage:item.stage});state.assignments.push(item);
+    if (candidate.searchProvider === 'hh') Object.assign(localHhCandidates.find(external => external.id === candidate.id) || {},clone(candidate));
   }
   function openAutopick(config = {}) {
     const draft = {...M.defaultAutoPick(),vacancyId:vacancies[0]?.id || '',...config};
@@ -316,16 +362,33 @@
       overlay.parsed = parsed;renderUploadSummary(parsed,'Профессиональные навыки извлечены локально. Полный текст и название файла не сохраняются.');
     } catch (_) {if (overlay?.kind === 'resume' && overlay.readToken === token) renderUploadSummary(null,'Не получилось прочитать TXT. Попробуйте другой файл или деморезюме.');}
   }
-  const hasBaseCondition = () => state.searchProvider === 'hh' || state.queries.some(query => query.text.trim()) || state.employment !== 'all' || state.tags.length || state.source !== 'all' || state.period !== 'all';
-  function runSearch(showHint = true) {if (state.mode !== 'base') switchMode('base');state.started = !!hasBaseCondition(); state.resultKind = 'base'; state.page = 1; state.autoSummary = null; renderModes();renderBase();renderResults(); persist(); if (!state.started && showHint) toast('Введите запрос или выберите фильтр.');}
-  function switchProvider(provider) {
-    if (!['ats','hh'].includes(provider) || state.searchProvider === provider) return;
+  const hasBaseCondition = () => state.searchProvider !== 'ats' || state.queries.some(query => query.text.trim()) || state.employment !== 'all' || state.tags.length || state.source !== 'all' || state.period !== 'all';
+  function runSearch(showHint = true, clearSelection = true) {if (clearSelection) selectedCandidateIds.clear();if (state.mode !== 'base') switchMode('base');submittedBaseQuery = M.normalizeState(state);state.started = !!hasBaseCondition(); state.resultKind = 'base'; state.page = 1; state.autoSummary = null; renderModes();renderBase();renderResults(); persist(); if (!state.started && showHint) toast('Введите запрос или выберите фильтр.');}
+  function providerAfterToggle(provider) {
+    if (!['ats','hh'].includes(provider)) return state.searchProvider;
+    if (state.searchProvider === 'both') return provider === 'ats' ? 'hh' : 'ats';
+    return state.searchProvider === provider ? state.searchProvider : 'both';
+  }
+  function switchProvider(provider, confirmed = false) {
+    if (!['ats','hh','both'].includes(provider) || state.searchProvider === provider) return;
+    const wasExternal = state.searchProvider !== 'ats', willExternal = provider !== 'ats';
+    const unsupported = state.employment !== 'all' || state.tags.length || state.excludeTags || state.source !== 'all' || state.queries.some(query => query.scope === 'feedback' && query.text.trim());
+    if (!wasExternal && willExternal && unsupported && !confirmed) {
+      openDialog('provider-confirm','Добавить hh.ru в поиск?','Во внешней выдаче нет меток, занятости и комментариев вашей ATS.', '<p>Для совместного поиска временно уберём условия по истории ATS и источнику резюме. Строки по комментариям будут искать во всех данных резюме. Это расширит запрос.</p><p class="sd-help">Условия ATS сохраним и вернём при отключении hh.ru. Неизменённые строки по комментариям также восстановятся. Можно отменить и оставить текущий поиск.</p>',`${button('Оставить текущий поиск','close')}${button('Продолжить по общим условиям','provider-confirm','primary')}`,{provider});
+      return;
+    }
     if (searchRun && !searchRun.done) finishRun('cancelled');
-    if (provider === 'hh') {
-      state.atsFilters = {employment:state.employment,tags:clone(state.tags),excludeTags:state.excludeTags,source:state.source};
+    if (!wasExternal && willExternal) {
+      state.queries.forEach(query => {if (!query.runtimeId) query.runtimeId = `row-${Date.now()}-${++querySequence}`;});
+      state.atsFilters = {employment:state.employment,tags:clone(state.tags),excludeTags:state.excludeTags,source:state.source,feedbackRows:clone(state.queries.filter(query => query.scope === 'feedback'))};
       state.employment = 'all';state.tags = [];state.excludeTags = false;state.source = 'all';
       state.queries.forEach(query => {if (query.scope === 'feedback') query.scope = 'all';});
-    } else if (state.atsFilters) Object.assign(state,clone(state.atsFilters));
+    } else if (wasExternal && !willExternal && state.atsFilters) {
+      const {feedbackRows = [],...filters} = state.atsFilters;Object.assign(state,clone(filters));
+      feedbackRows.forEach(row => {const query = state.queries.find(item => item.runtimeId === row.runtimeId);if (query && query.text === row.text && query.condition === row.condition && query.join === row.join && query.scope === 'all') query.scope = 'feedback';});
+      state.atsFilters = null;
+    }
+    selectedCandidateIds.clear();
     state.searchProvider = provider;state.mode = 'base';state.selectedCandidateId = '';state.selectedResumeId = '';
     state.modeResults = {base:emptyResult('base'),ai:emptyResult('ai')};Object.assign(state,emptyResult('base'));
     renderAll();runSearch(false);
@@ -394,12 +457,17 @@
   document.addEventListener('change', event => {
     const target = event.target;
     if (target.dataset.sdQuery) {state.queries[Number(target.closest('[data-sd-row]').dataset.sdRow)][target.dataset.sdQuery] = target.value; persist();}
+    else if (target.hasAttribute('data-sd-check-candidate')) {
+      const id = target.dataset.sdCheckCandidate;if (target.checked) selectedCandidateIds.add(id);else selectedCandidateIds.delete(id);renderResults();
+      [...results.querySelectorAll('[data-sd-check-candidate]')].find(node => node.dataset.sdCheckCandidate === id)?.focus?.();
+    }
+    else if (target.hasAttribute('data-sd-select-page')) {results.querySelectorAll('[data-sd-candidate]').forEach(node => {if (target.checked) selectedCandidateIds.add(node.dataset.sdCandidate);else selectedCandidateIds.delete(node.dataset.sdCandidate);});renderResults();$('[data-sd-select-page]',results)?.focus?.();}
     else if (target.id === 'sd-resume-file') readResumeFile(target);
     else if (target.id === 'sd-preview-resume') {state.selectedResumeId = target.value;renderPreview();persist();}
     else if (target.dataset.sdState) {
       const key = target.dataset.sdState;
       state[key] = target.type === 'checkbox' ? target.checked : key === 'pageSize' ? Number(target.value) : target.value;
-      state.page = 1; if (state.mode === 'base') runSearch(false); else {renderResults();persist();}
+      state.page = 1; if (state.mode === 'base' && !['sort','pageSize'].includes(key)) runSearch(false); else {renderResults();persist();}
     } else if (target.dataset.sdTag) {
       state.tags = target.checked ? [...new Set([...state.tags,target.dataset.sdTag])] : state.tags.filter(id => id !== target.dataset.sdTag);
       if (!state.tags.length) state.excludeTags = false;
@@ -409,18 +477,27 @@
     } else if (target.id === 'sd-assign-vacancy') {
       const config = assignmentConfig(); config.initialStage = ''; const id = overlay.candidateId; openAssignment(id,config); $('#sd-assign-vacancy',dialog).focus();
     } else if (target.id === 'sd-assign-stage' || target.id === 'sd-assign-resume') updateAssignment();
+    else if (target.id === 'sd-bulk-vacancy') {const config = bulkAssignmentConfig();config.initialStage = '';openBulkAssignment(overlay.candidateIds,config);$('#sd-bulk-vacancy',dialog).focus();}
+    else if (target.id === 'sd-bulk-stage' || target.hasAttribute('data-sd-bulk-resume')) updateBulkAssignment();
     else if (target.id === 'sd-auto-vacancy') {const config = autopickConfig(); config.criteria = []; openAutopick(config); $('#sd-auto-vacancy',dialog).focus();}
     else if (target.dataset.sdAutoCriterion) updateAutopick();
     else if (target.hasAttribute('data-sd-history')) {
       if (searchRun && !searchRun.done) finishRun('cancelled');
       const history = state.autoHistory.find(item => item.id === target.value); if (!history) return;
+      selectedCandidateIds.clear();
       state.autoHistoryId = history.id;state.searchProvider = history.searchProvider || 'ats';state.aiResults = clone(history.results); state.autoSummary = clone(history.summary); state.page = 1; state.started = true; state.resultKind = 'auto';renderBase(); renderResults(); persist();
     }
   });
   document.addEventListener('click', event => {
     const route = event.target.closest('[data-sd-route]');
     if (route && !event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey) {event.preventDefault(); persist(); navigate(route.dataset.sdRoute); return;}
-    const control = event.target.closest('[data-sd-action]'); if (!control || control.disabled) return;
+    const control = event.target.closest('[data-sd-action]');
+    if (!control) {
+      const candidate = event.target.closest('[data-sd-candidate]');
+      if (candidate && !event.target.closest('button,a,input,select,textarea,label,details') && !window.getSelection()?.toString()) openProfile(candidate.dataset.sdCandidate);
+      return;
+    }
+    if (control.disabled) return;
     const action = control.dataset.sdAction;
     if (action === 'collapse') {state.collapsed = !state.collapsed; renderSidebar(); persist();}
     else if (action === 'assistant') {
@@ -431,7 +508,8 @@
     }
     else if (action === 'messages') toast('Раздел сообщений ещё не перенесён. Поиск и подборка доступны в этом макете.');
     else if (action === 'mode-base' || action === 'mode-ai') switchMode(action === 'mode-ai' ? 'ai' : 'base');
-    else if (action === 'provider') switchProvider(control.dataset.provider);
+    else if (action === 'provider') {const provider = providerAfterToggle(control.dataset.provider);if (provider === state.searchProvider) toast('Оставьте хотя бы один источник поиска.');else switchProvider(provider);}
+    else if (action === 'provider-confirm') {const provider = overlay?.provider;if (overlay?.kind !== 'provider-confirm') return;closeDialog();switchProvider(provider,true);}
     else if (action === 'open-ai') {state.showAiEditor = true;switchMode('ai');$('#sd-ai-prompt',workspace)?.focus();persist();}
     else if (action === 'hide-ai') {state.showAiEditor = false;renderBase();$('[data-sd-action="open-ai"]',workspace)?.focus();persist();}
     else if (action === 'search') runSearch();
@@ -452,7 +530,9 @@
       // Санитизируем также сохранения ранней демоверсии, где был весь runtime.
       if (searchRun && !searchRun.done) finishRun('cancelled');
       const restored = M.savedQueryState(M.restoreSnapshot(snapshot));
+      selectedCandidateIds.clear();state.atsFilters = null;
       Object.assign(state,restored);
+      submittedBaseQuery = M.normalizeState(state);
       Object.assign(state,emptyResult(state.mode === 'ai' ? 'ai' : 'base'));
       if (state.mode === 'base') state.started = !!hasBaseCondition();
       state.showAiEditor = state.mode === 'ai' && state.aiOrigin === 'ai';
@@ -461,14 +541,22 @@
     else if (action === 'profile') openProfile(control.dataset.id);
     else if (action === 'clear-preview') {state.selectedCandidateId = '';state.selectedResumeId = '';renderResults();persist();}
     else if (action === 'assign') openAssignment(control.dataset.id);
+    else if (action === 'bulk-clear') {selectedCandidateIds.clear();renderResults();}
+    else if (action === 'bulk-assign') openBulkAssignment();
+    else if (action === 'bulk-confirm') {
+      if (overlay?.kind !== 'bulk-assign') return;
+      const preview = M.previewBulkAssignment(overlay.candidateIds.map(findCandidate),bulkAssignmentConfig(),vacancies);
+      if (preview.errors.length) {showErrors(preview.errors);return;}
+      preview.eligible.forEach(commitDemoAssignment);
+      selectedCandidateIds.clear();closeDialog();renderBase();renderResults();persist();
+      toast(`Добавлено ${preview.eligible.length} · пропущено ${preview.skipped.length}. Только в демонстрационном макете.`);
+    }
     else if (action === 'assign-confirm') {
       const config = assignmentConfig();let candidate = findCandidate(overlay.candidateId);
       const preview = M.previewAssignment([overlay.candidateId],config.vacancyId,config.initialStage,{[overlay.candidateId]:config.resumeId},allCandidates());
       if (preview.errors.length || candidate.processes.some(process => process.vacancyId === config.vacancyId)) {showErrors(preview.errors.length ? preview.errors : ['Кандидат уже добавлен на эту вакансию.']); return;}
       const item = preview.items[0]; if (!item) return;
-      if (candidate.searchProvider === 'hh' && !candidate.importedToATS) {candidate = {...clone(candidate),importedToATS:true,internalHistoryAvailable:true};localCandidates.push(candidate);}
-      candidate.processes.push({vacancyId:item.vacancyId,title:item.vacancyTitle,stage:item.stage});state.assignments.push(item);
-      if (candidate.searchProvider === 'hh') Object.assign(localHhCandidates.find(external => external.id === candidate.id) || {},clone(candidate));
+      commitDemoAssignment(item);
       closeDialog();renderBase();renderResults();persist();toast('Демонстрационный процесс добавлен. Реальная ATS не менялась.');
     } else if (action === 'candidate-route') {
       const candidate = findCandidate(control.dataset.id || overlay?.candidateId || state.selectedCandidateId);
@@ -518,6 +606,7 @@
     } else if (action === 'close') closeDialog();
   });
   document.addEventListener('keydown', event => {
+    if (['Enter',' '].includes(event.key) && event.target.matches('[data-sd-candidate]')) {event.preventDefault();openProfile(event.target.dataset.sdCandidate);}
     if (event.key === 'Enter' && event.target.matches('[data-sd-query="text"]') && !dialog.open) {event.preventDefault(); runSearch();}
     if (event.key === 'Escape') document.querySelectorAll('.sd-tag-picker[open]').forEach(node => {node.open = false;});
     if (event.target.id === 'sd-sidebar-resizer' && ['ArrowLeft','ArrowRight','Home'].includes(event.key)) {event.preventDefault(); setSidebarWidth(event.key === 'Home' ? 276 : (state.sidebarWidth || 276) + (event.key === 'ArrowLeft' ? -8 : 8));}

@@ -7,7 +7,7 @@ window.SearchDevModel = (() => {
   const joins = {and: 'И', or: 'ИЛИ', not: 'НЕ'};
   const sources = {hh: 'hh.ru', website: 'Карьерный сайт', avito: 'Авито', linkedin: 'LinkedIn', habr: 'Хабр Карьера', other: 'Другой источник', none: 'Не указан'};
   // Площадка поиска не равна источнику появления кандидата во внутренней базе.
-  const searchProviders = {ats: 'База ATS', hh: 'hh.ru'};
+  const searchProviders = {ats: 'База ATS', hh: 'hh.ru', both: 'База ATS + hh.ru'};
   const providerCatalog = Object.entries(searchProviders).map(([id, label]) => ({id, label}));
   const employment = {all: 'Все', inprocess: 'В процессах', free: 'Свободные'};
   const periods = {all: 'За всё время', month: 'За месяц', week: 'За неделю'};
@@ -119,7 +119,18 @@ window.SearchDevModel = (() => {
     const internal = Array.isArray(atsDataset) ? atsDataset : candidates;
     const external = Array.isArray(hhDataset) ? hhDataset : hhCandidates;
     if (provider === 'hh') return external.filter(candidate => candidate.searchProvider === 'hh');
-    return internal.filter(candidate => candidate.searchProvider !== 'hh' || candidate.importedToATS === true);
+    const allowedInternal = internal.filter(candidate => candidate.searchProvider !== 'hh' || candidate.importedToATS === true);
+    if (provider !== 'both') return allowedInternal;
+    // Просмотр объединённой выдачи не импортирует внешнее резюме. Уже импортированная
+    // копия ATS при совпадении устойчивого ID важнее внешнего временного результата.
+    const combined = new Map();
+    [...allowedInternal.filter(candidate => candidate.searchProvider === 'ats' || candidate.searchProvider === 'hh' && candidate.importedToATS === true), ...external.filter(candidate => candidate.searchProvider === 'hh')].forEach(candidate => {
+      const previous = combined.get(candidate.id);
+      const internalCandidate = candidate.searchProvider !== 'hh' || candidate.importedToATS === true;
+      const previousInternal = previous && (previous.searchProvider !== 'hh' || previous.importedToATS === true);
+      if (!previous || internalCandidate && !previousInternal) combined.set(candidate.id, candidate);
+    });
+    return [...combined.values()];
   }
 
   function normalizeState(input = {}) {
@@ -138,9 +149,10 @@ window.SearchDevModel = (() => {
     const resume = [candidate.position, ...(candidate.skills || []), ...(candidate.resumes || []).map(item => [item.title, item.position, ...(item.skills || []), item.education, ...(item.experience || []).map(job => `${job.company} ${job.role} ${job.text}`)].join(' '))].join(' ');
     const experience = (candidate.experience || []).map(item => `${item.company} ${item.role} ${item.text}`).join(' ');
     const contacts = [candidate.name, candidate.contacts?.email, candidate.contacts?.phone].filter(Boolean).join(' ');
-    const fields = {resume, experience, education: candidate.education || '', feedback: candidate.feedback || '', contacts};
+    const historyAvailable = candidate.internalHistoryAvailable !== false;
+    const fields = {resume, experience, education: candidate.education || '', feedback: historyAvailable ? candidate.feedback || '' : '', contacts};
     // Возраст — только информационный реквизит карточки; он не попадает в поиск/оценку.
-    return fold(scope === 'all' ? [candidate.name, candidate.position, candidate.city, candidate.company, ...Object.values(fields), ...(candidate.tags || [])].join(' ') : fields[scope] || '');
+    return fold(scope === 'all' ? [candidate.name, candidate.position, candidate.city, candidate.company, ...Object.values(fields), ...(historyAvailable ? candidate.tags || [] : [])].join(' ') : fields[scope] || '');
   }
   function matchQuery(candidate, query = defaultQuery()) {
     const text = fold(query.text), haystack = scopeText(candidate, query.scope || 'all');
@@ -160,9 +172,9 @@ window.SearchDevModel = (() => {
   }
   function search(input = defaultState(), dataset) {
     const state = normalizeState(input), cutoff = state.period === 'month' ? Date.parse(now) - 30 * 86400000 : state.period === 'week' ? Date.parse(now) - 7 * 86400000 : null;
-    const selected = Array.isArray(dataset) ? dataset : selectResultsDataset(state.searchProvider);
+    const selected = Array.isArray(dataset) ? state.searchProvider === 'both' ? selectResultsDataset('both', dataset, dataset) : dataset : selectResultsDataset(state.searchProvider);
     const allItems = selected.filter(candidate => {
-      if (candidate.searchProvider && candidate.searchProvider !== state.searchProvider && !(state.searchProvider === 'ats' && candidate.importedToATS === true)) return false;
+      if (state.searchProvider !== 'both' && candidate.searchProvider && candidate.searchProvider !== state.searchProvider && !(state.searchProvider === 'ats' && candidate.importedToATS === true)) return false;
       if (!matchQueries(candidate, state.queries)) return false;
       if (candidate.internalHistoryAvailable === false && (state.employment !== 'all' || state.tags.length || state.queries.some(query => fold(query.text) && query.scope === 'feedback'))) return false;
       const working = Boolean(candidate.processes?.length);
@@ -365,6 +377,43 @@ window.SearchDevModel = (() => {
     return {items, errors};
   }
   const validateAssignment = (...args) => previewAssignment(...args).errors;
+  function previewBulkAssignment(selectedCandidates, input = {}, vacancyDataset = vacancies) {
+    const config = input && typeof input === 'object' ? input : {};
+    const errors = [], eligible = [], skipped = [], selected = new Map();
+    const vacancy = Array.isArray(vacancyDataset) ? vacancyDataset.find(item => item?.id === config.vacancyId) : undefined;
+    const initialStage = config.initialStage || vacancy?.initialStage || '';
+    const resumeIds = config.resumeIds && typeof config.resumeIds === 'object' && !Array.isArray(config.resumeIds) ? config.resumeIds : {};
+    const result = () => ({errors, eligible: errors.length ? [] : eligible, skipped, vacancyTitle: vacancy?.title || '', initialStage});
+    if (!Array.isArray(selectedCandidates) || !selectedCandidates.length) errors.push('Выберите хотя бы одного кандидата.');
+    if (!vacancy) errors.push('Выберите демовакансию.');
+    if (!vacancy || !Array.isArray(vacancy.stages) || !vacancy.stages.includes(initialStage) || ['Выход', 'Отказ'].includes(initialStage)) errors.push('Выберите начальный незавершающий этап вакансии.');
+    (Array.isArray(selectedCandidates) ? selectedCandidates : []).forEach(candidate => {
+      if (!candidate || typeof candidate !== 'object' || typeof candidate.id !== 'string' || !candidate.id.trim()) {
+        errors.push('Один из кандидатов не найден в демоданных.'); return;
+      }
+      const previous = selected.get(candidate.id);
+      // В смешанном выборе сохраняем известную внутреннюю копию, но не меняем сам профиль.
+      const isInternal = candidate.searchProvider !== 'hh' || candidate.importedToATS === true;
+      const previousInternal = previous && (previous.searchProvider !== 'hh' || previous.importedToATS === true);
+      if (!previous || isInternal && !previousInternal) selected.set(candidate.id, candidate);
+    });
+    selected.forEach(candidate => {
+      const ownResumes = Array.isArray(candidate.resumes) ? candidate.resumes : [];
+      const explicitResume = has(resumeIds, candidate.id);
+      const resume = explicitResume ? ownResumes.find(item => item?.id === resumeIds[candidate.id]) : ownResumes[0];
+      if (!resume || typeof resume.id !== 'string' || !resume.id.trim()) {
+        errors.push(`${candidate.name || 'Кандидат'}: выберите собственное резюме.`); return;
+      }
+      if (candidate.processes?.some(process => process.vacancyId === config.vacancyId)) {
+        skipped.push({candidateId: candidate.id, name: candidate.name || '', reason: 'Уже есть в выбранной вакансии.', code: 'alreadyAssigned'}); return;
+      }
+      eligible.push({candidateId: candidate.id, name: candidate.name || '', vacancyId: config.vacancyId, vacancyTitle: vacancy?.title || '', stage: initialStage, resumeId: resume.id, resumeTitle: resume.title || '', duplicate: false, needsImport: candidate.searchProvider === 'hh' && candidate.importedToATS !== true});
+    });
+    if (!errors.length && !eligible.length) errors.push('Все выбранные кандидаты уже есть в этой вакансии.');
+    // Любая неверная связь или настройка блокирует пакет целиком — частичного добавления нет.
+    return result();
+  }
+  const validateBulkAssignment = (...args) => previewBulkAssignment(...args).errors;
   const catalogs = Object.fromEntries(Object.entries({scopes, conditions, joins, sources, searchProviders, employment, periods, sorts}).map(([key, catalog]) => [key, Object.entries(catalog).map(([id, label]) => ({id, label}))]));
-  return {now, scopes, conditions, joins, sources, searchProviders, providerCatalog, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, hhCandidates, selectResultsDataset, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, search, parseAiQuery, parseResumeQuery, scoreCandidate, defaultAutoPick, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment};
+  return {now, scopes, conditions, joins, sources, searchProviders, providerCatalog, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, hhCandidates, selectResultsDataset, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, search, parseAiQuery, parseResumeQuery, scoreCandidate, defaultAutoPick, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment, previewBulkAssignment, validateBulkAssignment};
 })();
