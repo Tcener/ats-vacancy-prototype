@@ -7,14 +7,21 @@ window.CandidateNavigation = (() => {
   const vacancyLinks = {'Senior Android-разработчик':'android','B2B Sales / Менеджер B2B продаж':'android','Senior Product Designer':'designer','Data Analyst':'analyst','Backend-разработчик Go':'backend','Senior iOS-разработчик':'ios'};
   const vacancyMenu = ['Senior Android-разработчик','Senior Product Designer','Data Analyst','Backend-разработчик Go','Senior iOS-разработчик'];
   const tabs = [['resume','Резюме'],['history','История и комментарии'],['ai','ИИ-инструменты'],['chat','Переписка']];
+  function searchAvatar(candidate, className, tag = 'div') {
+    const index = candidate.photoIndex;
+    const photoStyle = window.SearchDemoPortraits?.style(index);
+    if (photoStyle) {
+      return `<${tag} class="${className}" role="img" aria-label="Вымышленное фото: ${esc(candidate.name)}" style="${esc(photoStyle)}"></${tag}>`;
+    }
+    return `<${tag} class="${className}" aria-hidden="true">${esc(candidate.initials || String(candidate.name || '').split(' ').map(word=>word[0]).join(''))}</${tag}>`;
+  }
   const styles = `
-    .cn-vacancy-header{justify-content:flex-start!important;gap:12px!important;padding:8px 14px!important}
-    .cn-vacancy-title{display:inline-flex;align-items:center;flex:0 1 auto;max-width:100%;min-height:46px;margin:0!important;padding:9px 14px;border:1px solid #ded7f7;border-radius:14px;background:#fff;cursor:pointer;transition:background-color .16s,color .16s}
-    .cn-vacancy-title:hover{background:#f7f5fd;border-color:#cfc5f2;color:#5137c6}
-    .cn-vacancy-settings{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:none;min-height:42px;padding:10px 15px;border:1px solid #ded3ff;border-radius:13px;background:#f0eaff;color:#5137c6;font:700 14px/1.25 'Manrope',system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color .16s,border-color .16s}
+    .cn-vacancy-header{justify-content:flex-start!important;align-items:center!important;gap:12px!important;padding:8px 14px!important}
+    .cn-vacancy-title{display:inline-flex;align-items:center;box-sizing:border-box;flex:0 1 auto;max-width:100%;height:44px!important;min-height:44px!important;margin:0!important;padding:0 14px;border:1px solid #ded7f7;border-radius:14px;background:#fff;cursor:default;line-height:1.25;white-space:nowrap}
+    .cn-vacancy-settings{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;gap:8px;flex:none;height:44px!important;min-height:44px!important;padding:0 15px;border:1px solid #ded3ff;border-radius:14px;background:#f0eaff;color:#5137c6;font:700 14px/1.25 'Manrope',system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color .16s,border-color .16s}
     .cn-vacancy-settings svg{width:18px;height:18px;flex:none}.cn-vacancy-settings:hover{background:#e7ddff;border-color:#b9a3f4}
     aside[aria-label="Основная навигация"] a[data-cn-route^="vacancy/"]{color:#d9d9de!important;background:transparent!important;font-weight:500!important}aside[aria-label="Основная навигация"] a.cn-nav-current{color:#fff!important;background:rgba(255,255,255,.11)!important;font-weight:700!important}
-    .cn-vacancy-title:focus-visible,.cn-vacancy-settings:focus-visible,.cn-candidate-row:focus-visible,.cn-tab:focus-visible{outline:3px solid rgba(106,75,224,.3);outline-offset:3px}
+    .cn-vacancy-settings:focus-visible,.cn-candidate-row:focus-visible,.cn-tab:focus-visible{outline:3px solid rgba(106,75,224,.3);outline-offset:3px}
     .cn-funnel{display:flex!important;align-items:center!important;gap:2px!important;max-width:100%!important;padding:8px 12px 10px!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin;scrollbar-color:#d8d2ea transparent}
     .cn-stage{display:inline-flex;flex:0 0 auto;align-items:center;gap:5px;min-height:34px;padding:0 7px;border:0;border-radius:10px;background:transparent;color:#1b1a20;font:700 11.5px/1.2 'Manrope',system-ui,sans-serif;white-space:nowrap;cursor:pointer}
     .cn-stage:hover{background:#f0edf8;color:#5137c6}.cn-stage.active{background:#6a4be0;color:#fff;box-shadow:0 4px 10px rgba(106,75,224,.2)}
@@ -33,9 +40,8 @@ window.CandidateNavigation = (() => {
     if (title) {
       if (title.textContent !== context.vacancyName) title.textContent = context.vacancyName;
       title.classList.add('cn-vacancy-title');
-      title.setAttribute('role', 'button'); title.tabIndex = 0;
-      title.setAttribute('title', 'Открыть сведения и настройки вакансии');
-      title.setAttribute('aria-label', `Настройки вакансии ${context.vacancyName}`);
+      // Название — обычный заголовок. В настройки ведёт только соседняя кнопка.
+      ['role','tabindex','title','aria-label'].forEach(name => title.removeAttribute?.(name));
       title.parentElement.classList.add('cn-vacancy-header');
       let settings = doc.querySelector('.cn-vacancy-settings');
       if (!settings) {
@@ -57,7 +63,7 @@ window.CandidateNavigation = (() => {
       if (!route) return;
       link.dataset.cnRoute = route;
       link.classList.toggle('cn-nav-current', route === `vacancy/${context.vacancyId}`);
-      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=b22ccdd19b77#${route}`, state.frame.ownerDocument.location.href).href;
+      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=32923d245dd7#${route}`, state.frame.ownerDocument.location.href).href;
       link.target = '_top';
     });
   }
@@ -88,7 +94,7 @@ window.CandidateNavigation = (() => {
     else if (tab === 'chat') content = '<h3>Переписка</h3><div class="cn-empty">Сообщений этого кандидата в макете нет.<br>Письма и приглашения не отправляются.</div>';
     else content = `<h3>Резюме</h3><div class="cn-search-skills">${(person.skills || []).map(skill=>`<span>${esc(skill)}</span>`).join('')}</div>${jobs || '<div class="cn-empty">Опыт не указан</div>'}<h3 style="margin-top:22px">Образование</h3><p>${esc(person.education || 'Не указано')}</p><h3>Версии резюме</h3>${(person.resumes || []).map(resume=>`<p>${esc(resume.title)}</p>`).join('') || '<p>Резюме не указано</p>'}`;
     state.original.hidden = true; state.demo.hidden = false;
-    state.demo.innerHTML = `<nav class="cn-demo-tabs" aria-label="Разделы кандидата" role="tablist">${tabs.map(([id,label])=>`<button type="button" class="cn-tab" role="tab" data-cn-tab="${id}" aria-selected="${id === tab}" aria-controls="cn-demo-content">${label}</button>`).join('')}</nav><section class="cn-profile" aria-label="Блок: шапка кандидата"><div class="cn-profile-top"><div class="cn-search-profile-avatar" aria-hidden="true">${esc(person.initials || person.name.split(' ').map(word=>word[0]).join(''))}</div><div class="cn-profile-copy"><h2>${esc(person.name)}</h2><p class="cn-role">${esc(person.position || person.role)}</p><p class="cn-meta">${esc(person.city)} · ${esc(state.context.stage)}</p><span class="cn-demo-badge">Вымышленный профиль из поиска</span><dl><dt>Телефон</dt><dd>Не указан</dd><dt>Эл. почта</dt><dd>${esc(person.contacts?.email || 'Не указана')}</dd><dt>Вакансия</dt><dd>${esc(state.context.vacancyName)}</dd></dl><p class="cn-search-consent">Согласие на обработку данных: ${esc(consent)}</p></div></div></section><section class="cn-content" id="cn-demo-content" role="tabpanel" tabindex="0">${content}</section>`;
+    state.demo.innerHTML = `<nav class="cn-demo-tabs" aria-label="Разделы кандидата" role="tablist">${tabs.map(([id,label])=>`<button type="button" class="cn-tab" role="tab" data-cn-tab="${id}" aria-selected="${id === tab}" aria-controls="cn-demo-content">${label}</button>`).join('')}</nav><section class="cn-profile" aria-label="Блок: шапка кандидата"><div class="cn-profile-top">${searchAvatar(person, 'cn-search-profile-avatar')}<div class="cn-profile-copy"><h2>${esc(person.name)}</h2><p class="cn-role">${esc(person.position || person.role)}</p><p class="cn-meta">${esc(person.city)} · ${esc(state.context.stage)}</p><span class="cn-demo-badge">Вымышленный профиль из поиска</span><dl><dt>Телефон</dt><dd>Не указан</dd><dt>Эл. почта</dt><dd>${esc(person.contacts?.email || 'Не указана')}</dd><dt>Вакансия</dt><dd>${esc(state.context.vacancyName)}</dd></dl><p class="cn-search-consent">Согласие на обработку данных: ${esc(consent)}</p></div></div></section><section class="cn-content" id="cn-demo-content" role="tabpanel" tabindex="0">${content}</section>`;
   }
 
   function searchContext(state) {
@@ -104,7 +110,7 @@ window.CandidateNavigation = (() => {
       state.searchRow.hidden = false;
       state.searchRow.setAttribute('aria-label', `Открыть кандидата ${candidate.name}`);
       state.searchRow.setAttribute('aria-pressed','true');
-      state.searchRow.innerHTML = `<span class="cn-search-avatar" aria-hidden="true">${esc(candidate.initials)}</span><span><b>${esc(candidate.name)}</b><small>${esc(candidate.position || candidate.role)}</small><small>${esc(state.context.stage)}</small></span>`;
+      state.searchRow.innerHTML = `${searchAvatar(candidate, 'cn-search-avatar', 'span')}<span><b>${esc(candidate.name)}</b><small>${esc(candidate.position || candidate.role)}</small><small>${esc(state.context.stage)}</small></span>`;
     } else if (state.searchRow) state.searchRow.hidden = true;
     if (candidate || state.searchCandidateActive) {
       const stageIndex = candidate ? stages.findIndex(([label])=>label.toLocaleLowerCase('ru') === String(state.context.stage).toLocaleLowerCase('ru')) : 0;
@@ -160,12 +166,11 @@ window.CandidateNavigation = (() => {
       else state.context.navigate(route);
     };
     doc.addEventListener('click', event => {
-      const target = event.target.closest?.('[data-cn-candidate], [data-cn-search-candidate], [data-cn-tab], [data-cn-stage], [data-cn-route], .cn-vacancy-title');
+      const target = event.target.closest?.('[data-cn-candidate], [data-cn-search-candidate], [data-cn-tab], [data-cn-stage], [data-cn-route]');
       if (!target) return;
       if (target.dataset.cnRoute && (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || event.button)) return;
       event.preventDefault();
-      if (target.classList.contains('cn-vacancy-title')) state.context.navigate(`vacancy/${state.context.vacancyId}/edit`);
-      else if (target.dataset.cnRoute) go(target);
+      if (target.dataset.cnRoute) go(target);
       else if (target.dataset.cnSearchCandidate) {state.tab = 'resume'; profile(state);}
       else if (target.dataset.cnCandidate !== undefined) select(state, Number(target.dataset.cnCandidate));
       else if (target.dataset.cnTab) {state.tab = target.dataset.cnTab; profile(state); state.demo.querySelector(`[data-cn-tab="${state.tab}"]`)?.focus();}
@@ -173,7 +178,7 @@ window.CandidateNavigation = (() => {
     }, true);
     doc.addEventListener('keydown', event => {
       if (!['Enter',' '].includes(event.key)) return;
-      const target = event.target.closest?.('.cn-candidate-row, .cn-vacancy-title');
+      const target = event.target.closest?.('.cn-candidate-row');
       if (!target) return;
       event.preventDefault(); target.click();
     }, true);

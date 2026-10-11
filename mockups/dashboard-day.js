@@ -34,7 +34,7 @@
     const sidebar=document.getElementById('hf-sidebar');
     if(!sidebar||sidebar.dataset.sidebarMounted)return;
     sidebar.dataset.sidebarMounted='1';
-    window.Sidebar?.mount(sidebar,{base:'ats-product.html?public=b22ccdd19b77',active:'home',inFlex:true});
+    window.Sidebar?.mount(sidebar,{base:'ats-product.html?public=32923d245dd7',active:'home',inFlex:true});
   };
   refreshShell();
   // Оболочка перерисовывает шапку при открытии поиска; фирменный знак не теряется.

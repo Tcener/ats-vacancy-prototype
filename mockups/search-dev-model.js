@@ -6,6 +6,9 @@ window.SearchDevModel = (() => {
   const conditions = {all: 'все слова', any: 'любое слово', phrase: 'точная фраза', not: 'не содержит'};
   const joins = {and: 'И', or: 'ИЛИ', not: 'НЕ'};
   const sources = {hh: 'hh.ru', website: 'Карьерный сайт', avito: 'Авито', linkedin: 'LinkedIn', habr: 'Хабр Карьера', other: 'Другой источник', none: 'Не указан'};
+  // Площадка поиска не равна источнику появления кандидата во внутренней базе.
+  const searchProviders = {ats: 'База ATS', hh: 'hh.ru'};
+  const providerCatalog = Object.entries(searchProviders).map(([id, label]) => ({id, label}));
   const employment = {all: 'Все', inprocess: 'В процессах', free: 'Свободные'};
   const periods = {all: 'За всё время', month: 'За месяц', week: 'За неделю'};
   const sorts = {new: 'Сначала новые'};
@@ -17,7 +20,7 @@ window.SearchDevModel = (() => {
   const has = (catalog, key) => Object.prototype.hasOwnProperty.call(catalog, key);
   const positiveInteger = value => String(value ?? '').trim() !== '' && Number.isSafeInteger(Number(value)) && Number(value) > 0;
   const defaultQuery = () => ({scope: 'all', condition: 'all', join: 'and', text: ''});
-  const defaultState = () => ({queries: [defaultQuery()], employment: 'all', tags: [], excludeTags: false, source: 'all', period: 'all', sort: 'new', page: 1, pageSize: 20});
+  const defaultState = () => ({queries: [defaultQuery()], employment: 'all', tags: [], excludeTags: false, source: 'all', searchProvider: 'ats', period: 'all', sort: 'new', page: 1, pageSize: 20});
   const criterion = (id, kind, text, terms, extra = {}) => ({id, kind, text, required: true, terms, ...extra});
   const stages = ['Отклик', 'Новый кандидат', 'Скоринг', 'Чат-бот', 'HR интервью', 'Техническое интервью', 'Финальное интервью', 'Оффер', 'Выход', 'Отказ'];
   const vacancies = [
@@ -36,12 +39,12 @@ window.SearchDevModel = (() => {
     {position: 'Frontend-разработчик', skills: ['React', 'TypeScript', 'JavaScript', 'CSS'], text: 'Интерфейсы React и TypeScript. Компоненты, CSS и автоматическое тестирование.'}
   ];
   const givenNames = ['Алексей', 'Мария', 'Дмитрий', 'Ольга', 'Павел', 'Елена', 'Никита', 'Дарья', 'Сергей', 'Анна', 'Артём', 'Вера'];
-  const surnames = ['Соснов', 'Рябинина', 'Луговой', 'Берёзова', 'Ясный', 'Светлова'];
+  const surnames = [['Соснов', 'Соснова'], ['Рябинин', 'Рябинина'], ['Луговой', 'Луговая'], ['Берёзов', 'Берёзова'], ['Ясный', 'Ясная'], ['Светлов', 'Светлова']];
   const cities = ['Москва', 'Санкт-Петербург', 'Казань', 'Новосибирск', 'Екатеринбург', 'Нижний Новгород'];
   const sourceIds = Object.keys(sources);
   const candidates = Array.from({length: 72}, (_, index) => {
     const profile = profiles[index % profiles.length], number = String(index + 1).padStart(2, '0');
-    const name = `${givenNames[index % givenNames.length]} ${surnames[Math.floor(index / givenNames.length)]}`;
+    const name = `${givenNames[index % givenNames.length]} ${surnames[Math.floor(index / givenNames.length)][index % 2]}`;
     const id = `demo-search-${number}`, years = 1 + (index % 9), company = `ДемоКоманда ${1 + (index % 12)}`;
     const skills = index % 11 === 0 ? profile.skills.slice(0, 2) : [...profile.skills];
     const industry = Math.floor(index / profiles.length) % 3 === 0 ? 'Финтех' : 'Электронная коммерция';
@@ -52,13 +55,34 @@ window.SearchDevModel = (() => {
     if (index === 17) processes.push({vacancyId: 'android', title: vacancies[0].title, stage: 'HR интервью'});
     const resumes = [{id: `${id}-resume-1`, title: `${profile.position} · основное резюме`, source, position: profile.position, skills: [...skills], experience: clone(experience), education}];
     if (index % 9 === 0) resumes.push({id: `${id}-resume-2`, title: `${profile.position} · обновлённое резюме`, source: 'other', position: profile.position, skills: [...skills], experience: clone(experience), education});
-    return {id, name, initials: name.split(' ').map(part => part[0]).join(''), position: profile.position, role: profile.position, age: 24 + (index % 18), city: cities[index % cities.length], source, updatedAt: new Date(Date.parse(now) - index * 86400000).toISOString(), company, experience, skills, education, feedback: index % 4 === 0 ? 'Вымышленный комментарий: открыто к предложениям, обсудить профессиональные задачи.' : 'Вымышленный комментарий: резюме проверено, уточнить опыт работы.', contacts: {email: `demo.candidate.${number}@example.com`, phone: ''}, tags: [...new Set([tagLabels[index % tagLabels.length], ...(index % 5 === 0 ? ['На будущее'] : [])])], processes, resumes, consent: index % 5 === 0 ? 'unknown' : index % 7 === 0 ? 'requested' : 'given', workMode: index % 3 === 0 ? 'Удалённая работа' : 'Гибрид', language: index % 4 === 0 ? 'Английский B2' : 'Английский B1', schedule: 'Полный день'};
+    const photoIndex = Math.floor(index / 12) * 12 + Math.floor((index % 12) / 2) + (index % 2 ? 6 : 0);
+    return {id, name, initials: name.split(' ').map(part => part[0]).join(''), photoIndex, searchProvider: 'ats', internalHistoryAvailable: true, position: profile.position, role: profile.position, age: 24 + (index % 18), city: cities[index % cities.length], source, updatedAt: new Date(Date.parse(now) - index * 86400000).toISOString(), company, experience, skills, education, feedback: index % 4 === 0 ? 'Вымышленный комментарий: открыто к предложениям, обсудить профессиональные задачи.' : 'Вымышленный комментарий: резюме проверено, уточнить опыт работы.', contacts: {email: `demo.candidate.${number}@example.com`, phone: ''}, tags: [...new Set([tagLabels[index % tagLabels.length], ...(index % 5 === 0 ? ['На будущее'] : [])])], processes, resumes, consent: index % 5 === 0 ? 'unknown' : index % 7 === 0 ? 'requested' : 'given', workMode: index % 3 === 0 ? 'Удалённая работа' : 'Гибрид', language: index % 4 === 0 ? 'Английский B2' : 'Английский B1', schedule: 'Полный день'};
   });
+  const hhSurnames = [['Тихонов', 'Тихонова'], ['Северин', 'Северина'], ['Миронов', 'Миронова']];
+  // Отдельная внешняя демовыдача: в ней нет контактов, заметок и истории процессов ATS.
+  const hhCandidates = Array.from({length: 36}, (_, index) => {
+    const profile = profiles[index % profiles.length], number = String(index + 1).padStart(2, '0');
+    const id = `demo-hh-${number}`, name = `${givenNames[index % givenNames.length]} ${hhSurnames[Math.floor(index / 12)][index % 2]}`;
+    const years = 2 + (index % 8), company = `ДемоHHКоманда ${index + 1}`;
+    const skills = index % 10 === 0 ? profile.skills.slice(0, 2) : [...profile.skills];
+    const experience = [{company, role: profile.position, text: `${profile.text} Вымышленное внешнее резюме.`, years}];
+    const education = index % 7 === 0 ? 'Образование не указано в демопримере' : 'Высшее техническое образование · ДемоУниверситет';
+    const photoIndex = Math.floor(index / 12) * 12 + Math.floor((index % 12) / 2) + (index % 2 ? 6 : 0);
+    return {id, name, initials: name.split(' ').map(part => part[0]).join(''), photoIndex, searchProvider: 'hh', isExternal: true, importedToATS: false, internalHistoryAvailable: false, position: profile.position, role: profile.position, age: 26 + (index % 20), city: cities[(index + 2) % cities.length], source: 'hh', updatedAt: new Date(Date.parse(now) - index * 86400000).toISOString(), company, experience, skills, education, feedback: '', contacts: {email: '', phone: ''}, tags: [], processes: [], resumes: [{id: `${id}-resume-1`, title: `${profile.position} · деморезюме hh.ru`, source: 'hh', position: profile.position, skills: [...skills], experience: clone(experience), education}], consent: 'unknown', workMode: index % 3 === 0 ? 'Удалённая работа' : 'Гибрид', language: index % 4 === 0 ? 'Английский B2' : 'Английский B1', schedule: 'Полный день'};
+  });
+
+  function selectResultsDataset(provider, atsDataset = candidates, hhDataset = hhCandidates) {
+    const internal = Array.isArray(atsDataset) ? atsDataset : candidates;
+    const external = Array.isArray(hhDataset) ? hhDataset : hhCandidates;
+    if (provider === 'hh') return external.filter(candidate => candidate.searchProvider === 'hh');
+    return internal.filter(candidate => candidate.searchProvider !== 'hh' || candidate.importedToATS === true);
+  }
 
   function normalizeState(input = {}) {
     const state = {...defaultState(), ...clone(input || {})};
     state.queries = Array.isArray(state.queries) && state.queries.length ? state.queries.map(query => ({scope: has(scopes, query?.scope) ? query.scope : 'all', condition: has(conditions, query?.condition) ? query.condition : 'all', join: has(joins, query?.join) ? query.join : 'and', text: String(query?.text ?? '')})) : [defaultQuery()];
     for (const [key, catalog] of [['employment', employment], ['period', periods], ['sort', sorts]]) if (!has(catalog, state[key])) state[key] = defaultState()[key];
+    if (!has(searchProviders, state.searchProvider)) state.searchProvider = 'ats';
     if (state.source !== 'all' && !has(sources, state.source)) state.source = 'all';
     state.tags = Array.isArray(state.tags) ? [...new Set(state.tags.filter(tag => tagLabels.includes(tag)))] : [];
     state.excludeTags = state.excludeTags === true;
@@ -90,10 +114,13 @@ window.SearchDevModel = (() => {
     // Явный порядок слева направо: A И B ИЛИ C НЕ D = ((A && B) || C) && !D.
     return rows.slice(1).reduce((matched, row) => row.join === 'or' ? matched || matchQuery(candidate, row) : row.join === 'not' ? matched && !matchQuery(candidate, row) : matched && matchQuery(candidate, row), matchQuery(candidate, rows[0]));
   }
-  function search(input = defaultState(), dataset = candidates) {
+  function search(input = defaultState(), dataset) {
     const state = normalizeState(input), cutoff = state.period === 'month' ? Date.parse(now) - 30 * 86400000 : state.period === 'week' ? Date.parse(now) - 7 * 86400000 : null;
-    const allItems = dataset.filter(candidate => {
+    const selected = Array.isArray(dataset) ? dataset : selectResultsDataset(state.searchProvider);
+    const allItems = selected.filter(candidate => {
+      if (candidate.searchProvider && candidate.searchProvider !== state.searchProvider && !(state.searchProvider === 'ats' && candidate.importedToATS === true)) return false;
       if (!matchQueries(candidate, state.queries)) return false;
+      if (candidate.internalHistoryAvailable === false && (state.employment !== 'all' || state.tags.length || state.queries.some(query => fold(query.text) && query.scope === 'feedback'))) return false;
       const working = Boolean(candidate.processes?.length);
       if (state.employment === 'inprocess' && !working || state.employment === 'free' && working) return false;
       if (state.source !== 'all' && candidate.source !== state.source) return false;
@@ -147,6 +174,32 @@ window.SearchDevModel = (() => {
     if (!criteria.length) warnings.push('В демопримере не распознаны рабочие критерии. Добавьте конкретный навык, опыт или формат работы.');
     return {criteria, warnings, uncertain: Boolean(warnings.length)};
   }
+  function parseResumeQuery(text) {
+    // TXT разбирается локально. Не возвращаем исходный текст, имя, контакты или возраст.
+    const normalized = fold(String(text ?? '').slice(0, 200000)), warnings = [];
+    if (!normalized) return {role: '', terms: [], criteria: [], warnings: ['В файле нет текста. Добавьте рабочие навыки или используйте деморезюме.'], uncertain: true};
+    const terms = skillTerms.filter(term => termPresent(normalized, term));
+    const roleRules = [
+      ['Android-разработчик', /android|андроид/], ['Product Designer', /product\s+designer|продуктов[а-я]*\s+дизайн|дизайнер/],
+      ['Data Analyst', /data\s+analyst|аналитик\s+данных/], ['Go-разработчик', /(?:^|[^a-z])go(?:[^a-z]|$)|golang/],
+      ['iOS-разработчик', /(?:^|[^a-z])ios(?:[^a-z]|$)|swift/], ['Frontend-разработчик', /frontend|фронтенд/]
+    ];
+    const role = roleRules.find(([, pattern]) => pattern.test(normalized))?.[0] || '';
+    const skillLines = String(text ?? '').slice(0, 200000).split(/\r?\n/).map(line => line.match(/(?:^|\s)(?:навыки|технологии|стек|skills|tech\s+stack)\s*[:—–-]\s*(.*)$/i)?.[1]).filter(Boolean);
+    const knownWords = new Set(skillTerms.flatMap(term => term.match(/[a-z][a-z0-9+#.-]*/g) || []));
+    const unknownSkill = skillLines.some(line => {
+      const normalizedLine = fold(line);
+      const chunks = normalizedLine.split(/[,;|]/).map(value => value.trim()).filter(Boolean);
+      const unknownLatin = (normalizedLine.match(/[a-z][a-z0-9+#.-]*/g) || []).some(word => !knownWords.has(word.replace(/[.-]+$/, '')));
+      return unknownLatin || chunks.some(chunk => !skillTerms.some(term => termPresent(chunk, term)) && !protectedText(chunk));
+    });
+    if (protectedText(normalized)) warnings.push('Личные и защищённые характеристики из резюме не участвуют в поиске похожих.');
+    if (unknownSkill) warnings.push('В резюме есть навыки вне демословаря: проверьте их вручную, они не будут считаться подтверждёнными.');
+    if (!terms.length) warnings.push('Не найдены знакомые рабочие навыки. Укажите их вручную или используйте деморезюме.');
+    // Отдельные желательные навыки дают объяснимую долю сходства, а не жёсткий отсев.
+    const criteria = terms.map((term, index) => criterion(`resume-skill-${index + 1}`, 'skills', term, [term], {required: false}));
+    return {role, terms, criteria, warnings, uncertain: !terms.length || unknownSkill};
+  }
   function normalizeCriterion(input, index = 0) {
     if (!input || typeof input !== 'object') return null;
     if (has(criterionKinds, input.kind) && (Array.isArray(input.terms) || input.kind === 'experience' && input.minYears !== undefined)) return {...clone(input), id: String(input.id || `criterion-${index + 1}`), text: String(input.text ?? ''), required: input.required !== false, terms: Array.isArray(input.terms) ? input.terms.map(String).filter(term => fold(term)) : [], ...(input.minYears === undefined ? {} : {minYears: Number(input.minYears)})};
@@ -174,7 +227,7 @@ window.SearchDevModel = (() => {
         const years = jobs.reduce((sum, job) => sum + Number(job.years || 0), 0);
         matched = available && years >= rule.minYears; evidence = available ? `Вымышленный профиль: ${years} лет; нужно от ${rule.minYears}.` : 'Профильный опыт не указан.';
       } else if (rule.kind === 'employment') {
-        available = Array.isArray(candidate.processes);
+        available = Array.isArray(candidate.processes) && candidate.internalHistoryAvailable !== false;
         matched = available && rule.terms.every(term => term === 'free' ? candidate.processes.length === 0 : term === 'inprocess' ? candidate.processes.length > 0 : false);
         evidence = available ? candidate.processes.length ? 'В демопрофиле есть активный процесс подбора.' : 'В демопрофиле нет активного процесса подбора.' : 'Участие в процессах не указано.';
       } else {
@@ -232,7 +285,14 @@ window.SearchDevModel = (() => {
     saved.page = 1;
     saved.mode = input?.mode === 'ai' ? 'ai' : 'base';
     saved.aiPrompt = String(input?.aiPrompt ?? '');
-    saved.aiCriteria = Array.isArray(input?.aiCriteria) ? clone(input.aiCriteria) : [];
+    saved.aiCriteria = Array.isArray(input?.aiCriteria) ? input.aiCriteria.filter(item => item && typeof item === 'object').map(item => ({id: String(item.id ?? '').slice(0, 120), kind: String(item.kind ?? '').slice(0, 60), text: String(item.text ?? '').slice(0, 2400), required: item.required !== false, terms: Array.isArray(item.terms) ? item.terms.slice(0, 50).map(term => String(term).slice(0, 120)) : [], ...(Number.isFinite(Number(item.minYears)) && item.minYears !== null && item.minYears !== undefined ? {minYears: Number(item.minYears)} : {})})) : [];
+    saved.aiOrigin = ['ai', 'resume', 'auto'].includes(input?.aiOrigin) ? input.aiOrigin : 'ai';
+    const config = input?.aiSearchConfig || {}, threshold = Number(config.threshold), target = Number(config.target);
+    saved.aiSearchConfig = {
+      vacancyId: vacancies.some(item => item.id === config.vacancyId) ? config.vacancyId : '',
+      threshold: config.threshold !== null && config.threshold !== undefined && String(config.threshold).trim() !== '' && Number.isFinite(threshold) && threshold >= 0 && threshold <= 100 ? threshold : saved.aiOrigin === 'auto' ? 75 : saved.aiOrigin === 'resume' ? 60 : 0,
+      target: positiveInteger(target) && target <= 1000 ? target : 20
+    };
     return saved;
   }
   let savedSequence = 0;
@@ -261,6 +321,6 @@ window.SearchDevModel = (() => {
     return {items, errors};
   }
   const validateAssignment = (...args) => previewAssignment(...args).errors;
-  const catalogs = Object.fromEntries(Object.entries({scopes, conditions, joins, sources, employment, periods, sorts}).map(([key, catalog]) => [key, Object.entries(catalog).map(([id, label]) => ({id, label}))]));
-  return {now, scopes, conditions, joins, sources, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, search, parseAiQuery, scoreCandidate, defaultAutoPick, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment};
+  const catalogs = Object.fromEntries(Object.entries({scopes, conditions, joins, sources, searchProviders, employment, periods, sorts}).map(([key, catalog]) => [key, Object.entries(catalog).map(([id, label]) => ({id, label}))]));
+  return {now, scopes, conditions, joins, sources, searchProviders, providerCatalog, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, hhCandidates, selectResultsDataset, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, search, parseAiQuery, parseResumeQuery, scoreCandidate, defaultAutoPick, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment};
 })();
