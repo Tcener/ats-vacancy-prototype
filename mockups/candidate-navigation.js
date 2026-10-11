@@ -80,7 +80,7 @@ window.CandidateNavigation = (() => {
 
   function searchProfile(state) {
     const person = state.context.searchCandidate, tab = state.tab || 'resume';
-    const consent = {given:'Получено',requested:'Запрошено',unknown:'Не дано'}[person.consent] || 'Не дано';
+    const consent = {given:'Получено',requested:'Запрошено',unknown:'Не указано'}[person.consent] || 'Не указано';
     const jobs = (person.experience || []).map(job => `<div class="cn-note cn-search-job"><strong>${esc(job.company)}</strong><p>${esc(job.role)}${Number.isFinite(job.years) ? ` · ${esc(job.years)} лет` : ''}</p><p>${esc(job.text)}</p></div>`).join('');
     let content;
     if (tab === 'history') content = '<h3>История и комментарии</h3><div class="cn-empty">История этого демопрофиля из поиска не переносилась.<br>Комментарии другого кандидата не показываются.</div>';
