@@ -40,7 +40,7 @@
   const save=()=>{try{localStorage.setItem('hf-vacancy-portfolio-v1',JSON.stringify(prefs));}catch(_){}};
   save();
   const date=value=>value?new Date(value+'T12:00:00').toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}):'—';
-  const vacancyHref=r=>`ats-product.html?public=e18d6b491900#vacancy/${r.id==='go'?'backend':r.id}`;
+  const vacancyHref=r=>`ats-product.html?public=7e0a79543b7d#vacancy/${r.id==='go'?'backend':r.id}`;
   /* Прогноз закрытия и SLA считаются до выхода на работу: без своей ATS этой
      части пути не видно, и показывать по ней числа нельзя. */
   const thinMode=()=>!!window.ProductMode?.thin?.();
@@ -97,7 +97,7 @@
     const requested=readStored('sb-analytics-pins-v1',['ttf','tto','offer','csi']);
     const legacySelected=[...new Set(requested)].map(id=>catalog[id]).filter(Boolean).slice(0,4);
     const selected=window.AnalyticsWorkspace?.homeMetrics()||legacySelected;
-    document.getElementById('vp-home-analytics').innerHTML=`<div class="vp-analytics-head"><div><span>Аналитика найма</span><h2>Ключевые показатели</h2></div><a href="ats-product.html?public=e18d6b491900#analytics">Настроить в аналитике <span aria-hidden="true">→</span></a></div><div class="vp-analytics-grid">${selected.map(metric=>`<a class="vp-analytics-card ${metric.tone}" href="ats-product.html?public=e18d6b491900#analytics"><span>${esc(metric.name)}</span><strong>${esc(metric.value)}</strong><small>${esc(metric.delta)} к прошлому периоду</small><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></i></a>`).join('')}</div>`;
+    document.getElementById('vp-home-analytics').innerHTML=`<div class="vp-analytics-head"><div><span>Аналитика найма</span><h2>Ключевые показатели</h2></div><a href="ats-product.html?public=7e0a79543b7d#analytics">Настроить в аналитике <span aria-hidden="true">→</span></a></div><div class="vp-analytics-grid">${selected.map(metric=>`<a class="vp-analytics-card ${metric.tone}" href="ats-product.html?public=7e0a79543b7d#analytics"><span>${esc(metric.name)}</span><strong>${esc(metric.value)}</strong><small>${esc(metric.delta)} к прошлому периоду</small><i aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></i></a>`).join('')}</div>`;
   };
   renderHomeAnalytics();
   const cardHtml=r=>`<article class="vp-card ${attentionTone(r)}"><header><div><a class="vp-card-name" href="${vacancyHref(r)}">${esc(r.name)}</a><p>${esc(r.department)} · ${esc(r.grade)} · ${esc(r.location)}</p></div><div class="vp-card-status">${statusChip(r)}</div></header><div class="vp-card-owner"><span class="vp-person-avatar">${r.recruiter?r.recruiter.split(' ').map(x=>x[0]).join('').slice(0,2):'—'}</span><div><small>Рекрутер</small><b>${esc(r.recruiter||'Не назначен')}</b></div><div class="vp-card-progress"><small>Прогноз закрытия</small><span><i style="width:${r.progress}%"></i></span><b>${r.progress}%</b></div></div><div class="vp-card-metrics"><div><small>Кандидаты</small><b>${r.candidates}</b></div><div><small>Ставки</small><b>${r.positions}</b></div><div><small>SLA</small><b class="${r.sla<0?'is-late':''}">${slaValue(r)}</b></div></div><footer><span>${r.start?'Поиск с '+date(r.start):'Поиск не начат'}</span><span>${r.deadline?'Закрыть до '+date(r.deadline):attentionText(r)}</span><a href="${vacancyHref(r)}" aria-label="Открыть вакансию ${esc(r.name)}">Открыть <span aria-hidden="true">→</span></a></footer></article>`;
