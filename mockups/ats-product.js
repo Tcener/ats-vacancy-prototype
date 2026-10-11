@@ -367,7 +367,7 @@
     if(exactSearchRoute){
       document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
       if(!stagePanel.hidden)closeStagePanel();
-      if(!exactSearchFrame.getAttribute('src'))exactSearchFrame.src='search-dev-current.html?public=73412fe31624';
+      if(!exactSearchFrame.getAttribute('src'))exactSearchFrame.src='search-dev-current.html?public=88e003be1e91';
       return;
     }
     if(exactCandidateRoute){

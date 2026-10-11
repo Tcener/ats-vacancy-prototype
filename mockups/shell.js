@@ -477,7 +477,7 @@ const HF = (() => {
   const sidebarHtml = (active) => {
     const nav = [
       ['applicants', 'Все кандидаты', 'home-20', 'applicants.html?public=f9f0d4daad85'],
-      ['analytics', 'Аналитика', 'graph-20', 'ats-product.html?public=32923d245dd7#analytics'],
+      ['analytics', 'Аналитика', 'graph-20', 'ats-product.html?public=385de6c6febb#analytics'],
       ['calendar', 'Календарь', 'calendar-20', 'calendar.html?public=a44619303d83'],
     ];
     return `

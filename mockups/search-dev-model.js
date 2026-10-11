@@ -38,6 +38,43 @@ window.SearchDevModel = (() => {
     {position: 'iOS-разработчик', skills: ['Swift', 'SwiftUI', 'iOS', 'REST API'], text: 'Разработка iOS-приложений на Swift и SwiftUI. Работа с REST API и тестами.'},
     {position: 'Frontend-разработчик', skills: ['React', 'TypeScript', 'JavaScript', 'CSS'], text: 'Интерфейсы React и TypeScript. Компоненты, CSS и автоматическое тестирование.'}
   ];
+  // Содержимое ниже — вымышленные разделы резюме для проверки читаемости, не результат парсинга.
+  const careerDetails = [
+    {industry: 'Мобильные приложения', faculty: 'Информационные технологии · программная инженерия', responsibilities: ['Разработка пользовательских сценариев Android-приложения на Kotlin и Jetpack Compose.', 'Работа с REST API и Coroutines, поддержка модульной архитектуры, ревью кода и автоматические тесты.'], achievements: ['Ускорение запуска приложения на 18% и снижение числа ошибок в ключевых сценариях.', 'Подготовка библиотеки повторно используемых компонентов и упрощение выпуска новых экранов.'], about: 'Разрабатываю мобильные продукты и уделяю внимание качеству пользовательских сценариев. Участвую в обсуждении архитектуры, поддерживаю понятный код и делюсь опытом с командой.'},
+    {industry: 'Цифровые продукты', faculty: 'Информационные технологии · дизайн цифровых продуктов', responsibilities: ['Проведение UX-исследований, описание пользовательских сценариев и создание прототипов в Figma.', 'Развитие дизайн-системы, подготовка интерфейсов и передача макетов продуктовой команде.'], achievements: ['Сокращение числа шагов в ключевом сценарии продукта с 7 до 4.', 'Подготовка набора компонентов, который помог поддерживать единый интерфейс в новых разделах.'], about: 'Помогаю продуктовой команде находить понятные решения для сложных пользовательских задач. Соединяю исследования, прототипирование и визуальный дизайн; проверяю решения на обратной связи.'},
+    {industry: 'Аналитика и данные', faculty: 'Прикладная математика и информатика', responsibilities: ['Подготовка выборок в SQL и Python, проверка качества данных и исследование продуктовых показателей.', 'Создание отчётности и дашбордов Power BI, обсуждение выводов с владельцами продукта.'], achievements: ['Сокращение времени подготовки еженедельного отчёта на 30%.', 'Внедрение проверок качества данных и единого описания показателей для продуктовой команды.'], about: 'Превращаю данные в понятные выводы для продуктовых решений. Люблю проверять гипотезы, объяснять ограничения анализа и делать отчётность удобной для ежедневной работы.'},
+    {industry: 'Программные продукты', faculty: 'Информационные технологии · программная инженерия', responsibilities: ['Разработка сервисов на Go, проектирование REST API и работа с PostgreSQL.', 'Поддержка окружений Docker, разбор ошибок и повышение надёжности взаимодействия сервисов.'], achievements: ['Снижение времени ответа одного из сервисов на 22%.', 'Подготовка единых проверок и документации для безопасного выпуска новых версий.'], about: 'Разрабатываю надёжные сервисы и понятные интерфейсы взаимодействия между ними. Уделяю внимание качеству данных, наблюдаемости и поддержке решений после запуска.'},
+    {industry: 'Мобильные приложения', faculty: 'Информационные технологии · программная инженерия', responsibilities: ['Разработка экранов iOS-приложения на Swift и SwiftUI, интеграция с REST API.', 'Поддержка архитектуры приложения, автоматических тестов и процесса выпуска новых версий.'], achievements: ['Снижение числа аварийных завершений в основных пользовательских сценариях.', 'Разработка повторно используемых компонентов, ускоривших подготовку новых экранов.'], about: 'Создаю мобильные интерфейсы с вниманием к деталям и стабильности приложения. Люблю работать рядом с дизайном и продуктом, проверять сценарии и улучшать качество релизов.'},
+    {industry: 'Веб-приложения', faculty: 'Информационные технологии · программная инженерия', responsibilities: ['Разработка интерфейсов на React и TypeScript, поддержка компонентов и адаптивной вёрстки CSS.', 'Интеграция пользовательских сценариев, автоматическое тестирование и ревью кода.'], achievements: ['Сокращение времени загрузки ключевого экрана на 24%.', 'Подготовка общей библиотеки компонентов и устранение расхождений между разделами приложения.'], about: 'Делаю интерфейсы удобными, быстрыми и последовательными. Уделяю внимание структуре компонентов, доступности пользовательских сценариев и качеству командной работы.'}
+  ];
+  const monthCode = ordinal => `${Math.floor(ordinal / 12)}-${String(ordinal % 12 + 1).padStart(2, '0')}`;
+  function demoExperience(profileIndex, company, totalYears, industry, external = false) {
+    const profile = profiles[profileIndex], details = careerDetails[profileIndex];
+    const count = totalYears >= 7 ? 4 : totalYears >= 3 ? 3 : 2;
+    const halfYears = totalYears * 2, base = Math.floor(halfYears / count), remainder = halfYears % count;
+    const previousCompanies = ['ДемоСтудия продукта', 'ДемоЦифровые сервисы', 'ДемоЛаборатория решений'];
+    // Месяц окончания включён в период; для текущего места октябрь 2026 — месяц демоснимка.
+    let nextMonth = 2026 * 12 + 10;
+    return Array.from({length: count}, (_, index) => {
+      const durationMonths = (base + (index < remainder ? 1 : 0)) * 6;
+      const startMonth = nextMonth - durationMonths, current = index === 0;
+      const job = {company: current ? company : previousCompanies[index - 1], role: profile.position,
+        text: `${profile.text} ${external ? 'Вымышленное внешнее резюме.' : `Отрасль демокоманды: ${industry}.`}`,
+        years: durationMonths / 12, durationMonths, startDate: monthCode(startMonth), endDate: current ? '' : monthCode(nextMonth - 1), current,
+        industry: industry || details.industry,
+        responsibilities: current ? [...details.responsibilities] : [details.responsibilities[index % details.responsibilities.length], 'Поддержка существующих сценариев, исправление ошибок и участие в планировании работы продуктовой команды.'],
+        achievements: [details.achievements[index % details.achievements.length]]};
+      nextMonth = startMonth;
+      return job;
+    });
+  }
+  function demoResumeDetails(profileIndex, totalYears, education, language, updatedAt) {
+    return {
+      educationDetails: /не указано/.test(education) ? [] : [{level: 'Высшее', institution: 'ДемоУниверситет цифровых технологий', faculty: careerDetails[profileIndex].faculty, qualification: 'Бакалавр', year: 2025 - Math.min(totalYears, 6)}],
+      languages: [{name: 'Русский', level: 'Родной'}, {name: 'Английский', level: language.includes('B2') ? 'B2 · Выше среднего' : 'B1 · Средний'}],
+      about: careerDetails[profileIndex].about, updatedAt
+    };
+  }
   const givenNames = ['Алексей', 'Мария', 'Дмитрий', 'Ольга', 'Павел', 'Елена', 'Никита', 'Дарья', 'Сергей', 'Анна', 'Артём', 'Вера'];
   const surnames = [['Соснов', 'Соснова'], ['Рябинин', 'Рябинина'], ['Луговой', 'Луговая'], ['Берёзов', 'Берёзова'], ['Ясный', 'Ясная'], ['Светлов', 'Светлова']];
   const cities = ['Москва', 'Санкт-Петербург', 'Казань', 'Новосибирск', 'Екатеринбург', 'Нижний Новгород'];
@@ -48,15 +85,21 @@ window.SearchDevModel = (() => {
     const id = `demo-search-${number}`, years = 1 + (index % 9), company = `ДемоКоманда ${1 + (index % 12)}`;
     const skills = index % 11 === 0 ? profile.skills.slice(0, 2) : [...profile.skills];
     const industry = Math.floor(index / profiles.length) % 3 === 0 ? 'Финтех' : 'Электронная коммерция';
-    const experience = [{company, role: profile.position, text: `${profile.text} Отрасль демокоманды: ${industry}.`, years, industry}];
+    const experience = demoExperience(index % profiles.length, company, years, industry);
     const education = index % 8 === 0 ? 'Образование не указано в демопримере' : 'Высшее техническое образование · ДемоУниверситет';
     const source = sourceIds[index % sourceIds.length];
+    const updatedAt = new Date(Date.parse(now) - index * 86400000).toISOString(), language = index % 4 === 0 ? 'Английский B2' : 'Английский B1';
     const processes = index % 3 === 0 ? [] : [{vacancyId: vacancies[index % vacancies.length].id, title: vacancies[index % vacancies.length].title, stage: stages[1 + (index % 7)]}];
     if (index === 17) processes.push({vacancyId: 'android', title: vacancies[0].title, stage: 'HR интервью'});
-    const resumes = [{id: `${id}-resume-1`, title: `${profile.position} · основное резюме`, source, position: profile.position, skills: [...skills], experience: clone(experience), education}];
-    if (index % 9 === 0) resumes.push({id: `${id}-resume-2`, title: `${profile.position} · обновлённое резюме`, source: 'other', position: profile.position, skills: [...skills], experience: clone(experience), education});
+    const resumes = [{id: `${id}-resume-1`, title: `${profile.position} · основное резюме`, source, position: profile.position, skills: [...skills], experience: clone(experience), education, ...demoResumeDetails(index % profiles.length, years, education, language, updatedAt)}];
+    if (index % 9 === 0) {
+      const updatedEducation = 'Высшее техническое образование · ДемоУниверситет';
+      const updatedExperience = clone(experience);
+      updatedExperience[0].achievements.push(careerDetails[index % profiles.length].achievements[1]);
+      resumes.push({id: `${id}-resume-2`, title: `${profile.position} · обновлённое резюме`, source: 'other', position: profile.position, skills: [...skills], experience: updatedExperience, education: updatedEducation, ...demoResumeDetails(index % profiles.length, years, updatedEducation, language, updatedAt)});
+    }
     const photoIndex = Math.floor(index / 12) * 12 + Math.floor((index % 12) / 2) + (index % 2 ? 6 : 0);
-    return {id, name, initials: name.split(' ').map(part => part[0]).join(''), photoIndex, searchProvider: 'ats', internalHistoryAvailable: true, position: profile.position, role: profile.position, age: 24 + (index % 18), city: cities[index % cities.length], source, updatedAt: new Date(Date.parse(now) - index * 86400000).toISOString(), company, experience, skills, education, feedback: index % 4 === 0 ? 'Вымышленный комментарий: открыто к предложениям, обсудить профессиональные задачи.' : 'Вымышленный комментарий: резюме проверено, уточнить опыт работы.', contacts: {email: `demo.candidate.${number}@example.com`, phone: ''}, tags: [...new Set([tagLabels[index % tagLabels.length], ...(index % 5 === 0 ? ['На будущее'] : [])])], processes, resumes, consent: index % 5 === 0 ? 'unknown' : index % 7 === 0 ? 'requested' : 'given', workMode: index % 3 === 0 ? 'Удалённая работа' : 'Гибрид', language: index % 4 === 0 ? 'Английский B2' : 'Английский B1', schedule: 'Полный день'};
+    return {id, name, initials: name.split(' ').map(part => part[0]).join(''), photoIndex, searchProvider: 'ats', internalHistoryAvailable: true, position: profile.position, role: profile.position, age: 24 + (index % 18), city: cities[index % cities.length], source, updatedAt, company, experience, skills, education, feedback: index % 4 === 0 ? 'Вымышленный комментарий: открыто к предложениям, обсудить профессиональные задачи.' : 'Вымышленный комментарий: резюме проверено, уточнить опыт работы.', contacts: {email: `demo.candidate.${number}@example.com`, phone: ''}, tags: [...new Set([tagLabels[index % tagLabels.length], ...(index % 5 === 0 ? ['На будущее'] : [])])], processes, resumes, consent: index % 5 === 0 ? 'unknown' : index % 7 === 0 ? 'requested' : 'given', workMode: index % 3 === 0 ? 'Удалённая работа' : 'Гибрид', language, schedule: 'Полный день'};
   });
   const hhSurnames = [['Тихонов', 'Тихонова'], ['Северин', 'Северина'], ['Миронов', 'Миронова']];
   // Отдельная внешняя демовыдача: в ней нет контактов, заметок и истории процессов ATS.
@@ -65,10 +108,11 @@ window.SearchDevModel = (() => {
     const id = `demo-hh-${number}`, name = `${givenNames[index % givenNames.length]} ${hhSurnames[Math.floor(index / 12)][index % 2]}`;
     const years = 2 + (index % 8), company = `ДемоHHКоманда ${index + 1}`;
     const skills = index % 10 === 0 ? profile.skills.slice(0, 2) : [...profile.skills];
-    const experience = [{company, role: profile.position, text: `${profile.text} Вымышленное внешнее резюме.`, years}];
+    const experience = demoExperience(index % profiles.length, company, years, '', true);
     const education = index % 7 === 0 ? 'Образование не указано в демопримере' : 'Высшее техническое образование · ДемоУниверситет';
+    const updatedAt = new Date(Date.parse(now) - index * 86400000).toISOString(), language = index % 4 === 0 ? 'Английский B2' : 'Английский B1';
     const photoIndex = Math.floor(index / 12) * 12 + Math.floor((index % 12) / 2) + (index % 2 ? 6 : 0);
-    return {id, name, initials: name.split(' ').map(part => part[0]).join(''), photoIndex, searchProvider: 'hh', isExternal: true, importedToATS: false, internalHistoryAvailable: false, position: profile.position, role: profile.position, age: 26 + (index % 20), city: cities[(index + 2) % cities.length], source: 'hh', updatedAt: new Date(Date.parse(now) - index * 86400000).toISOString(), company, experience, skills, education, feedback: '', contacts: {email: '', phone: ''}, tags: [], processes: [], resumes: [{id: `${id}-resume-1`, title: `${profile.position} · деморезюме hh.ru`, source: 'hh', position: profile.position, skills: [...skills], experience: clone(experience), education}], consent: 'unknown', workMode: index % 3 === 0 ? 'Удалённая работа' : 'Гибрид', language: index % 4 === 0 ? 'Английский B2' : 'Английский B1', schedule: 'Полный день'};
+    return {id, name, initials: name.split(' ').map(part => part[0]).join(''), photoIndex, searchProvider: 'hh', isExternal: true, importedToATS: false, internalHistoryAvailable: false, position: profile.position, role: profile.position, age: 26 + (index % 20), city: cities[(index + 2) % cities.length], source: 'hh', updatedAt, company, experience, skills, education, feedback: '', contacts: {email: '', phone: ''}, tags: [], processes: [], resumes: [{id: `${id}-resume-1`, title: `${profile.position} · деморезюме hh.ru`, source: 'hh', position: profile.position, skills: [...skills], experience: clone(experience), education, ...demoResumeDetails(index % profiles.length, years, education, language, updatedAt)}], consent: 'unknown', workMode: index % 3 === 0 ? 'Удалённая работа' : 'Гибрид', language, schedule: 'Полный день'};
   });
 
   function selectResultsDataset(provider, atsDataset = candidates, hhDataset = hhCandidates) {

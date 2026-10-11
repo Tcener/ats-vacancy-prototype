@@ -63,7 +63,7 @@ window.CandidateNavigation = (() => {
       if (!route) return;
       link.dataset.cnRoute = route;
       link.classList.toggle('cn-nav-current', route === `vacancy/${context.vacancyId}`);
-      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=32923d245dd7#${route}`, state.frame.ownerDocument.location.href).href;
+      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=385de6c6febb#${route}`, state.frame.ownerDocument.location.href).href;
       link.target = '_top';
     });
   }

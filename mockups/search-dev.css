@@ -218,12 +218,43 @@ h1,h2,h3,p{margin:0}
 .sd-preview-section p{font-size:14px;line-height:1.7;color:#746481}
 .sd-preview-skills{display:flex;flex-wrap:wrap;gap:7px}
 .sd-preview-skills span{padding:6px 9px;border-radius:8px;background:#f0e8fc;color:#805baf;font-size:12px;font-weight:650}
-.sd-experience-item{position:relative;padding-left:18px;margin-top:18px;border-left:2px solid #e9dcf5}
-.sd-experience-item:first-of-type{margin-top:0}
-.sd-experience-item:before{content:'';position:absolute;width:8px;height:8px;background:#c2a4e3;border-radius:50%;left:-5px;top:5px}
-.sd-experience-item h4{font-size:14px;font-weight:750;color:#554063;margin:4px 0}
-.sd-experience-item b{font-size:12px;color:#9a84a8;font-weight:500}
-.sd-experience-item small{display:block;font-size:11px;color:#b09ac0;margin-bottom:6px}
+.sd-resume-document{background:#f7f5fb;padding:14px;overflow-wrap:anywhere}
+.sd-resume-document .sd-preview-section{background:#fff;border:1px solid #eae4f2;border-radius:18px;padding:22px;margin-bottom:12px}
+.sd-resume-document h3{font-size:19px;font-weight:800;color:#22212a;margin:0 0 16px}
+.sd-resume-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:14px;margin-bottom:24px;border-bottom:1px solid #c88bef}
+.sd-resume-section-head h3{margin:0;display:block;line-height:1.4}
+.sd-resume-section-head h3>span{white-space:nowrap}
+.sd-resume-source{flex:none;font-size:12px;color:#66449c;padding:5px 9px;border-radius:8px;background:#f2eafd}
+.sd-resume-timeline{border-left:2px solid #e6d9f4;margin-left:5px}
+.sd-experience-item{position:relative;padding:0 0 30px 22px}
+.sd-experience-item:last-child{padding-bottom:0}
+.sd-experience-item:before{content:'';position:absolute;width:12px;height:12px;background:#d7c5ed;border:3px solid #fff;border-radius:50%;left:-10px;top:1px}
+.sd-experience-item h4{font-size:19px;font-weight:800;color:#22212a;margin:6px 0 4px;line-height:1.4}
+.sd-resume-document .sd-job-dates{font-size:13px;font-weight:550;letter-spacing:.02em;line-height:1.5;color:#87828f;margin:0}
+.sd-resume-document .sd-job-industry{font-size:13px;color:#87828f;margin:0 0 16px;line-height:1.5}
+.sd-resume-document .sd-job-role{font-size:15px;line-height:1.6;color:#282631;margin:0 0 12px}
+.sd-job-role strong{font-weight:750}
+.sd-job-role>span{color:#87828f;font-size:14px}
+.sd-resume-document .sd-job-description p,.sd-resume-document .sd-job-achievements p{font-size:15px;line-height:1.75;color:#383340;margin:0 0 10px}
+.sd-job-achievements{margin-top:15px}
+.sd-job-achievements h5{font-size:13px;font-weight:750;color:#694ba3;margin:0 0 5px}
+.sd-job-description p:last-child,.sd-job-achievements p:last-child{margin-bottom:0}
+.sd-resume-details-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:12px;margin-bottom:12px}
+.sd-resume-detail-card{background:#fff;border:1px solid #eae4f2;border-radius:18px;padding:20px}
+.sd-resume-detail-card h3{padding-bottom:13px;border-bottom:1px solid #c88bef;margin-bottom:16px}
+.sd-education-item+ .sd-education-item{margin-top:20px;padding-top:16px;border-top:1px solid #eee9f4}
+.sd-education-item h4{font-size:16px;line-height:1.5;margin:5px 0;color:#25222e;font-weight:750}
+.sd-resume-detail-card p{font-size:14px;line-height:1.65;color:#46414f;margin:3px 0}
+.sd-resume-detail-card .sd-education-level,.sd-resume-detail-card .sd-education-year{font-size:13px;color:#87828f}
+.sd-education-level{font-style:italic}
+.sd-resume-languages{list-style:none;padding:0;margin:0}
+.sd-resume-languages li{font-size:14px;line-height:1.7;margin-bottom:8px;color:#383340}
+.sd-resume-languages strong{font-weight:650}
+.sd-resume-document .sd-preview-skills span{font-size:13px;padding:6px 10px}
+.sd-resume-document .sd-resume-about{margin-bottom:0}
+.sd-resume-document .sd-resume-about p{font-size:15px;line-height:1.75;color:#383340}
+.sd-resume-document .sd-resume-missing{font-size:14px;line-height:1.65;color:#87828f}
+.sd-preview-ats-history{border-top:1px solid #eae4f2}
 .sd-preview-consent{display:flex;align-items:center;gap:9px;padding:11px 13px;border:1px solid #e2ecbd;background:#f4f9e5;border-radius:10px;color:#768951;font-size:12px}
 .sd-preview-consent .sd-icon{width:16px;height:16px}
 .sd-profile-process{display:flex;align-items:center;gap:10px;justify-content:space-between;border:1px solid #e6d8f1;border-radius:10px;padding:11px 12px;margin-top:8px;background:#faf6ff}
