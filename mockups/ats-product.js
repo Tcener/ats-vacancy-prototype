@@ -351,18 +351,33 @@
 
   function render(){
     const route=location.hash.slice(1)||'search';
-    const exactCandidateRoute=route==='vacancy/android';
+    const searchCandidateContext=window.SearchCandidateHandoff?.forRoute(route);
+    const exactCandidateRoute=route==='vacancy/android'||!!searchCandidateContext;
     const exactCandidateFrame=document.querySelector('#candidate-reference-frame');
     const exactAnalyticsFrame=document.querySelector('#analytics-reference-frame');
+    const exactSearchFrame=document.querySelector('#search-reference-frame');
     const exactAnalyticsRoute=route==='analytics'&&!!exactAnalyticsFrame;
+    const exactSearchRoute=route==='search'&&!!exactSearchFrame;
     document.body.classList.toggle('candidate-reference-route',exactCandidateRoute);
     document.body.classList.toggle('analytics-reference-route',exactAnalyticsRoute);
+    document.body.classList.toggle('search-reference-route',exactSearchRoute);
+    if(exactCandidateFrame)exactCandidateFrame.hidden=!exactCandidateRoute;
     if(exactAnalyticsFrame)exactAnalyticsFrame.hidden=!exactAnalyticsRoute;
+    if(exactSearchFrame)exactSearchFrame.hidden=!exactSearchRoute;
+    if(exactSearchRoute){
+      document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
+      if(!stagePanel.hidden)closeStagePanel();
+      if(!exactSearchFrame.getAttribute('src'))exactSearchFrame.src='search-dev-current.html?public=c628448b92ae';
+      return;
+    }
     if(exactCandidateRoute){
       exactCandidateFrame.hidden=false;
       const prepareCandidateFrame=()=>{
         window.CandidateNavigation?.mount(exactCandidateFrame,{
-          vacancyId:'android',vacancyName:vacancies.android.name,navigate:routeTo
+          vacancyId:searchCandidateContext?.vacancyId||'android',
+          vacancyName:searchCandidateContext?.vacancyName||vacancies.android.name,
+          searchCandidate:searchCandidateContext?.candidate,
+          stage:searchCandidateContext?.stage,navigate:routeTo
         });
       };
       if(!exactCandidateFrame.getAttribute('src')){
