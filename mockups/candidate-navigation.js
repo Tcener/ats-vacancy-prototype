@@ -8,10 +8,13 @@ window.CandidateNavigation = (() => {
   const vacancyMenu = ['Senior Android-разработчик','Senior Product Designer','Data Analyst','Backend-разработчик Go','Senior iOS-разработчик'];
   const tabs = [['resume','Резюме'],['history','История и комментарии'],['ai','ИИ-инструменты'],['chat','Переписка']];
   const styles = `
-    .cn-vacancy-title{display:inline-flex;align-items:center;min-height:46px;margin:-10px -14px!important;padding:9px 14px;border:1px solid #ded7f7;border-radius:14px;background:#fff;cursor:pointer;transition:background-color .16s,color .16s}
+    .cn-vacancy-header{justify-content:flex-start!important;gap:12px!important;padding:8px 14px!important}
+    .cn-vacancy-title{display:inline-flex;align-items:center;flex:0 1 auto;max-width:100%;min-height:46px;margin:0!important;padding:9px 14px;border:1px solid #ded7f7;border-radius:14px;background:#fff;cursor:pointer;transition:background-color .16s,color .16s}
     .cn-vacancy-title:hover{background:#f7f5fd;border-color:#cfc5f2;color:#5137c6}
+    .cn-vacancy-settings{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:none;min-height:42px;padding:10px 15px;border:1px solid #ded3ff;border-radius:13px;background:#f0eaff;color:#5137c6;font:700 14px/1.25 'Manrope',system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:background-color .16s,border-color .16s}
+    .cn-vacancy-settings svg{width:18px;height:18px;flex:none}.cn-vacancy-settings:hover{background:#e7ddff;border-color:#b9a3f4}
     aside[aria-label="Основная навигация"] a[data-cn-route^="vacancy/"]{color:#d9d9de!important;background:transparent!important;font-weight:500!important}aside[aria-label="Основная навигация"] a.cn-nav-current{color:#fff!important;background:rgba(255,255,255,.11)!important;font-weight:700!important}
-    .cn-vacancy-title:focus-visible,.cn-candidate-row:focus-visible,.cn-tab:focus-visible{outline:3px solid rgba(106,75,224,.3);outline-offset:3px}
+    .cn-vacancy-title:focus-visible,.cn-vacancy-settings:focus-visible,.cn-candidate-row:focus-visible,.cn-tab:focus-visible{outline:3px solid rgba(106,75,224,.3);outline-offset:3px}
     .cn-funnel{display:flex!important;align-items:center!important;gap:2px!important;max-width:100%!important;padding:8px 12px 10px!important;overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:thin;scrollbar-color:#d8d2ea transparent}
     .cn-stage{display:inline-flex;flex:0 0 auto;align-items:center;gap:5px;min-height:34px;padding:0 7px;border:0;border-radius:10px;background:transparent;color:#1b1a20;font:700 11.5px/1.2 'Manrope',system-ui,sans-serif;white-space:nowrap;cursor:pointer}
     .cn-stage:hover{background:#f0edf8;color:#5137c6}.cn-stage.active{background:#6a4be0;color:#fff;box-shadow:0 4px 10px rgba(106,75,224,.2)}
@@ -32,6 +35,16 @@ window.CandidateNavigation = (() => {
       title.setAttribute('role', 'button'); title.tabIndex = 0;
       title.setAttribute('title', 'Открыть сведения и настройки вакансии');
       title.setAttribute('aria-label', `Настройки вакансии ${context.vacancyName}`);
+      title.parentElement.classList.add('cn-vacancy-header');
+      let settings = doc.querySelector('.cn-vacancy-settings');
+      if (!settings) {
+        settings = doc.createElement('button');
+        settings.type = 'button'; settings.className = 'cn-vacancy-settings';
+        settings.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="m10 2-.5 3-2 .9L4.8 4.8 2.8 8.2 5 10v4l-2.2 1.8 2 3.4L7.5 18l2 .9.5 3h4l.5-3 2-.9 2.7 1.2 2-3.4L19 14v-4l2.2-1.8-2-3.4-2.7 1.1-2-.9-.5-3z"/></svg><span>Настройки вакансии</span>';
+        title.after(settings);
+      }
+      settings.dataset.cnRoute = `vacancy/${context.vacancyId}/edit`;
+      settings.setAttribute('title', `Открыть настройки вакансии «${context.vacancyName}»`);
     }
     const vacancyAnchors = [...doc.querySelectorAll('section[aria-label="Мои вакансии"] > a')].filter(link => link.textContent.trim() !== 'Архив');
     vacancyAnchors.slice(0, vacancyMenu.length).forEach((link, index) => {
@@ -43,7 +56,7 @@ window.CandidateNavigation = (() => {
       if (!route) return;
       link.dataset.cnRoute = route;
       link.classList.toggle('cn-nav-current', route === `vacancy/${context.vacancyId}`);
-      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=b30f98548b33#${route}`, state.frame.ownerDocument.location.href).href;
+      link.href = new URL(route === 'dashboard' ? 'dashboard.html?public=509f70c12929' : `ats-product.html?public=fb8485e08a2a#${route}`, state.frame.ownerDocument.location.href).href;
       link.target = '_top';
     });
   }

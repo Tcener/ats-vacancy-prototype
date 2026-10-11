@@ -273,8 +273,12 @@ button.detail-block h3{font-size:14px}.detail-block h3{margin:0 0 8px;font-size:
 .previous-application summary>div>b{font-size:13px}.previous-application summary small,.previous-application summary>span{font-size:11px}
 
 /* Вакансия: компактная шапка и отдельная точка входа в AI-автоматизации. */
-.vacancy-head.compact{justify-content:space-between;padding:6px 14px 6px 0}
-.vacancy-name-button{width:auto;min-width:0;flex:1}
+.vacancy-head.compact{justify-content:flex-start;flex-wrap:wrap;gap:10px;padding:6px 14px}
+.vacancy-name-button{width:auto;max-width:100%;min-width:0;flex:0 1 auto;padding:10px}
+.vacancy-settings-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:none;min-height:42px;padding:10px 15px;border:1px solid #ded3ff;border-radius:13px;background:#f0eaff;color:#5137c6;font:700 14px/1.25 'Manrope',system-ui,sans-serif;white-space:nowrap;cursor:pointer}
+.vacancy-settings-button svg{width:18px;height:18px;flex:none}.vacancy-settings-button:hover{background:#e7ddff;border-color:#b9a3f4}
+.vacancy-settings-button:focus-visible{outline:3px solid rgba(106,75,224,.3);outline-offset:3px}
+.vacancy-head.compact>[data-action="ai-vacancy-automation"]{margin-left:auto}
 .vacancy-ai-button{height:38px;display:flex;align-items:center;gap:8px;flex:none;padding:0 14px;border:1px solid #b9abe5;border-radius:10px;background:#f5f0ff;color:var(--accent-dark);font-size:13px;font-weight:700;white-space:nowrap}
 .vacancy-ai-button span{width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:var(--accent);color:#fff;font-size:9px}
 .vacancy-ai-button:hover{border-color:var(--accent);background:#ebe4ff}
