@@ -328,7 +328,7 @@
   }
 
   const VACANCY_AI_FUNNELS={
-    it:{name:'Стандартная воронка IT',description:'Для продуктовых и инженерных ролей',stages:['Отклик','Новый Кандидат','Скоринг','Чат-бот','HR интервью','Техническое интервью','финальное интервью','Оффер','Выход','Отказ']},
+    it:{name:'Стандартная воронка IT',description:'Для продуктовых и инженерных ролей',stages:['Отклик','Новый кандидат','Скоринг','Чат-бот','HR интервью','Техническое интервью','Финальное интервью','Оффер','Выход','Отказ']},
     backoffice:{name:'Стандартная воронка Бэкофис',description:'Для административных и поддерживающих функций',stages:['Отклик','Новый кандидат','Скрининг','HR интервью','Интервью с руководителем','Проверка службы безопасности','Оффер','Выход','Отказ']},
     executive:{name:'Стандартная воронка Executive Search',description:'Для руководителей и точечного поиска',stages:['Отклик','Long list','Первичный контакт','Short list','Интервью с партнёром','Интервью с клиентом','Проверка рекомендаций','Оффер','Выход','Отказ']},
     mass:{name:'Масс подбор',description:'Для массовых вакансий с высокой скоростью обработки',stages:['Отклик','Новый кандидат','Автоскрининг','Чат-бот','Групповое интервью','Проверка документов','Оффер','Выход','Отказ']}
@@ -419,7 +419,7 @@
     const local=seedCandidateOverrides.has(id)?null:window.CreationStore?.forRoute('vacancy/'+id);
     const handoff=seedCandidateOverrides.has(id)?null:window.SearchCandidateHandoff?.forRoute('vacancy/'+id);
     const selected=local||handoff;
-    return {vacancyId:id,vacancyName:vacancies[id]?.name||selected?.vacancyName||vacancies.android.name,candidate:selected?.candidate||null,stage:selected?.stage||'Техническое собеседование',localCandidates:window.CreationStore?.records(id)||[],pipeline:creationCatalog().find(v=>v.id===id)?.stages||[],navigate:routeTo,
+    return {vacancyId:id,vacancyName:vacancies[id]?.name||selected?.vacancyName||vacancies.android.name,candidate:selected?.candidate||null,stage:selected?.stage||'Техническое интервью',localCandidates:window.CreationStore?.records(id)||[],pipeline:creationCatalog().find(v=>v.id===id)?.stages||[],navigate:routeTo,
       selectLocalCandidate:candidateId=>{if(window.CreationStore?.select(candidateId,id)){seedCandidateOverrides.delete(id);render();}},
       leaveLocalCandidate:()=>{seedCandidateOverrides.add(id);window.CreationStore?.clearSelection();}};
   }
@@ -450,7 +450,7 @@
       if(vacancyId)activeVacancyId=vacancyId;
       document.querySelectorAll('body > dialog[open]').forEach(dialog=>dialog.close());
       if(!stagePanel.hidden)closeStagePanel();
-      if(!colleagueFrame.getAttribute('src'))colleagueFrame.src='colleague-current.html?public=895518571f87';
+      if(!colleagueFrame.getAttribute('src'))colleagueFrame.src='colleague-current.html?public=5a008280ae79';
       else colleagueFrame.contentWindow?.dispatchEvent(new Event('colleague-context-refresh'));
       return;
     }

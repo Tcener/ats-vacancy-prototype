@@ -42,13 +42,56 @@
     catalog().forEach(v=>{const title=v.title || v.name;if(!title || known.has(title))return;known.add(title);const date=new Date(v.createdAt || Date.now()),start=Number.isNaN(date.getTime())?'11.10':String(date.getDate()).padStart(2,'0')+'.'+String(date.getMonth()+1).padStart(2,'0');rows.push([title,v.department || 'Не указано',v.grade || 'Middle',v.recruiter || '—',v.recruiter && v.recruiter!=='Не назначен'?'work':'assign',Number(v.positions)||0,Number(v.hires)||0,0,Number(v.candidateCount)||0,Number(v.priority)||2,Number(v.progress)||0,Number(v.slaLeft)||0,start]);});
     return rows;
   }
-  function candidateStages(self, fallback) {const p=profile(self),ctx=self.__bridgeContext || context();return p.createdLocally && ctx.pipeline?.length ? ctx.pipeline.filter(s=>s.enabled!==false && s.disabled!==true).map(s=>s.label || s.name).filter(Boolean) : fallback;}
+  const DEFAULT_STAGES = ['Отклик','Новый кандидат','Скоринг','Чат-бот','HR интервью','Техническое интервью','Финальное интервью','Оффер','Выход','Отказ'];
+  const STAGE_ALIASES = {'новые':'Новый кандидат','скрининг':'Скоринг','скоринг резюме':'Скоринг','техническое собеседование':'Техническое интервью','оценка заказчиком':'Финальное интервью','интервью с заказчиком':'Финальное интервью','выход на работу':'Выход','ожидание выхода':'Выход','hr-интервью':'HR интервью'};
+  function candidateStages(self) {
+    const ctx=self.__bridgeContext || context();
+    const labels=ctx.pipeline?.length ? ctx.pipeline.filter(s=>s.enabled!==false && s.disabled!==true).map(s=>s.label || s.name).filter(Boolean) : DEFAULT_STAGES;
+    const canonical=labels.map(label=>DEFAULT_STAGES.find(x=>x.toLocaleLowerCase('ru')===text(label).toLocaleLowerCase('ru')) || label);
+    return canonical.filter((label,i)=>canonical.indexOf(label)===i);
+  }
+  // Старые события не переписываются: совместимое название меняется только при показе.
+  function normalizeStage(label,self) {
+    const value=text(label).trim(),labels=candidateStages(self);
+    if(labels.includes(value))return value;
+    const folded=value.toLocaleLowerCase('ru'),same=labels.find(x=>text(x).toLocaleLowerCase('ru')===folded);
+    if(same)return same;
+    const target=STAGE_ALIASES[folded];return target && labels.includes(target) ? target : value;
+  }
+  function funnelScope(self,ctx=self.__bridgeContext || context()) {
+    const s=self.state || {},saved=s.bridgeFunnelScopes?.[ctx.vacancyId];
+    if(saved)return saved;
+    return {moved:!s.bridgeVacancyId || s.bridgeVacancyId===ctx.vacancyId ? s.cMoved || {} : {},previousMoved:s.cPrevMoved || null,msg:s.cMsg || '',selected:s.cSel || [],filter:''};
+  }
+  function saveFunnelScope(self,ctx,change,patch={}) {
+    const s=self.state || {},value=Object.assign({},funnelScope(self,ctx),change);
+    self.setState(Object.assign({},patch,{bridgeFunnelScopes:Object.assign({},s.bridgeFunnelScopes || {},{[ctx.vacancyId]:value})}));
+  }
+  function seedStage(self,index,ctx=self.__bridgeContext || context()) {
+    const s=self.state || {},key=ctx.vacancyId+':seed-'+index,moved=funnelScope(self,ctx).moved || {};
+    if(Object.prototype.hasOwnProperty.call(moved,index))return normalizeStage(moved[index],self);
+    const events=s.bridgeCandidateKey===key ? s.extra : s.__candidateStates?.[key]?.extra;
+    const latest=(events || []).filter(e=>e.k==='stage').slice(-1)[0]?.to;
+    if(latest)return normalizeStage(latest,self);
+    const initial=normalizeStage((!ctx.candidate && ctx.stage) || 'Техническое интервью',self),labels=candidateStages(self);
+    if(labels.includes(initial))return initial;
+    // Начальный этап синтетического демо должен существовать и в иной воронке.
+    const first=(ctx.pipeline || []).find(stage=>stage.enabled!==false && stage.disabled!==true && !stage.terminal);
+    return normalizeStage(first?.label || first?.name || labels[0] || initial,self);
+  }
+  function currentStage(self) {
+    const ctx=self.__bridgeContext || context(),s=self.state || {};
+    if(!ctx.candidate)return seedStage(self,s.bridgeCandidateIndex || 0,ctx);
+    const process=(ctx.candidate.processes || []).find(x=>x.vacancyId===ctx.vacancyId);
+    const latest=(s.extra || []).filter(e=>e.k==='stage').slice(-1)[0]?.to;
+    return normalizeStage(latest || process?.stage || ctx.stage || 'Техническое интервью',self);
+  }
   function context() {
     let ctx = null; try { ctx = parentAPI()?.candidateContext?.(); } catch (_) {}
     const m = /^vacancy\/([a-z0-9-]+)$/.exec(routeNow());
     const id = ctx?.vacancyId || m?.[1] || active?.state?.bridgeVacancyId || 'android';
     const v = catalog().find(v => v.id === id);
-    return Object.assign({vacancyId:id, vacancyName:v?.title || v?.name || 'Senior Android-разработчик', pipeline:v?.stages || [], stage:'Техническое собеседование', localCandidates:[]}, ctx || {});
+    return Object.assign({vacancyId:id, vacancyName:v?.title || v?.name || 'Senior Android-разработчик', pipeline:v?.stages || [], stage:'Техническое интервью', localCandidates:[]}, ctx || {});
   }
   const PAGE_ROUTES = {home:'dashboard', tasks:'tasks', req:'requisitions', analytics:'analytics'};
   function route(value, event) {
@@ -97,6 +140,13 @@
       const key = scopeKey(Object.assign({}, state, patch), ctx);
       if (key !== state.bridgeCandidateKey) patch = switchScope(patch, state, key);
     }
+    // Изменённые значения берём из patch, не из ещё не обновлённого this.state:
+    // React пакетирует массовый перевод и отмену, поэтому немедленное чтение устаревает.
+    if (!('bridgeFunnelScopes' in patch) && ['cMoved','cPrevMoved','cMsg','cSel'].some(k=>k in patch)) {
+      const ctx=context(),id=state.bridgeVacancyId || ctx.vacancyId,merged=Object.assign({},state,patch);
+      const saved=state.bridgeFunnelScopes?.[id] || {};
+      patch.bridgeFunnelScopes=Object.assign({},state.bridgeFunnelScopes || {},{[id]:Object.assign({},saved,{moved:merged.cMoved || {},previousMoved:merged.cPrevMoved || null,msg:merged.cMsg || '',selected:merged.cSel || []})});
+    }
     return patch;
   }
   function connect(self) {
@@ -105,7 +155,14 @@
     self.__bridgeContext = ctx;
     const patch = {};
     if (self.state?.page !== pageForRoute(r)) patch.page = pageForRoute(r);
-    if (self.state?.bridgeVacancyId !== ctx.vacancyId) patch.bridgeVacancyId = ctx.vacancyId;
+    const previous=self.state?.bridgeVacancyId || ctx.vacancyId,scopes=Object.assign({},self.state?.bridgeFunnelScopes || {});
+    scopes[previous]=Object.assign({},scopes[previous] || {},{moved:self.state?.cMoved || {},previousMoved:self.state?.cPrevMoved || null,msg:self.state?.cMsg || '',selected:self.state?.cSel || []});
+    if (self.state?.bridgeVacancyId !== ctx.vacancyId) {
+      const target=scopes[ctx.vacancyId] || {moved:{},previousMoved:null,msg:'',selected:[],filter:''};
+      Object.assign(patch,{bridgeVacancyId:ctx.vacancyId,cMoved:target.moved || {},cPrevMoved:target.previousMoved || null,cMsg:target.msg || '',cSel:target.selected || [],cBulkDD:false});
+      scopes[ctx.vacancyId]=target;
+    }
+    patch.bridgeFunnelScopes=scopes;
     if (/^vacancy\/[a-z0-9-]+$/.test(r) && self.state?.bridgeCandidateKey !== key) Object.assign(patch, switchScope({}, self.state || {}, key));
     if (r === 'create/requisition' && self.__bridgeRoute !== r) Object.assign(patch,{rq_view:'tpl',rq_f:{},rq_editId:null,rq_step:1,rq_files:[]});
     self.__bridgeRoute = r;
@@ -146,7 +203,7 @@
     p.ageLabel = p.age ? text(p.age).replace(/\s*(года?|лет)$/, '') + ' лет' : 'Не указан';
     p.phoneLabel = p.phone || 'Не указан'; p.emailLabel = p.email || 'Не указана'; p.cityLabel = p.city || 'Не указан'; p.salaryLabel = p.salary || 'Не указана';
     p.workModeLabel = p.workMode || 'Не указан'; p.experienceLabel = p.experienceYears ? p.experienceYears + ' лет' : 'по резюме';
-    p.stage = process?.stage || ctx.stage || 'Техническое собеседование'; p.vacancyName = ctx.vacancyName;
+    p.stage = ctx.candidate ? normalizeStage(process?.stage || ctx.stage || 'Техническое интервью',self) : seedStage(self,i,ctx); p.vacancyName = ctx.vacancyName;
     p.primaryDemo = !ctx.candidate && i === 0;
     p.plain = !p.primaryDemo;
     p.tags = Array.isArray(p.tags) ? p.tags : [];
@@ -177,19 +234,45 @@
     out.cs = Object.assign({}, values.cs); out.cv = Object.assign({},values.cv);
     const list = seeds();
     list.slice(0,17).forEach((person,i) => {out.cs['name'+i]=person.name;out.cs['position'+i]=person.position || person.role;out.cs['meta'+i]=person.company || '';out.cs['photo'+i]=person.photo || '';out.cs['go'+i]=() => {ctx.leaveLocalCandidate?.(); const seen=(self.state.cSeen || [0,1,2,4,5,7,9,11,13,15]); self.__bridgeContext=Object.assign({},ctx,{candidate:null});self.setState({bridgeCandidateIndex:i, cSeen:seen.includes(i)?seen:seen.concat(i)});}; out.cs['row'+i]='cursor:pointer;display:flex;gap:12px;padding:14px 18px;border-top:1px solid #F0EEF5;background:' + (!ctx.candidate && i === (s.bridgeCandidateIndex || 0) ? '#F6F4FC;box-shadow:inset 4px 0 0 #6A4BE0' : '#FFFFFF');});
-    out.localCandidates = (ctx.localCandidates || []).map(r => ({name:r.candidate.name,position:r.candidate.position,stage:r.stage,go:() => ctx.selectLocalCandidate?.(r.candidate.id)}));
+    const localRows=(ctx.localCandidates || []).slice();
+    if(ctx.candidate && !localRows.some(r=>r.candidate?.id===ctx.candidate.id))localRows.push({candidate:ctx.candidate,stage:currentStage(self)});
+    const labels=candidateStages(self),scope=funnelScope(self,ctx),stageFilter=labels.includes(normalizeStage(scope.filter,self)) ? normalizeStage(scope.filter,self) : '';
+    out.localCandidates = localRows.map(r => ({id:r.candidate.id,name:r.candidate.name,position:r.candidate.position,stage:normalizeStage(r.candidate.id===ctx.candidate?.id ? currentStage(self) : r.stage,self),go:() => ctx.selectLocalCandidate?.(r.candidate.id)})).filter(r=>!stageFilter || r.stage===stageFilter);
     out.showSeedCandidates = !ctx.vacancyId?.startsWith('draft-') && (!ctx.candidate || ctx.candidate.createdLocally);
-    if (!out.showSeedCandidates) for(let i=0;i<17;i++) out.cv['c'+i]=false;
+    const pool=[];
+    list.slice(0,17).forEach((person,i)=>{
+      const stage=seedStage(self,i,ctx);if(out.showSeedCandidates)pool.push({id:person.id,stage});
+      out.cv['c'+i]=out.showSeedCandidates && out.cv['c'+i]!==false && (!stageFilter || stage===stageFilter);
+      out.cs['mv'+i]=!!(scope.moved && Object.prototype.hasOwnProperty.call(scope.moved,i));out.cs['mvTo'+i]=stage;
+    });
+    localRows.forEach(r=>{if(!pool.some(x=>x.id===r.candidate.id))pool.push({id:r.candidate.id,stage:normalizeStage(r.candidate.id===ctx.candidate?.id ? currentStage(self) : r.stage,self)});});
+    out.funnelTabs=['',...labels].map(label=>({label:label || 'Все',count:label ? pool.filter(r=>r.stage===label).length : pool.length,selected:label===stageFilter,
+      style:label===stageFilter?'background:#6A4BE0;color:#FFFFFF;border-color:#6A4BE0':label==='Отказ'?'background:#FFFFFF;color:#A52760;border-color:#ECD5E0':label==='Выход'?'background:#FFFFFF;color:#1F7A4D;border-color:#DCEEE4':'background:#FFFFFF;color:#2C2A35;border-color:#E9E5F2',
+      pick:event=>{event?.preventDefault?.();saveFunnelScope(self,ctx,{filter:label,selected:[]},{cSel:[],cBulkDD:false});}}));
+    out.cVis=list.slice(0,17).map((_,i)=>i).filter(i=>out.cv['c'+i]);
+    const selected=s.cSel || [],allSelected=out.cVis.length>0 && out.cVis.every(i=>selected.includes(i)),someSelected=!allSelected && selected.length>0;
+    out.cAllOn=allSelected;out.cSomeOn=someSelected;out.cvEmpty=!out.cVis.length && !out.localCandidates.length;
+    out.cSelAllSt='flex:none;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;padding:0;box-sizing:border-box;border-radius:5px;cursor:pointer;'+(allSelected || someSelected?'background:#151716;border:1.5px solid #151716':'background:#FEFEFC;border:1.5px solid #CFCBDB');
+    out.cSelAll=()=>{const next=allSelected?[]:out.cVis.slice();saveFunnelScope(self,ctx,{selected:next},{cSel:next,cBulkDD:false});};
     out.toggleEdit = () => self.setState({editing:true,bridgeEditDraft:{}});
     out.cancelEdit = () => self.setState({editing:false,bridgeEditDraft:null});
     out.saveEdit = () => {const edit=Object.assign({},s.bridgeEditDraft || {}), bank=Object.assign({},s.bridgeProfileEdits || {},{[p.id]:Object.assign({},s.bridgeProfileEdits?.[p.id] || {},edit)});self.setState({editing:false,bridgeEditDraft:null,bridgeProfileEdits:bank});};
-    out.curStage = (s.extra || []).filter(e => e.k === 'stage').slice(-1)[0]?.to || p.stage;
+    out.curStage = currentStage(self);
     out.stageError=s.bridgeStageError || '';
-    if(p.createdLocally){
-      const enabled=(ctx.pipeline || []).filter(stage=>stage.enabled!==false && stage.disabled!==true);
-      const commitStage=(label,action)=>{const stage=enabled.find(stage=>(stage.label || stage.name)===label);if(!stage){self.setState({bridgeStageError:'Выбранный этап недоступен в текущей воронке.'});return false;}const result=parentAPI()?.updateCandidateStage?.(p.id,{vacancyId:ctx.vacancyId,stageId:stage.id});if(!result?.ok){self.setState({bridgeStageError:result?.error || 'Этап не сохранён. Попробуйте ещё раз.'});return false;}self.__bridgeContext=context();action?.();self.setState({bridgeStageError:''});return true;};
-      out.confirmStage=()=>{const stage=values.stageList?.[Number(s.stSel)];if(!stage)return;commitStage(stage.label,values.confirmStage);};
-      out.confirmRej=()=>{if(s.rejIdx==null || s.rejIdx<0){values.confirmRej?.();return;}const rejection=enabled.find(stage=>/отказ/i.test(stage.label || stage.name || '') || /reject|refus/i.test(stage.id));if(!rejection){self.setState({bridgeStageError:'В текущей воронке нет доступного этапа отказа.'});return;}if(commitStage(rejection.label || rejection.name,values.confirmRej)){const events=(self.state.extra || []).slice();if(events.at(-1)?.k==='stage')events[events.length-1]=Object.assign({},events.at(-1),{to:rejection.label || rejection.name});self.setState({extra:events});}};
+    const enabled=(ctx.pipeline || []).filter(stage=>stage.enabled!==false && stage.disabled!==true);
+    const commitStage=(label,action)=>{
+      const normalized=normalizeStage(label,self),stage=enabled.find(stage=>normalizeStage(stage.label || stage.name,self)===normalized);
+      if(!labels.includes(normalized)){self.setState({bridgeStageError:'Выбранный этап недоступен в текущей воронке.'});return false;}
+      if(p.createdLocally){const result=stage && parentAPI()?.updateCandidateStage?.(p.id,{vacancyId:ctx.vacancyId,stageId:stage.id});if(!result?.ok){self.setState({bridgeStageError:result?.error || 'Этап не сохранён. Попробуйте ещё раз.'});return false;}self.__bridgeContext=context();}
+      action?.();
+      if(!ctx.candidate){const moved=Object.assign({},funnelScope(self,ctx).moved || {},{[s.bridgeCandidateIndex || 0]:normalized});saveFunnelScope(self,ctx,{moved},{cMoved:moved,bridgeStageError:''});}
+      else self.setState({bridgeStageError:''});
+      return true;
+    };
+    out.confirmStage=()=>{const stage=values.stageList?.[Number(s.stSel)];if(!stage)return;commitStage(stage.label,values.confirmStage);};
+    out.confirmRej=()=>{if(s.rejIdx==null || s.rejIdx<0){values.confirmRej?.();return;}const rejection=enabled.find(stage=>/отказ/i.test(stage.label || stage.name || '') || /reject|refus/i.test(stage.id));const label=rejection?.label || rejection?.name || (labels.includes('Отказ')?'Отказ':'');if(!label){self.setState({bridgeStageError:'В текущей воронке нет доступного этапа отказа.'});return;}if(commitStage(label,values.confirmRej))self.setState(state=>{const events=(state.extra || []).slice();if(events.at(-1)?.k==='stage')events[events.length-1]=Object.assign({},events.at(-1),{to:label});return {extra:events};});};
+    if(values.cBulk){
+      out.cBulk=Object.assign({},values.cBulk,{opts:(values.cBulk.opts || []).filter((option,i,array)=>labels.includes(option.label) && array.findIndex(x=>x.label===option.label)===i)});
     }
     const allTags=p.tags.concat(s.tagsOn || []).filter((x,i,a)=>a.indexOf(x)===i);
     function toggleTag(label) {const remove=allTags.includes(label); const base=p.tags.filter(x=>!remove || x!==label); const edits=Object.assign({},s.bridgeProfileEdits || {},{[p.id]:Object.assign({},s.bridgeProfileEdits?.[p.id] || {},{tags:base})});self.setState({tagsOn:remove?(s.tagsOn||[]).filter(x=>x!==label):(s.tagsOn||[]).concat(label),bridgeProfileEdits:edits});}
@@ -248,5 +331,5 @@
     }
     return out;
   }
-  return {KEY,initialState,mount,connect,intercept,persist,decorate,profile,route,catalog,homeVacancies,candidateStages,captureRoster,delayedState,rqSave};
+  return {KEY,initialState,mount,connect,intercept,persist,decorate,profile,route,catalog,homeVacancies,candidateStages,currentStage,captureRoster,delayedState,rqSave};
 });
