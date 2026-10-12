@@ -11,9 +11,9 @@
   const C = Object.fromEntries(Object.entries(M.catalogs || {}).map(([key,value]) => [key,entries(value)]));
   const tags = entries(M.tags), vacancies = M.vacancies || [];
   const storageKey = 'sobesso-search-demo-v1';
-  const emptyResult = kind => ({started:false,resultKind:kind,page:1,aiResults:[],autoSummary:null});
+  const emptyResult = kind => ({started:false,resultKind:kind,resultPeriod:'all',page:1,aiResults:[],autoSummary:null});
   const today = new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Moscow',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-  const defaults = () => ({...M.defaultState(), mode:'base', started:false, aiPrompt:'', aiCriteria:[],aiOrigin:'ai',aiSearchConfig:{}, resultKind:'base', savedSearches:[], assignments:[], aiResults:[], autoSummary:null, autoHistory:[], autoHistoryId:'', modeResults:{base:emptyResult('base'),ai:emptyResult('ai')}, collapsed:false,sidebarWidth:232,dailyDate:today,usedToday:0,selectedCandidateId:'',selectedResumeId:'',showAiEditor:false,atsFilters:null});
+  const defaults = () => ({...M.defaultState(), mode:'base', started:false, aiPrompt:'', aiCriteria:[],aiOrigin:'ai',aiSearchConfig:{}, resultKind:'base', resultPeriod:'all', savedSearches:[], assignments:[], aiResults:[], autoSummary:null, autoHistory:[], autoHistoryId:'', modeResults:{base:emptyResult('base'),ai:emptyResult('ai')}, collapsed:false,sidebarWidth:232,dailyDate:today,usedToday:0,selectedCandidateId:'',selectedResumeId:'',showAiEditor:false,atsFilters:null});
   let state = defaults();
   try {
     const stored = JSON.parse(sessionStorage.getItem(storageKey) || 'null');
@@ -94,7 +94,7 @@
   }
   let overlay = null, returnFocus = null, toastTimer, runTimer, searchRun = null, resizeStart = null;
   const workspace = $('#sd-workspace'), results = $('#sd-results'), dialog = $('#sd-dialog');
-  const stashResult = () => {state.modeResults[state.mode] = clone({started:state.started,resultKind:state.resultKind,page:state.page,aiResults:state.aiResults,autoSummary:state.autoSummary});};
+  const stashResult = () => {state.modeResults[state.mode] = clone({started:state.started,resultKind:state.resultKind,resultPeriod:state.resultPeriod || 'all',page:state.page,aiResults:state.aiResults,autoSummary:state.autoSummary});};
   const persist = () => {stashResult(); try { sessionStorage.setItem(storageKey, JSON.stringify({version:1,state})); } catch (_) {} };
   function switchMode(mode) {selectedCandidateIds.clear();stashResult(); state.mode = mode;if (mode === 'base') state.showAiEditor = false; Object.assign(state,state.modeResults[mode] || emptyResult(mode === 'ai' ? 'ai' : 'base')); renderModes(); renderBase(); renderResults(); persist();}
   const labelFor = (catalog, id) => (C[catalog] || []).find(item => item.id === id)?.label || id;
@@ -128,13 +128,13 @@
       if (window.parent !== window) window.parent.location.href = url; else location.href = url;
     } else if (allowedRoute(route)) {
       if (window.parent !== window) window.parent.location.hash = route;
-      else location.href = `ats-product.html?public=f6f1137d9eeb#${route}`;
+      else location.href = `ats-product.html?public=f1b96ffd0e7c#${route}`;
     }
   }
   function renderSidebar() {
     const nav = [['dashboard','Главная','home'],['search','Поиск','search'],['tasks','Мои задачи','check'],['calendar','Календарь','calendar'],['analytics','Аналитика','chart'],['requisitions','Заявки','list'],['settings','Настройки','settings']];
     const sidebarVacancies = [...new Map([...vacancies.filter(vacancy => !/^draft-/.test(vacancy.id)),...createdSidebarVacancies()].map(vacancy => [vacancy.id,vacancy])).values()];
-    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=cb7a70f4cca9" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=cb7a70f4cca9' : `ats-product.html?public=f6f1137d9eeb#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${sidebarVacancies.map(vacancy => `<a href="ats-product.html?public=f6f1137d9eeb#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=f6f1137d9eeb#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><button type="button" class="sd-side-create" data-create-menu-trigger aria-label="Создать" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></button><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
+    $('#sd-sidebar').innerHTML = `<div class="sd-brand"><a href="dashboard.html?public=cb7a70f4cca9" data-sd-route="dashboard" aria-label="Собесо — главная"><img src="assets/logo-sobesso.png?public=11fd3378f3b0" alt="Собесо"></a><button type="button" class="sd-collapse" data-sd-action="collapse" aria-label="${state.collapsed ? 'Развернуть меню' : 'Свернуть меню'}" aria-expanded="${!state.collapsed}">${svg('menu')}</button></div><nav class="sd-nav">${nav.map(([route,label,icon]) => `<a href="${route === 'dashboard' ? 'dashboard.html?public=cb7a70f4cca9' : `ats-product.html?public=f1b96ffd0e7c#${route}`}" data-sd-route="${route}" title="${esc(label)}"${route === 'search' ? ' aria-current="page"' : ''}>${svg(icon)}<span class="sd-nav-label">${esc(label)}</span>${route === 'tasks' ? '<span class="sd-nav-count">7</span>' : route === 'requisitions' ? '<span class="sd-nav-count">3</span>' : ''}</a>`).join('')}</nav><section class="sd-side-vacancies"><h2>${svg('folder')} Мои вакансии</h2>${sidebarVacancies.map(vacancy => `<a href="ats-product.html?public=f1b96ffd0e7c#vacancy/${esc(vacancy.id)}" data-sd-route="vacancy/${esc(vacancy.id)}">${esc(vacancy.title)}</a>`).join('')}<a class="sd-archive" href="ats-product.html?public=f1b96ffd0e7c#portfolio" data-sd-route="portfolio">Архив</a></section><div class="sd-side-bottom"><button type="button" class="sd-side-create" data-create-menu-trigger aria-label="Создать" aria-haspopup="menu" aria-expanded="false"><span aria-hidden="true">+</span><span class="sd-create-label">Создать</span></button><div class="sd-side-footer"><span>Демонстрационный стенд</span><span>↪</span></div></div>`;
     $('#sd-shell').classList.toggle('sd-sidebar-collapsed', !!state.collapsed);
     $('#sd-shell').style.setProperty('--sd-sidebar-width',`${state.sidebarWidth || 276}px`);
     $('#sd-sidebar-resizer').setAttribute('aria-valuenow',String(state.sidebarWidth || 276));
@@ -168,13 +168,16 @@
   function queryRow(query, index) {
     return `<div class="sd-query-row${index ? '' : ' is-first'}" data-sd-row="${index}">${index ? `<select class="sd-select" aria-label="Связка строки ${index+1}" data-sd-query="join">${options(C.joins,query.join)}</select>` : ''}<input class="sd-input" aria-label="${index ? `Условие поиска ${index+1}` : 'Поисковый запрос'}" placeholder="${index ? 'Добавьте ещё одно условие' : 'Должность, навык, компания или текст из резюме'}" value="${esc(query.text)}" data-sd-query="text"><select class="sd-select" aria-label="Область поиска ${index+1}" data-sd-query="scope">${options(C.scopes,query.scope)}</select><select class="sd-select" aria-label="Условие строки ${index+1}" data-sd-query="condition">${options(C.conditions,query.condition)}</select>${index ? `<button type="button" class="sd-icon-button" data-sd-action="remove-query" data-index="${index}" aria-label="Удалить строку ${index+1}">×</button>` : button('Найти','search','primary')}</div>`;
   }
+  function periodFilter() {
+    return `<label class="sd-field sd-period-field"><span class="sd-label">Обновление резюме</span><select class="sd-select" aria-label="Период обновления резюме" data-sd-search-period>${options(C.periods,state.period)}</select></label>`;
+  }
   function renderBase() {
     if (!selectedSearchMode) {workspace.innerHTML = '';return;}
     const previousPanel = searchFlow?.mode === selectedSearchMode ? searchFlowRoot() : null;
     // Переносим тот же DOM-узел: введённые поля, TXT и асинхронный token не теряются.
     if (previousPanel) previousPanel.remove();
     const external = state.searchProvider !== 'ats';
-    const providers = `<div class="sd-provider-row" aria-label="Где искать"><span class="sd-provider-label">Где искать</span><button type="button" class="sd-provider" data-sd-action="provider" data-provider="ats" aria-pressed="${state.searchProvider !== 'hh'}"><span class="sd-provider-dot" aria-hidden="true"></span>База ATS <small>${localCandidates.length}</small></button><button type="button" class="sd-provider" data-sd-action="provider" data-provider="hh" aria-pressed="${external}"><span class="sd-provider-hh" aria-hidden="true">hh</span>hh.ru <small>Демо</small></button><div class="sd-tooltip-wrap sd-provider-sleep" tabindex="0" aria-label="Авито Работа — недоступно" aria-describedby="sd-avito-tip"><button type="button" class="sd-provider" disabled><span class="sd-provider-muted">Авито Работа</span></button><span class="sd-tooltip" role="tooltip" id="sd-avito-tip">Функционал пока спит</span></div><span class="sd-provider-note">${state.searchProvider === 'both' ? 'Общая выдача двух источников. Внешние резюме не добавляются в ATS автоматически.' : external ? 'Вымышленная выдача hh.ru. Подключение к сервису не используется.' : 'Поиск в собственной базе, с метками и историей подбора.'}</span></div>`;
+    const providers = `<div class="sd-provider-row" aria-label="Где искать"><span class="sd-provider-label">Где искать</span><button type="button" class="sd-provider" data-sd-action="provider" data-provider="ats" aria-pressed="${state.searchProvider !== 'hh'}"><span class="sd-provider-dot" aria-hidden="true"></span>База ATS <small>${localCandidates.length}</small></button><button type="button" class="sd-provider" data-sd-action="provider" data-provider="hh" aria-pressed="${external}"><span class="sd-provider-hh" aria-hidden="true">hh</span>hh.ru <small>Демо</small></button><div class="sd-tooltip-wrap sd-provider-sleep" tabindex="0" aria-label="Авито Работа — недоступно" aria-describedby="sd-avito-tip"><button type="button" class="sd-provider" disabled><span class="sd-provider-muted">Авито Работа</span></button><span class="sd-tooltip" role="tooltip" id="sd-avito-tip">Функционал пока спит</span></div>${periodFilter()}<span class="sd-provider-note">${state.searchProvider === 'both' ? 'Общая выдача двух источников. Внешние резюме не добавляются в ATS автоматически.' : external ? 'Вымышленная выдача hh.ru. Подключение к сервису не используется.' : 'Поиск в собственной базе, с метками и историей подбора.'}</span></div>`;
     if (selectedSearchMode !== 'manual') {
       workspace.innerHTML = `<section class="sd-panel sd-provider-strip">${providers}</section>${selectedSearchMode === 'ai' ? aiEditor() : ''}<section class="sd-panel sd-inline-config" id="sd-search-panel" hidden></section>`;
       if (previousPanel) searchFlowRoot().replaceWith(previousPanel);
@@ -234,10 +237,9 @@
   }
   function searchWithCreatedCandidates(input, dataset) {
     const query = M.normalizeState(input), own = dataset.filter(candidate => candidate.createdLocally), demo = dataset.filter(candidate => !candidate.createdLocally);
-    const now = Date.now(), cutoff = query.period === 'month' ? now - 30 * 86400000 : query.period === 'week' ? now - 7 * 86400000 : null;
+    const now = Date.now();
     const created = M.search({...query,queries:[M.defaultQuery()],period:'all'},own).allItems.filter(candidate => {
-      const updated = Date.parse(candidate.updatedAt);
-      return matchesCreatedQueries(candidate,query.queries) && (cutoff === null || Number.isFinite(updated) && updated >= cutoff && updated <= now);
+      return matchesCreatedQueries(candidate,query.queries) && M.matchesResumePeriod(candidate,query.period,now);
     });
     const allItems = [...M.search(query,demo).allItems,...created].sort((left,right) => (Date.parse(right.updatedAt) || 0) - (Date.parse(left.updatedAt) || 0) || String(left.id).localeCompare(String(right.id),'ru'));
     const total = allItems.length, pages = Math.max(1,Math.ceil(total / query.pageSize)), page = Math.min(query.page,pages);
@@ -276,7 +278,7 @@
     const subtitle = running ? `${runVacancy ? `${runVacancy} · ` : ''}Найдено ${state.aiResults.length} из ${searchRun.target} · оценено ${searchRun.processed}` : !state.started ? 'Резюме появятся здесь после запуска поиска' : `${runVacancy ? `${runVacancy} · ` : ''}${providerName()} — ${found.total}${runVacancy ? ` · не ниже ${state.autoHistory.find(item => item.id === state.autoHistoryId)?.threshold || 0}%` : ''}`;
     const excluded = running ? searchRun.excluded : summary?.excluded;
     const currentVacancyId = state.autoHistory.find(item => item.id === state.autoHistoryId)?.vacancyId;
-    const controls = `${state.resultKind === 'auto' && state.autoHistory.length ? select('Подборка вакансии',state.autoHistory.filter(item => item.vacancyId === currentVacancyId && (item.searchProvider || 'ats') === state.searchProvider).map(item => ({id:item.id,label:`${item.dateLabel} · ${item.results.length} из ${item.target} · от ${item.threshold}% · ${item.status}`})),state.autoHistoryId,'data-sd-history') : ''}${!ai ? select('Период обновления резюме',C.periods,state.period,'data-sd-state="period"') : ''}${select('Сортировка',ai ? [{id:'match',label:'По соответствию'}] : C.sorts,ai ? 'match' : state.sort,'data-sd-state="sort"')}${select('Размер страницы',[{id:20,label:'20 резюме'},{id:50,label:'50 резюме'}],state.pageSize,'data-sd-state="pageSize"')}`;
+    const controls = `${state.resultKind === 'auto' && state.autoHistory.length ? select('Подборка вакансии',state.autoHistory.filter(item => item.vacancyId === currentVacancyId && (item.searchProvider || 'ats') === state.searchProvider).map(item => ({id:item.id,label:`${item.dateLabel} · ${item.results.length} из ${item.target} · от ${item.threshold}% · ${item.status}`})),state.autoHistoryId,'data-sd-history') : ''}${!ai ? select('Период обновления резюме',C.periods,submittedBaseQuery.period,'data-sd-result-period') : `<p class="sd-applied-period">Обновление резюме: ${esc(M.periods[state.resultPeriod || 'all'] || M.periods.all)}</p>`}${select('Сортировка',ai ? [{id:'match',label:'По соответствию'}] : C.sorts,ai ? 'match' : state.sort,'data-sd-state="sort"')}${select('Размер страницы',[{id:20,label:'20 резюме'},{id:50,label:'50 резюме'}],state.pageSize,'data-sd-state="pageSize"')}`;
     const runNote = running ? `<div class="sd-run-progress"><div><b>${searchRun.paused ? 'Поиск на паузе' : 'Ищем подходящих'}</b><span>${state.aiResults.length} из ${searchRun.target}</span></div><progress max="${searchRun.target}" value="${state.aiResults.length}" aria-label="Сколько подходящих уже найдено"></progress>${button(searchRun.paused ? 'Продолжить' : 'Пауза','pause-run')}${button('Остановить','stop-run')}<p>Резюме появляются по мере оценки. Уже найденные не потеряются.</p><small>Локальная демонстрация · осталось ${1000-state.usedToday} оценок сегодня</small></div>` : summary && ai ? `<p class="sd-run-status">${summary.stopReason === 'datasetEnd' && summary.accepted < summary.target ? `Оценили всю демобазу (${summary.processed}). Подходящих ${summary.accepted} из ${summary.target}.` : esc(stopReason(summary.stopReason))}</p>` : '';
     results.innerHTML = `<header class="sd-results-head"><div class="sd-results-title"><h2>${esc(title)}</h2><p>${esc(subtitle)}</p></div><div class="sd-result-controls">${controls}</div></header>${excluded ? `<p class="sd-run-status">${excluded} не подошли по условиям и не включены в выдачу.</p>` : ''}${runNote}${state.started ? (found.items.length ? found.items.map(candidateResult).join('') : running ? empty('Оцениваем кандидатов…','Подходящие кандидаты появятся в выдаче по мере проверки.') : empty('Кандидаты не найдены','Попробуйте изменить запрос, область поиска или выбранные фильтры.')) : empty('Кого будем искать?','Введите должность, навык, компанию или фрагмент резюме. Или попробуйте один из вариантов умного поиска.')}${state.started && found.total ? `<footer class="sd-pagination">${button('‹','prev','',`aria-label="Назад"${found.page <= 1 ? ' disabled' : ''}`)}${Array.from({length:found.pages},(_,index) => button(String(index+1),'page',index+1 === found.page ? 'page-active' : '',`data-page="${index+1}" aria-label="Страница ${index+1}"${index+1 === found.page ? ' aria-current="page"' : ''}`)).join('')}${button('›','next','',`aria-label="Вперёд"${found.page >= found.pages ? ' disabled' : ''}`)}</footer>` : ''}`;
     if (found.items.length) {
@@ -583,13 +585,24 @@
     } catch (_) {if (searchFlow?.kind === 'resume' && searchFlow.readToken === token) renderUploadSummary(null,'Не получилось прочитать TXT. Попробуйте другой файл или деморезюме.');}
   }
   const hasBaseCondition = () => state.searchProvider !== 'ats' || state.queries.some(query => query.text.trim()) || state.employment !== 'all' || state.tags.length || state.source !== 'all' || state.period !== 'all';
+  function setSearchPeriod(period, applyToResults = false) {
+    if (!Object.prototype.hasOwnProperty.call(M.periods,period)) return;
+    state.period = period;
+    // Поле условий — черновик. Фильтр выдачи меняет только период уже запущенного
+    // ручного запроса, не подхватывая незапущенный текст или другие правки формы.
+    if (applyToResults && state.resultKind === 'base' && state.started) {
+      submittedBaseQuery = {...submittedBaseQuery,period};state.resultPeriod = period;state.page = 1;
+      selectedCandidateIds.clear();renderBase();renderResults();
+    }
+    persist();
+  }
   function runSearch(showHint = true, clearSelection = true) {
     if (!showHint && !resultsRevealed) {persist();return;}
     if (clearSelection) selectedCandidateIds.clear();
     if (searchRun && !searchRun.done) finishRun('cancelled');
     if (state.mode !== 'base') switchMode('base');
     selectedSearchMode = 'manual';resultsRevealed = true;submittedBaseQuery = M.normalizeState(state);
-    state.started = !!hasBaseCondition();state.resultKind = 'base';state.page = 1;state.autoSummary = null;
+    state.started = !!hasBaseCondition();state.resultKind = 'base';state.resultPeriod = submittedBaseQuery.period;state.page = 1;state.autoSummary = null;
     renderModes();renderBase();renderResults();persist();
     if (!state.started && showHint) toast('Введите запрос или выберите фильтр.');
   }
@@ -624,14 +637,14 @@
     renderAll();runSearch(false);
   }
   function syncRunResult(summary = null) {
-    const record = {started:true,resultKind:searchRun.kind,page:1,aiResults:clone(searchRun.items),autoSummary:summary};
+    const record = {started:true,resultKind:searchRun.kind,resultPeriod:searchRun.period,page:1,aiResults:clone(searchRun.items),autoSummary:summary};
     state.modeResults[searchRun.mode] = record;
     if (state.mode === searchRun.mode) Object.assign(state,record);
   }
   function finishRun(reason) {
     clearTimeout(runTimer); if (!searchRun) return;
     searchRun.done = true;
-    const summary = {processed:searchRun.processed,accepted:searchRun.items.length,excluded:searchRun.excluded,stopReason:reason,target:searchRun.target,vacancyId:searchRun.vacancyId,searchProvider:searchRun.searchProvider};
+    const summary = {processed:searchRun.processed,accepted:searchRun.items.length,excluded:searchRun.excluded,stopReason:reason,target:searchRun.target,vacancyId:searchRun.vacancyId,searchProvider:searchRun.searchProvider,period:searchRun.period};
     syncRunResult(summary);
     const history = state.autoHistory.find(item => item.id === state.autoHistoryId);
     if (searchRun.kind === 'auto' && history) {history.results = clone(searchRun.items); history.summary = clone(summary); history.status = reason === 'cancelled' ? 'остановлена' : 'завершена';}
@@ -651,7 +664,7 @@
       if (searchRun.items.length >= searchRun.target) {finishRun('target'); return;}
     }
     const history = state.autoHistory.find(item => item.id === state.autoHistoryId);
-    if (searchRun.kind === 'auto' && history) {history.results = clone(searchRun.items);history.summary = {processed:searchRun.processed,accepted:searchRun.items.length,excluded:searchRun.excluded,stopReason:'',target:searchRun.target,vacancyId:searchRun.vacancyId};}
+    if (searchRun.kind === 'auto' && history) {history.results = clone(searchRun.items);history.summary = {processed:searchRun.processed,accepted:searchRun.items.length,excluded:searchRun.excluded,stopReason:'',target:searchRun.target,vacancyId:searchRun.vacancyId,period:searchRun.period};}
     if (searchRun.processed >= searchRun.dataset.length) {finishRun('datasetEnd'); return;}
     if (state.usedToday >= 1000) {finishRun('dailyLimit'); return;}
     if (searchRun.processed >= 300) {finishRun('batchLimit'); return;}
@@ -665,11 +678,12 @@
     state.aiCriteria = clone(criteria);state.aiOrigin = kind;state.aiSearchConfig = {vacancyId:config.vacancyId || '',threshold:Number(config.threshold || 0),target:Number(target)};
     if (kind === 'resume') state.aiPrompt = criteria.map(criterion => criterion.text).join(', ');
     else if (kind === 'auto') state.aiPrompt = `${vacancies.find(vacancy => vacancy.id === config.vacancyId)?.title || 'Вакансия'}: ${criteria.map(criterion => criterion.text).join('; ')}`;
-    state.started = true; state.resultKind = kind; state.page = 1; state.autoSummary = null; state.aiResults = [];
-    searchRun = {criteria:clone(criteria),target:Number(target),kind,mode:'ai',searchProvider:state.searchProvider,dataset:currentDataset(),items:[],threshold:Number(config.threshold || 0),vacancyId:config.vacancyId || '',processed:0,excluded:0,prompt:kind === 'auto' || kind === 'resume' ? '' : state.aiPrompt,done:false,paused:false};
+    state.started = true; state.resultKind = kind; state.resultPeriod = state.period; state.page = 1; state.autoSummary = null; state.aiResults = [];
+    const dataset = currentDataset().filter(candidate => M.matchesResumePeriod(candidate,state.period,candidate.createdLocally ? Date.now() : M.now));
+    searchRun = {criteria:clone(criteria),target:Number(target),kind,mode:'ai',searchProvider:state.searchProvider,period:state.period,dataset,items:[],threshold:Number(config.threshold || 0),vacancyId:config.vacancyId || '',processed:0,excluded:0,prompt:kind === 'auto' || kind === 'resume' ? '' : state.aiPrompt,done:false,paused:false};
     if (kind === 'auto') {
       const timestamp = new Date(), id = `auto-${timestamp.getTime()}`;
-      state.autoHistoryId = id; state.autoHistory.unshift({id,dateLabel:timestamp.toLocaleString('ru-RU',{timeZone:'Europe/Moscow',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),threshold:searchRun.threshold,target:searchRun.target,vacancyId:searchRun.vacancyId,searchProvider:searchRun.searchProvider,status:'идёт',results:[],summary:null});
+      state.autoHistoryId = id; state.autoHistory.unshift({id,dateLabel:timestamp.toLocaleString('ru-RU',{timeZone:'Europe/Moscow',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}),threshold:searchRun.threshold,target:searchRun.target,vacancyId:searchRun.vacancyId,searchProvider:searchRun.searchProvider,period:searchRun.period,status:'идёт',results:[],summary:null});
     }
     renderModes();renderBase();renderResults();persist();runTimer = setTimeout(tickRun,220);
   }
@@ -688,7 +702,9 @@
   });
   document.addEventListener('change', event => {
     const target = event.target;
-    if (target.dataset.sdQuery) {state.queries[Number(target.closest('[data-sd-row]').dataset.sdRow)][target.dataset.sdQuery] = target.value; persist();}
+    if (target.hasAttribute('data-sd-search-period')) setSearchPeriod(target.value);
+    else if (target.hasAttribute('data-sd-result-period')) setSearchPeriod(target.value,true);
+    else if (target.dataset.sdQuery) {state.queries[Number(target.closest('[data-sd-row]').dataset.sdRow)][target.dataset.sdQuery] = target.value; persist();}
     else if (target.hasAttribute('data-sd-check-candidate')) {
       const id = target.dataset.sdCheckCandidate;if (target.checked) selectedCandidateIds.add(id);else selectedCandidateIds.delete(id);renderResults();
       [...results.querySelectorAll('[data-sd-check-candidate]')].find(node => node.dataset.sdCheckCandidate === id)?.focus?.();
@@ -717,7 +733,7 @@
       if (searchRun && !searchRun.done) finishRun('cancelled');
       const history = state.autoHistory.find(item => item.id === target.value); if (!history) return;
       selectedCandidateIds.clear();
-      state.autoHistoryId = history.id;state.searchProvider = history.searchProvider || 'ats';state.aiResults = clone(history.results); state.autoSummary = clone(history.summary); state.page = 1; state.started = true; state.resultKind = 'auto';renderBase(); renderResults(); persist();
+      state.autoHistoryId = history.id;state.searchProvider = history.searchProvider || 'ats';state.period = M.normalizeState({period:history.period || history.summary?.period}).period;state.resultPeriod = state.period;state.aiResults = clone(history.results); state.autoSummary = clone(history.summary); state.page = 1; state.started = true; state.resultKind = 'auto';renderBase(); renderResults(); persist();
     }
   });
   document.addEventListener('click', event => {

@@ -46,7 +46,7 @@ window.CreateMenu = (() => {
       }
     } catch (_) { /* В чужом frame не управляем страницей владельца. */ }
     if (/\/ats-product\.html$/.test(view.location.pathname || '')) view.location.hash = route;
-    else view.location.href = new URL(`ats-product.html?public=f6f1137d9eeb#${route}`, doc.baseURI || view.location.href).href;
+    else view.location.href = new URL(`ats-product.html?public=f1b96ffd0e7c#${route}`, doc.baseURI || view.location.href).href;
   }
 
   function install(doc = document, options = {}) {

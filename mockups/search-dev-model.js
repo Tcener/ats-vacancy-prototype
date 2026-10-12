@@ -10,7 +10,8 @@ window.SearchDevModel = (() => {
   const searchProviders = {ats: 'База ATS', hh: 'hh.ru', both: 'База ATS + hh.ru'};
   const providerCatalog = Object.entries(searchProviders).map(([id, label]) => ({id, label}));
   const employment = {all: 'Все', inprocess: 'В процессах', free: 'Свободные'};
-  const periods = {all: 'За всё время', month: 'За месяц', week: 'За неделю'};
+  const periods = {all: 'За всё время', day: 'За день', week: 'За неделю', month: 'За месяц'};
+  const periodDays = {day: 1, week: 7, month: 30};
   const sorts = {new: 'Сначала новые'};
   const tagLabels = ['Кадровый резерв', 'Рекомендация', 'На будущее', 'Повторный контакт', 'Легенда', 'Резерв', 'Для разработки', 'Собесо'];
   const tags = tagLabels.map(label => ({id: label, label}));
@@ -170,8 +171,14 @@ window.SearchDevModel = (() => {
     // Явный порядок слева направо: A И B ИЛИ C НЕ D = ((A && B) || C) && !D.
     return rows.slice(1).reduce((matched, row) => row.join === 'or' ? matched || matchQuery(candidate, row) : row.join === 'not' ? matched && !matchQuery(candidate, row) : matched && matchQuery(candidate, row), matchQuery(candidate, rows[0]));
   }
+  function matchesResumePeriod(candidate, period = 'all', reference = now) {
+    if (period === 'all') return true;
+    if (!has(periodDays, period)) return false;
+    const timestamp = typeof reference === 'number' ? reference : Date.parse(reference), updated = Date.parse(candidate?.updatedAt);
+    return Number.isFinite(timestamp) && Number.isFinite(updated) && updated >= timestamp - periodDays[period] * 86400000 && updated <= timestamp;
+  }
   function search(input = defaultState(), dataset) {
-    const state = normalizeState(input), cutoff = state.period === 'month' ? Date.parse(now) - 30 * 86400000 : state.period === 'week' ? Date.parse(now) - 7 * 86400000 : null;
+    const state = normalizeState(input);
     const selected = Array.isArray(dataset) ? state.searchProvider === 'both' ? selectResultsDataset('both', dataset, dataset) : dataset : selectResultsDataset(state.searchProvider);
     const allItems = selected.filter(candidate => {
       if (state.searchProvider !== 'both' && candidate.searchProvider && candidate.searchProvider !== state.searchProvider && !(state.searchProvider === 'ats' && candidate.importedToATS === true)) return false;
@@ -181,8 +188,7 @@ window.SearchDevModel = (() => {
       if (state.employment === 'inprocess' && !working || state.employment === 'free' && working) return false;
       if (state.source !== 'all' && candidate.source !== state.source) return false;
       if (state.tags.length) {const found = state.tags.some(tag => candidate.tags?.includes(tag)); if (state.excludeTags ? found : !found) return false;}
-      const updated = Date.parse(candidate.updatedAt);
-      if (cutoff !== null && (!Number.isFinite(updated) || updated < cutoff || updated > Date.parse(now))) return false;
+      if (!matchesResumePeriod(candidate, state.period)) return false;
       return true;
     }).slice().sort((a, b) => (Date.parse(b.updatedAt) || 0) - (Date.parse(a.updatedAt) || 0) || String(a.id).localeCompare(String(b.id), 'ru'));
     const total = allItems.length, pages = Math.max(1, Math.ceil(total / state.pageSize)), page = Math.min(state.page, pages);
@@ -437,5 +443,5 @@ window.SearchDevModel = (() => {
   }
   const validateBulkAssignment = (...args) => previewBulkAssignment(...args).errors;
   const catalogs = Object.fromEntries(Object.entries({scopes, conditions, joins, sources, searchProviders, employment, periods, sorts}).map(([key, catalog]) => [key, Object.entries(catalog).map(([id, label]) => ({id, label}))]));
-  return {now, scopes, conditions, joins, sources, searchProviders, providerCatalog, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, hhCandidates, selectResultsDataset, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, search, parseAiQuery, parseResumeQuery, scoreCandidate, defaultAutoPick, validateCriteria, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment, previewBulkAssignment, validateBulkAssignment};
+  return {now, scopes, conditions, joins, sources, searchProviders, providerCatalog, employment, periods, sorts, tags, criterionKinds, catalogs, candidates, hhCandidates, selectResultsDataset, vacancies, clone, fold, positiveInteger, defaultQuery, defaultState, normalizeState, scopeText, matchQuery, matchQueries, matchesResumePeriod, search, parseAiQuery, parseResumeQuery, scoreCandidate, defaultAutoPick, validateCriteria, validateAutoPick, simulateAutoPick, validateSavedSearch, savedQueryState, saveSnapshot, restoreSnapshot, previewAssignment, validateAssignment, previewBulkAssignment, validateBulkAssignment};
 })();

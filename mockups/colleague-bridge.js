@@ -38,8 +38,8 @@
   function routeNow() { try { return text(host.parent?.location?.hash || host.location?.hash).replace(/^#/, '') || 'dashboard'; } catch (_) { return 'dashboard'; } }
   function catalog() { try { const v = parentAPI()?.catalog?.(); return Array.isArray(v) ? v : []; } catch (_) { return []; } }
   function homeVacancies(original) {
-    const rows=(original || []).map(row=>row.slice()),known=new Set(rows.map(row=>row[0]));
-    catalog().forEach(v=>{const title=v.title || v.name;if(!title || known.has(title))return;known.add(title);const date=new Date(v.createdAt || Date.now()),start=Number.isNaN(date.getTime())?'11.10':String(date.getDate()).padStart(2,'0')+'.'+String(date.getMonth()+1).padStart(2,'0');rows.push([title,v.department || 'Не указано',v.grade || 'Middle',v.recruiter || '—',v.recruiter && v.recruiter!=='Не назначен'?'work':'assign',Number(v.positions)||0,Number(v.hires)||0,0,Number(v.candidateCount)||0,Number(v.priority)||2,Number(v.progress)||0,Number(v.slaLeft)||0,start]);});
+    const vacancies=catalog(),rows=(original || []).map(row=>{const r=row.slice(),v=vacancies.find(v=>!v.createdLocally&&(v.title||v.name)===r[0]);if(v){r[13]=v.id;if(v.status){r[4]=v.status==='на распределении'?'assign':v.status==='на паузе'?'pause':'work';r[3]=v.recruiter||'—';r[1]=v.department||r[1];}}return r;}),known=new Set(rows.map(row=>row[13]).filter(Boolean)),titles=new Set(rows.map(row=>row[0]));
+    vacancies.forEach(v=>{const title=v.title || v.name;if(!title || known.has(v.id)||(!v.createdLocally&&titles.has(title)))return;known.add(v.id);const date=new Date(v.createdAt || Date.now()),start=Number.isNaN(date.getTime())?'11.10':String(date.getDate()).padStart(2,'0')+'.'+String(date.getMonth()+1).padStart(2,'0');rows.push([title,v.department || 'Не указано',v.grade || 'Middle',v.recruiter || '—',v.status==='на распределении'?'assign':v.status==='на паузе'?'pause':v.recruiter && v.recruiter!=='Не назначен'?'work':'assign',Number(v.positions)||0,Number(v.hires)||0,0,Number(v.candidateCount)||0,Number(v.priority)||2,Number(v.progress)||0,Number(v.slaLeft)||0,start,v.id]);});
     return rows;
   }
   const DEFAULT_STAGES = ['Отклик','Новый кандидат','Скоринг','Чат-бот','HR интервью','Техническое интервью','Финальное интервью','Оффер','Выход','Отказ'];
@@ -230,6 +230,8 @@
     Object.keys(nav).forEach(k => {out[k] = e => {persist(s); route(nav[k], e);};});
     out.goCand = e => route('vacancy/' + ctx.vacancyId,e);
     out.goVacancySettings = e => {e?.stopPropagation?.();return route('vacancy/' + ctx.vacancyId + '/edit',e);};
+    out.allocationPending=catalog().find(v=>v.id===ctx.vacancyId)?.status==='на распределении';
+    out.allocateCurrent=e=>{e?.preventDefault?.();return parentAPI()?.openVacancyAllocation?.(ctx.vacancyId)||false;};
     out.vacancyNavigation = catalog().map(v => ({title:v.title || v.name, go:e => route('vacancy/' + v.id,e),style:'display:block;padding:7px 10px;border-radius:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-decoration:none;font-size:13px;color:#d9d9de;background:' + (ctx.vacancyId === v.id && s.page === 'cand' ? 'rgba(255,255,255,.11)' : 'transparent')}));
     out.cs = Object.assign({}, values.cs); out.cv = Object.assign({},values.cv);
     const list = seeds();
@@ -319,7 +321,7 @@
       out.consStatus=p.consent==='given'?'Статус: получено':p.consent==='requested'?'Статус: запрошено':'Статус: не указано';
       out.consSub_tg=p.telegram || 'Не указан';out.consSub_wa=p.whatsapp || p.phoneLabel;out.consSub_max=p.max || p.phoneLabel;out.consSub_vb=p.viber || p.phoneLabel;out.consSub_em=p.emailLabel;
     }
-    if (out.home?.rows) out.home.rows.forEach(r=>{const v=catalog().find(v=>(v.title || v.name)===r.title);r.go=e=>v ? route('vacancy/' + v.id,e) : false;if(v?.sourceRequisition)r.meta+=' · '+v.sourceRequisition;});
+    if (out.home?.rows) out.home.rows.forEach(r=>{const v=catalog().find(v=>r.vacancyId?v.id===r.vacancyId:(v.title || v.name)===r.title);r.go=e=>{e?.preventDefault?.();if(!v)return false;if(v.status==='на распределении'||r.status==='На распределении')return parentAPI()?.openVacancyAllocation?.(v.id)||false;return route('vacancy/' + v.id,e);};if(v?.sourceRequisition)r.meta+=' · '+v.sourceRequisition;});
     if(out.tasks?.rows) out.tasks.rows.forEach(row=>{if(row.taskRecord)row.open=()=>self.setState({bridgeTaskDetails:plain({title:row.title,sub:row.sub,who:row.who,due:row.taskRecord.due || 'Без срока',description:row.taskRecord.desc || 'Описание не добавлено',vacancyTitle:row.taskVacancyTitle})});});
     const task=s.bridgeTaskDetails || {}, taskVacancy=catalog().find(v=>(v.title || v.name)===task.vacancyTitle);
     out.taskDetails=Object.assign({},task,{open:!!s.bridgeTaskDetails,hasVacancy:!!taskVacancy,close:()=>self.setState({bridgeTaskDetails:null}),openVacancy:e=>{if(taskVacancy){self.setState({bridgeTaskDetails:null});route('vacancy/'+taskVacancy.id,e);}}});

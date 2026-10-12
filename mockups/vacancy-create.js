@@ -24,7 +24,7 @@ window.VacancyCreate = (() => {
   const safeId = id => typeof id === 'string' && /^draft-[a-z0-9]+(?:-[a-z0-9]+)+$/.test(id);
   const freshId = () => `draft-${Date.now().toString(36)}-${(++sequence).toString(36)}-${Math.random().toString(36).slice(2,8) || 'new'}`;
   function defaults() {return {...editor().defaults({},'new-vacancy',{}),recruiterId:'',funnelId:''};}
-  function validate(values = {}) {
+  function validate(values = {}, options = {}) {
     const errors = [];
     if (!values || typeof values !== 'object' || Array.isArray(values)) return ['Заполните сведения о новой вакансии.'];
     for (const [key,label] of [['name','название вакансии'],['department','подразделение'],['duties','обязанности'],['requirements','требования']]) if (!String(values[key] ?? '').trim()) errors.push(`Укажите ${label}.`);
@@ -32,7 +32,8 @@ window.VacancyCreate = (() => {
     if (!GRADES.includes(values.grade)) errors.push('Выберите грейд из списка.');
     if (String(values.positions ?? '').trim() === '' || !Number.isSafeInteger(Number(values.positions)) || Number(values.positions) < 1) errors.push('План найма должен быть целым числом не меньше 1.');
     if (String(values.priority ?? '').trim() === '' || ![1,2,3].includes(Number(values.priority))) errors.push('Выберите приоритет от 1 до 3.');
-    if (!RECRUITERS.some(item => item.id === values.recruiterId)) errors.push('Выберите уполномоченного рекрутера.');
+    if (!options.sourceRequisition && !RECRUITERS.some(item => item.id === values.recruiterId)) errors.push('Выберите уполномоченного рекрутера.');
+    if (options.sourceRequisition && values.recruiterId && !RECRUITERS.some(item => item.id === values.recruiterId)) errors.push('Выберите рекрутера из списка.');
     if (!FUNNELS.some(item => item.id === values.funnelId && item.published)) errors.push('Выберите опубликованную воронку.');
     return errors;
   }
@@ -49,17 +50,19 @@ window.VacancyCreate = (() => {
     ];
   }
   function build(values, options = {}) {
-    const errors = validate(values);
+    if(options.sourceRequisition && !/^REQ-\d+$/.test(options.sourceRequisition))return {ok:false,errors:['Не найдена исходная заявка.']};
+    const errors = validate(values,options);
     if (errors.length) return {ok:false,errors};
     const clean = editor().sanitize(values,1), id = options.id ?? freshId();
     if (!clean || !safeId(id)) return {ok:false,errors:['Не удалось подготовить новую вакансию. Попробуйте ещё раз.']};
     const recruiter = RECRUITERS.find(item => item.id === values.recruiterId), funnel = FUNNELS.find(item => item.id === values.funnelId);
     const timestamp = options.createdAt ?? new Date().toISOString();
-    const vacancy = {...clean,id,recruiterId:recruiter.id,recruiter:recruiter.name,funnelId:funnel.id,funnelName:funnel.name,
+    const fromRequest=!!options.sourceRequisition;
+    const vacancy = {...clean,id,recruiterId:fromRequest?'':recruiter.id,recruiter:fromRequest?'Не назначен':recruiter.name,proposedRecruiterId:fromRequest?recruiter?.id||'':'',funnelId:funnel.id,funnelName:funnel.name,
       pipeline:{templateId:funnel.id,name:funnel.name,version:funnel.version,published:true,stages:stagesFor(funnel)},
-      status:'в работе',load:0,hires:0,waiting:0,progress:0,sla:'Не рассчитан',roles:[],
-      createdAt:timestamp,startedAt:timestamp,sourceRequisition:null,approvedRequisitionVersion:null,
-      participants:[{userId:recruiter.id,name:recruiter.name,function:'Рекрутер',main:true}],history:[],publications:[],aiConfigurations:[]};
+      status:fromRequest?'на распределении':'в работе',load:0,hires:0,waiting:0,progress:0,sla:fromRequest?'Не начат':'Не рассчитан',roles:[],
+      createdAt:timestamp,startedAt:fromRequest?null:timestamp,sourceRequisition:options.sourceRequisition||null,approvedRequisitionVersion:options.approvedRequisitionVersion||null,
+      participants:fromRequest?[]:[{userId:recruiter.id,name:recruiter.name,function:'Рекрутер',main:true}],history:[],publications:[],aiConfigurations:[]};
     return {ok:true,vacancy};
   }
   // Для root-регистрации ДО первого VacancySetup.context(id). Сам context(newId)
@@ -70,15 +73,15 @@ window.VacancyCreate = (() => {
       factors:[],faq:[],searches:[],found:[],stages:clone(vacancy.pipeline.stages),structureVersion:1,
       templateId:vacancy.funnelId,templateHistory:[],autoRejectAllowed:false};
   }
-  function picker(key,label,items,current) {
-    return `<label class="field"><span>${label}</span><select data-vacancy-create-field="${key}" required><option value="">Выберите из списка</option>${items.map(item => `<option value="${item.id}"${item.id === current ? ' selected' : ''}>${esc(item.name)}${item.role ? ` · ${esc(item.role)}` : ' · опубликована, v1'}</option>`).join('')}</select></label>`;
+  function picker(key,label,items,current,required=true) {
+    return `<label class="field"><span>${label}</span><select data-vacancy-create-field="${key}"${required?' required':''}><option value="">Выберите из списка</option>${items.map(item => `<option value="${item.id}"${item.id === current ? ' selected' : ''}>${esc(item.name)}${item.role ? ` · ${esc(item.role)}` : ' · опубликована, v1'}</option>`).join('')}</select></label>`;
   }
-  function render(draft = defaults()) {
+  function render(draft = defaults(),options={}) {
     const fields = editor().render(draft,'new-vacancy',{creation:true});
     return `<section class="vacancy-create" aria-labelledby="vacancy-create-title">
-      <header class="vacancy-create-head"><div><span class="ve68-kicker">Создание вакансии</span><h1 id="vacancy-create-title">Новая вакансия</h1><p>Заполните позицию и описание, назначьте рекрутера и выберите воронку.</p></div><button type="button" class="btn" data-vacancy-create-action="cancel">Отмена</button></header>
+      <header class="vacancy-create-head"><div><span class="ve68-kicker">Создание вакансии${options.sourceRequisition?' · '+esc(options.sourceRequisition):''}</span><h1 id="vacancy-create-title">${options.sourceRequisition?'Вакансия из заявки':'Новая вакансия'}</h1><p>${options.sourceRequisition?'Проверьте сведения и воронку. Вакансия появится на распределении; участников назначите следующим шагом.':'Заполните позицию и описание, назначьте рекрутера и выберите воронку.'}</p></div><button type="button" class="btn" data-vacancy-create-action="cancel">Отмена</button></header>
       <form class="vacancy-create-form" novalidate>${fields}
-        <section class="ve68-edit-form vef-form vacancy-create-start"><section class="vef-section"><div class="vef-section-head"><span class="vef-step">03</span><div><h3>Начало работы</h3><p>Ответственный и опубликованная воронка нужны для начала подбора.</p></div><span class="vef-tag">Обязательные настройки</span></div><div class="form-grid">${picker('recruiterId','Основной рекрутер',RECRUITERS,draft.recruiterId)}${picker('funnelId','Воронка',FUNNELS,draft.funnelId)}</div><p class="vacancy-create-policy">ИИ-этапы остаются выключенными до настройки и отдельного подтверждения. Кандидатов, публикаций и пройденных этапов у новой вакансии пока нет.</p></section></section>
+        <section class="ve68-edit-form vef-form vacancy-create-start"><section class="vef-section"><div class="vef-section-head"><span class="vef-step">03</span><div><h3>${options.sourceRequisition?'Подготовка к распределению':'Начало работы'}</h3><p>${options.sourceRequisition?'Выберите опубликованную воронку. Рекрутера можно предложить сейчас или назначить при распределении.':'Ответственный и опубликованная воронка нужны для начала подбора.'}</p></div><span class="vef-tag">Настройки подбора</span></div><div class="form-grid">${picker('recruiterId',options.sourceRequisition?'Предложить рекрутера · необязательно':'Основной рекрутер',RECRUITERS,draft.recruiterId,!options.sourceRequisition)}${picker('funnelId','Воронка',FUNNELS,draft.funnelId)}</div><p class="vacancy-create-policy">ИИ-этапы остаются выключенными до настройки и отдельного подтверждения. Кандидатов, публикаций и пройденных этапов у новой вакансии пока нет.</p></section></section>
         <div class="vacancy-create-errors" data-vacancy-create-errors role="alert" hidden></div>
         <footer class="vacancy-create-footer"><p>Создание сохранит вакансию только в этом локальном макете. Объявления на площадки не отправляются.</p><div><button type="button" class="btn" data-vacancy-create-action="cancel">Отмена</button><button type="submit" class="btn primary" data-vacancy-create-action="submit">Создать вакансию</button></div></footer>
       </form></section>`;
@@ -88,7 +91,7 @@ window.VacancyCreate = (() => {
     mounted.get(container)?.destroy();
     const draft = defaults();
     if(options.initialValues&&typeof options.initialValues==='object')for(const key of [...editor().fields,'recruiterId','funnelId'])if(Object.hasOwn(options.initialValues,key))draft[key]=options.initialValues[key];
-    container.innerHTML = render(draft);
+    container.innerHTML = render(draft,options);
     let busy = false, completed = false;
     const read = () => {
       const values = {};
@@ -100,11 +103,11 @@ window.VacancyCreate = (() => {
     const controls = () => [...container.querySelectorAll('[data-vacancy-create-action]')];
     async function submit(event) {
       event?.preventDefault();if (busy || completed) return;
-      const values = read(), errors = validate(values);
+      const values = read(), errors = validate(values,options);
       if (errors.length) {showErrors(errors);container.querySelector('[data-vacancy-create-errors]')?.scrollIntoView?.({block:'nearest'});return;}
       const form = container.querySelector('.vef-form'), collected = editor().collect(form);
       if (!collected) {showErrors(['Проверьте обязательные поля и параметры найма.']);return;}
-      const result = build({...collected,recruiterId:values.recruiterId,funnelId:values.funnelId});
+      const result = build({...collected,recruiterId:values.recruiterId,funnelId:values.funnelId},{sourceRequisition:options.sourceRequisition,approvedRequisitionVersion:options.approvedRequisitionVersion});
       if (!result.ok) {showErrors(result.errors);return;}
       if (typeof options.register !== 'function') {showErrors(['Создание сейчас недоступно. Заполненные поля сохранены на экране.']);return;}
       busy = true;controls().forEach(control => {control.disabled = true;});showErrors([]);
@@ -116,7 +119,7 @@ window.VacancyCreate = (() => {
         if (!metadata.persisted) showErrors([metadata.message]);
         // Успешная регистрация уже завершена: ошибка маршрутизатора не должна
         // предлагать повторно создавать ту же сохранённую вакансию.
-        try {options.onCreated?.(result.vacancy.id,metadata);}
+        try {options.onCreated?.(registered.object?.id||result.vacancy.id,metadata);}
         catch (_) {showErrors([`${metadata.message} Не удалось открыть её автоматически — откройте вакансию из списка.`]);}
       } catch (_) {showErrors(['Не удалось сохранить вакансию. Поля оставлены на экране — попробуйте ещё раз.']);}
       finally {busy = false;if (!completed) controls().forEach(control => {control.disabled = false;});}
