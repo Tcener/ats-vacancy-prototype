@@ -163,7 +163,12 @@
   const routeTo=r=>{location.hash=r};
   function assignVacancy(id,values){
     const target=creationCatalog().find(v=>v.id===id),result=window.VacancyAllocation?.save(target,values);
-    if(result?.ok&&(!result.alreadyAssigned||vacancies[id]?.status==='на распределении')){Object.assign(vacancies[id],result.record);refreshCreatedSidebar();document.querySelector('#colleague-reference-frame')?.contentWindow?.dispatchEvent(new Event('colleague-context-refresh'));}
+    if(result?.ok&&(!result.alreadyAssigned||vacancies[id]?.status==='на распределении')){
+      Object.assign(vacancies[id],result.record);refreshCreatedSidebar();
+      // Сетевой экран ошибки iframe может иметь другой origin. Обновление
+      // его представления не должно отменять уже сохранённое назначение.
+      try{document.querySelector('#colleague-reference-frame')?.contentWindow?.dispatchEvent(new Event('colleague-context-refresh'));}catch{}
+    }
     return result||{ok:false,errors:['Распределение сейчас недоступно.']};
   }
   function openVacancyAllocation(id){

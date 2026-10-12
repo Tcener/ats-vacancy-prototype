@@ -5,7 +5,7 @@
    а страница только говорит, куда ведут ссылки и что подсвечено.
 
    base='' — внутри SPA, ссылки идут хешем;
-   base='ats-product.html?public=f1b96ffd0e7c' — с обычной страницы, ссылки уводят в SPA. */
+   base='ats-product.html?public=071f4207c546' — с обычной страницы, ссылки уводят в SPA. */
 window.Sidebar = (() => {
   const NAV = [
     { id: 'home', label: 'Главная', icon: 'home-20', href: 'dashboard.html?public=cb7a70f4cca9', route: 'dashboard' },
@@ -132,7 +132,7 @@ window.Sidebar = (() => {
   document.addEventListener('click', e => {
     if (window.CreateMenu?.isInstalled(document)) return;
     if (!e.target.closest('#create-fab') || document.getElementById('screen')) return;
-    location.href = 'ats-product.html?public=f1b96ffd0e7c#create';
+    location.href = 'ats-product.html?public=071f4207c546#create';
   });
 
   const auto = document.querySelector('[data-sidebar]');
